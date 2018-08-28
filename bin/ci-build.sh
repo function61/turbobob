@@ -1,7 +1,9 @@
 #!/bin/bash -eu
 
-curl --fail --location --output bob https://dl.bintray.com/function61/turbobob/20180828_1241_08924ed6611f4520/bob_linux-amd64
+# Download Bob and hand off the build process to it
+
+curl --fail --location --output bob https://dl.bintray.com/function61/turbobob/20180828_1449_b9d7759cf80f0b4a/bob_linux-amd64
 
 chmod +x bob
 
-./bob build
+./bob build --publish-artefacts

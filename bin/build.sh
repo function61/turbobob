@@ -54,4 +54,7 @@ run buildLinuxArm
 
 run buildLinuxAmd64
 
-run uploadBuildArtefacts
+if [ "${PUBLISH_ARTEFACTS:-''}" = "true" ]; then
+	run uploadBuildArtefacts
+fi
+
