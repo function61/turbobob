@@ -21,11 +21,11 @@ staticAnalysis() {
 }
 
 buildLinuxArm() {
-	(cd cmd/bob && GOOS=linux GOARCH=arm go build -o ../../rel/bob_linux-arm)
+	(cd cmd/bob && GOOS=linux GOARCH=arm go build -ldflags "-X main.version=$FRIENDLY_REV_ID" -o ../../rel/bob_linux-arm)
 }
 
 buildLinuxAmd64() {
-	(cd cmd/bob && GOOS=linux GOARCH=amd64 go build -o ../../rel/bob_linux-amd64)
+	(cd cmd/bob && GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=$FRIENDLY_REV_ID" -o ../../rel/bob_linux-amd64)
 }
 
 uploadBuildArtefacts() {

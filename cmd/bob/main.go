@@ -6,6 +6,8 @@ import (
 	"os"
 )
 
+var version = "dev"
+
 /*	Process
 
 	- Check out correct revision from version control
@@ -40,6 +42,14 @@ func main() {
 	rootCmd.AddCommand(buildEntry())
 	rootCmd.AddCommand(devEntry())
 	rootCmd.AddCommand(infoEntry())
+
+	rootCmd.AddCommand(&cobra.Command{
+		Use:   "version",
+		Short: "Shows version number of this app",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Printf("%s\n", version)
+		},
+	})
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
