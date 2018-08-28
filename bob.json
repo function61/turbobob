@@ -1,0 +1,11 @@
+{
+	"version_major": 1,
+	"project_name": "pism",
+	"builders": [
+		{
+			"name": "default",
+			"mount_destination": "/go/src/github.com/function61/turbobob",
+			"pass_envs": ["BINTRAY_APIKEY"]
+		}
+	]
+}

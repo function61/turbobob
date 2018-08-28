@@ -1,0 +1,66 @@
+package main
+
+import (
+	"bytes"
+	"io/ioutil"
+	"os"
+	"os/exec"
+	"strings"
+)
+
+func isDevContainerRunning(containerName string) bool {
+	result, err := exec.Command("docker", "inspect", "-f", "{{.State.Running}}", containerName).CombinedOutput()
+	if err != nil {
+		// TODO: check for other errors
+		return false
+	}
+
+	return strings.TrimRight(string(result), "\n") == "true"
+}
+
+func devContainerName(bobfile *Bobfile, builderName string) string {
+	return "bbdev-" + bobfile.ProjectName + "-" + builderName
+}
+
+func builderDockerfilePath(builderName string) string {
+	return "Dockerfile." + builderName + "-build"
+}
+
+func builderImageName(bobfile *Bobfile, builderName string) string {
+	return "bb-" + bobfile.ProjectName + "-builder-" + builderName
+}
+
+func buildBuilder(bobfile *Bobfile, builder *BuilderSpec) error {
+	dockerfileContent, err := ioutil.ReadFile(builderDockerfilePath(builder.Name))
+	if err != nil {
+		return err
+	}
+
+	imageName := builderImageName(bobfile, builder.Name)
+
+	imageBuildCmd := exec.Command("docker", "build", "-t", imageName, "-")
+	imageBuildCmd.Stdin = bytes.NewBuffer(dockerfileContent)
+	imageBuildCmd.Stdout = os.Stdout
+	imageBuildCmd.Stderr = os.Stderr
+
+	if err := imageBuildCmd.Run(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func dockerRelayEnvVars(dockerArgs []string, build *BuildMetadata, envs []string) ([]string, error) {
+	dockerArgs = append(dockerArgs, "--env", "FRIENDLY_REV_ID=" + build.FriendlyRevisionId)
+
+	for _, envKey := range envs {
+		envValue := os.Getenv(envKey)
+		if envValue == "" {
+			return nil, envVarMissingErr(envKey)
+		}
+
+		dockerArgs = append(dockerArgs, "--env", envKey)
+	}
+
+	return dockerArgs, nil
+}
