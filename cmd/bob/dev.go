@@ -62,7 +62,7 @@ func dev(builderName string) error {
 
 		// inserts ["--env", "FOO"] pairs for each PassEnvs
 		var errEnv error
-		dockerCmd, errEnv = dockerRelayEnvVars(dockerCmd, metadata, builder.PassEnvs)
+		dockerCmd, errEnv = dockerRelayEnvVars(dockerCmd, metadata, false, builder.PassEnvs)
 		if errEnv != nil {
 			return errEnv
 		}

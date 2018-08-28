@@ -7,6 +7,7 @@ import (
 	"os/exec"
 )
 
+/*
 func buildInCi(bobfile *Bobfile) error {
 	revisionId := os.Getenv("CI_REVISION_ID")
 	if revisionId == "" {
@@ -17,8 +18,9 @@ func buildInCi(bobfile *Bobfile) error {
 
 	return buildCommon(bobfile, metadata)
 }
+*/
 
-func buildCommon(bobfile *Bobfile, metadata *BuildMetadata) error {
+func buildCommon(bobfile *Bobfile, metadata *BuildMetadata, publishArtefacts bool) error {
 	wd, errWd := os.Getwd()
 	if errWd != nil {
 		return errWd
@@ -45,7 +47,7 @@ func buildCommon(bobfile *Bobfile, metadata *BuildMetadata) error {
 		}
 
 		// inserts ["--env", "FOO"] pairs for each PassEnvs
-		buildArgs, errEnv := dockerRelayEnvVars(buildArgs, metadata, builder.PassEnvs)
+		buildArgs, errEnv := dockerRelayEnvVars(buildArgs, metadata, publishArtefacts, builder.PassEnvs)
 		if errEnv != nil {
 			return errEnv
 		}
@@ -65,7 +67,7 @@ func buildCommon(bobfile *Bobfile, metadata *BuildMetadata) error {
 	return nil
 }
 
-func build() error {
+func build(publishArtefacts bool) error {
 	bobfile, errBobfile := readBobfile()
 	if errBobfile != nil {
 		return errBobfile
@@ -76,16 +78,22 @@ func build() error {
 		return err
 	}
 
-	return buildCommon(bobfile, metadata)
+	return buildCommon(bobfile, metadata, publishArtefacts)
 }
 
 func buildEntry() *cobra.Command {
-	return &cobra.Command{
+	publishArtefacts := false
+
+	cmd := &cobra.Command{
 		Use:   "build",
 		Short: "Builds the project",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			reactToError(build())
+			reactToError(build(publishArtefacts))
 		},
 	}
+
+	cmd.Flags().BoolVarP(&publishArtefacts, "publish-artefacts", "", publishArtefacts, "Whether to publish the artefacts")
+
+	return cmd
 }

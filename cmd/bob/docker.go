@@ -51,8 +51,12 @@ func buildBuilder(bobfile *Bobfile, builder *BuilderSpec) error {
 	return nil
 }
 
-func dockerRelayEnvVars(dockerArgs []string, build *BuildMetadata, envs []string) ([]string, error) {
+func dockerRelayEnvVars(dockerArgs []string, build *BuildMetadata, publishArtefacts bool, envs []string) ([]string, error) {
 	dockerArgs = append(dockerArgs, "--env", "FRIENDLY_REV_ID="+build.FriendlyRevisionId)
+
+	if publishArtefacts {
+		dockerArgs = append(dockerArgs, "--env", "PUBLISH_ARTEFACTS=true")
+	}
 
 	for _, envKey := range envs {
 		envValue := os.Getenv(envKey)
