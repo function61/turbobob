@@ -23,14 +23,6 @@ func dev(builderName string) error {
 		return ErrBuilderNotFound
 	}
 
-	imageName := builderImageName(bobfile, builder.Name)
-
-	printHeading(fmt.Sprintf("Building builder %s (as %s)", builder.Name, imageName))
-
-	if err := buildBuilder(bobfile, builder); err != nil {
-		return err
-	}
-
 	containerName := devContainerName(bobfile, builder.Name)
 
 	devCommand := builder.DevCommandOrDefaultToBash()
@@ -45,6 +37,12 @@ func dev(builderName string) error {
 			containerName}, devCommand...)
 	} else {
 		imageName := builderImageName(bobfile, builder.Name)
+
+		printHeading(fmt.Sprintf("Building builder %s (as %s)", builder.Name, imageName))
+
+		if err := buildBuilder(bobfile, builder); err != nil {
+			return err
+		}
 
 		metadata, errMetadata := resolveMetadataFromVersionControl()
 		if errMetadata != nil {
