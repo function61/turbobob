@@ -44,8 +44,7 @@ uploadBuildArtefacts() {
 rm -rf rel
 mkdir rel
 
-# no dependencies yet
-# run downloadDependencies
+run downloadDependencies
 
 run staticAnalysis
 

@@ -38,6 +38,7 @@ func buildBuilder(bobfile *Bobfile, builder *BuilderSpec) error {
 
 	imageName := builderImageName(bobfile, builder.Name)
 
+	// provide Dockerfile from stdin for contextless build
 	imageBuildCmd := exec.Command("docker", "build", "-t", imageName, "-")
 	imageBuildCmd.Stdin = bytes.NewBuffer(dockerfileContent)
 	imageBuildCmd.Stdout = os.Stdout
@@ -51,7 +52,7 @@ func buildBuilder(bobfile *Bobfile, builder *BuilderSpec) error {
 }
 
 func dockerRelayEnvVars(dockerArgs []string, build *BuildMetadata, envs []string) ([]string, error) {
-	dockerArgs = append(dockerArgs, "--env", "FRIENDLY_REV_ID=" + build.FriendlyRevisionId)
+	dockerArgs = append(dockerArgs, "--env", "FRIENDLY_REV_ID="+build.FriendlyRevisionId)
 
 	for _, envKey := range envs {
 		envValue := os.Getenv(envKey)

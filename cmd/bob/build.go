@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
 )
@@ -64,11 +65,27 @@ func buildCommon(bobfile *Bobfile, metadata *BuildMetadata) error {
 	return nil
 }
 
-func build(bobfile *Bobfile) error {
+func build() error {
+	bobfile, errBobfile := readBobfile()
+	if errBobfile != nil {
+		return errBobfile
+	}
+
 	metadata, err := resolveMetadataFromVersionControl()
 	if err != nil {
 		return err
 	}
 
 	return buildCommon(bobfile, metadata)
+}
+
+func buildEntry() *cobra.Command {
+	return &cobra.Command{
+		Use:   "build",
+		Short: "Builds the project",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			reactToError(build())
+		},
+	}
 }

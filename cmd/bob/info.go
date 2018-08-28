@@ -2,10 +2,16 @@ package main
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
 	"os"
 )
 
-func info(bobfile *Bobfile) error {
+func info() error {
+	bobfile, errBobfile := readBobfile()
+	if errBobfile != nil {
+		return errBobfile
+	}
+
 	metadata, errMetadata := resolveMetadataFromVersionControl()
 	if errMetadata != nil {
 		return errMetadata
@@ -30,4 +36,15 @@ func info(bobfile *Bobfile) error {
 	}
 
 	return nil
+}
+
+func infoEntry() *cobra.Command {
+	return &cobra.Command{
+		Use:   "info",
+		Short: "Displays info about the project",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			reactToError(info())
+		},
+	}
 }

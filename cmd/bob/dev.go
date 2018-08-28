@@ -1,19 +1,16 @@
 package main
 
 import (
-	"errors"
 	"fmt"
+	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
 )
 
-func dev(bobfile *Bobfile, args []string) error {
-	builderName := "default"
-
-	if len(args) == 1 {
-		builderName = args[0]
-	} else if len(args) > 1 {
-		return errors.New("Usage: <builder>")
+func dev(builderName string) error {
+	bobfile, errBobfile := readBobfile()
+	if errBobfile != nil {
+		return errBobfile
 	}
 
 	wd, errWd := os.Getwd()
@@ -86,4 +83,22 @@ func dev(bobfile *Bobfile, args []string) error {
 	}
 
 	return nil
+}
+
+func devEntry() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "dev",
+		Short: "Enter builder container in dev mode",
+		Args:  cobra.MaximumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			builderName := "default"
+			if len(args) >= 1 {
+				builderName = args[0]
+			}
+
+			reactToError(dev(builderName))
+		},
+	}
+
+	return cmd
 }

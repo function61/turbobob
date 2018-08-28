@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
 	"os"
 )
 
@@ -23,14 +24,12 @@ import (
 	- Any combination of those
 */
 
-func usage(selfName string) error {
-	fmt.Printf("Usage: %s\n", os.Args[0])
-	fmt.Printf("\tinfo\n")
-	fmt.Printf("\tbuild <revision>\n")
-	fmt.Printf("\tbuild-in-ci\n")
-	fmt.Printf("\tdev <builder>\n")
-
-	return nil
+var rootCmd = &cobra.Command{
+	Use:   "bob",
+	Short: "Turbo Bob (the builder) helps you build and develop your projects.",
+	Run: func(cmd *cobra.Command, args []string) {
+		cmd.HelpFunc()(cmd, args)
+	},
 }
 
 func printHeading(content string) {
@@ -38,37 +37,18 @@ func printHeading(content string) {
 }
 
 func main() {
-	mainInternal := func() error {
-		if len(os.Args) < 2 {
-			return usage(os.Args[0])
-		}
+	rootCmd.AddCommand(buildEntry())
+	rootCmd.AddCommand(devEntry())
+	rootCmd.AddCommand(infoEntry())
 
-		bobfile, errBobfile := readBobfile()
-		if errBobfile != nil {
-			if os.IsNotExist(errBobfile) {
-				return ErrBobfileNotFound
-			}
-
-			return errBobfile
-		}
-
-		switch os.Args[1] {
-		case "build-in-ci":
-			return buildInCi(bobfile)
-		case "build":
-			return build(bobfile)
-		case "dev":
-			return dev(bobfile, os.Args[2:])
-		case "info":
-			return info(bobfile)
-		/* case "init":
-		return init() */
-		default:
-			return unknownCommand(os.Args[1])
-		}
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
+}
 
-	if err := mainInternal(); err != nil {
+func reactToError(err error) {
+	if err != nil {
 		panic(err)
 	}
 }

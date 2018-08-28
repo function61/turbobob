@@ -37,6 +37,10 @@ func (b *BuilderSpec) DevCommandOrDefaultToBash() []string {
 func readBobfile() (*Bobfile, error) {
 	bobfileFile, err := os.Open("bob.json")
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, ErrBobfileNotFound
+		}
+
 		return nil, err
 	}
 	defer bobfileFile.Close()
