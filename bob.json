@@ -1,6 +1,6 @@
 {
 	"version_major": 1,
-	"project_name": "pism",
+	"project_name": "turbobob",
 	"builders": [
 		{
 			"name": "default",
