@@ -5,6 +5,8 @@ import (
 	"os"
 )
 
+const bobfileName = "turbobob.json"
+
 type BuilderSpec struct {
 	Name             string   `json:"name"`
 	MountDestination string   `json:"mount_destination"`
@@ -35,7 +37,7 @@ func (b *BuilderSpec) DevCommandOrDefaultToBash() []string {
 }
 
 func readBobfile() (*Bobfile, error) {
-	bobfileFile, err := os.Open("bob.json")
+	bobfileFile, err := os.Open(bobfileName)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, ErrBobfileNotFound
