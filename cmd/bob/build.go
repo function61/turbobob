@@ -93,7 +93,7 @@ func buildEntry() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().BoolVarP(&publishArtefacts, "publish-artefacts", "", publishArtefacts, "Whether to publish the artefacts")
+	cmd.Flags().BoolVarP(&publishArtefacts, "publish-artefacts", "p", publishArtefacts, "Whether to publish the artefacts")
 
 	return cmd
 }
