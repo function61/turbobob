@@ -7,17 +7,18 @@ import (
 
 const bobfileName = "turbobob.json"
 
+type Bobfile struct {
+	FileDescriptionBoilerplate string        `json:"for_description_of_this_file_see"`
+	VersionMajor               int           `json:"version_major"`
+	ProjectName                string        `json:"project_name"`
+	Builders                   []BuilderSpec `json:"builders"`
+}
+
 type BuilderSpec struct {
 	Name             string   `json:"name"`
 	MountDestination string   `json:"mount_destination"`
 	DevCommand       []string `json:"dev_command"`
 	PassEnvs         []string `json:"pass_envs"`
-}
-
-type Bobfile struct {
-	VersionMajor int           `json:"version_major"`
-	ProjectName  string        `json:"project_name"`
-	Builders     []BuilderSpec `json:"builders"`
 }
 
 func (b *BuilderSpec) MountDestinationOrDefaultToApp() string {

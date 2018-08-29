@@ -39,6 +39,7 @@ func printHeading(content string) {
 }
 
 func main() {
+	rootCmd.AddCommand(initEntry())
 	rootCmd.AddCommand(buildEntry())
 	rootCmd.AddCommand(devEntry())
 	rootCmd.AddCommand(infoEntry())

@@ -9,6 +9,7 @@ var (
 	ErrCiRevisionIdEnvNotSet    = errors.New("CI_REVISION_ID not set")
 	ErrVcMechanismNotIdentified = errors.New("VC mechanism not identified")
 	ErrBobfileNotFound          = errors.New("bob.json does not exist. Run $ bob init")
+	ErrInitBobfileExists        = errors.New("cannot init; Bobfile already exists")
 )
 
 func unknownCommand(command string) error {
