@@ -1,9 +1,9 @@
+# Minimal Travis conf to bootstrap Turbo Bob
 
 sudo: required
 services: docker
-
-# https://github.com/travis-ci/docs-travis-ci-com/issues/1267
 language: minimal
-
 script:
-  - CI_REVISION_ID="$TRAVIS_COMMIT" bin/ci-build.sh
+  - curl --fail --location --output bob https://dl.bintray.com/function61/turbobob/20180828_1501_713d268bbb2e39ba/bob_linux-amd64
+  - chmod +x bob
+  - CI_REVISION_ID="$TRAVIS_COMMIT" ./bob build --publish-artefacts
