@@ -19,7 +19,7 @@ func isDevContainerRunning(containerName string) bool {
 }
 
 func devContainerName(bobfile *Bobfile, builderName string) string {
-	return "bbdev-" + bobfile.ProjectName + "-" + builderName
+	return "tbdev-" + bobfile.ProjectName + "-" + builderName
 }
 
 func builderDockerfilePath(builderName string) string {
@@ -27,7 +27,7 @@ func builderDockerfilePath(builderName string) string {
 }
 
 func builderImageName(bobfile *Bobfile, builderName string) string {
-	return "bb-" + bobfile.ProjectName + "-builder-" + builderName
+	return "tb-" + bobfile.ProjectName + "-builder-" + builderName
 }
 
 func buildBuilder(bobfile *Bobfile, builder *BuilderSpec) error {
