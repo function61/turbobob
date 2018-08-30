@@ -11,6 +11,15 @@ import (
 )
 
 func writeTravisBoilerplate() error {
+	exists, errExistsCheck := fileExists(".travis.yml")
+	if errExistsCheck != nil {
+		return errExistsCheck
+	}
+
+	if exists {
+		return ErrTravisfileAlreadyExists
+	}
+
 	boilerplate := `# Minimal Travis conf to bootstrap Turbo Bob
 
 sudo: required

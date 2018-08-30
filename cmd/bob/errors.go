@@ -12,6 +12,7 @@ var (
 	ErrInitBobfileExists         = errors.New("cannot init; Bobfile already exists")
 	ErrUnsupportedBobfileVersion = errors.New("Unsupported Bobfile version")
 	ErrDockerCredsEnvNotSet      = errors.New("DOCKER_CREDS not set")
+	ErrTravisfileAlreadyExists   = errors.New("Travis's file already exists")
 )
 
 func unknownCommand(command string) error {
