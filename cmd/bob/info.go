@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
+	"strings"
 )
 
 func info() error {
@@ -31,6 +32,7 @@ func info() error {
 				setOrNot = "SET"
 			}
 
+			fmt.Printf("Dev command: %s\n", strings.Join(builder.DevCommand, " "))
 			fmt.Printf("ENV: %s (%s)\n", envKey, setOrNot)
 		}
 	}
