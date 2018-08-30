@@ -28,7 +28,7 @@ By keeping these commands consistent across each project we'll minimize mental f
 Examples
 --------
 
-This very project is built with Bob on Travis. [Travis configuration](.travis.yml) is minimal - it basically just requires Docker, downloads Bob and copies `TRAVIS_COMMIT` ENV variable to `CI_REVISION_ID` asks Bob to do the rest.
+This very project is built with Bob on Travis. [Travis configuration](.travis.yml) is minimal - it basically just requires Docker, downloads Bob and copies `TRAVIS_COMMIT` ENV variable to `CI_REVISION_ID` and asks Bob to do the rest.
 
 The process is exactly the same whether you use a different CI system. You can even run builds exactly the same way on your laptop by just running `$ bob build`.
 
