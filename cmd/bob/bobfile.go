@@ -29,14 +29,6 @@ func (b *BuilderSpec) MountDestinationOrDefaultToApp() string {
 	return "/app"
 }
 
-func (b *BuilderSpec) DevCommandOrDefaultToBash() []string {
-	if len(b.DevCommand) == 0 {
-		return []string{"bash"}
-	}
-
-	return b.DevCommand
-}
-
 func readBobfile() (*Bobfile, error) {
 	bobfileFile, err := os.Open(bobfileName)
 	if err != nil {

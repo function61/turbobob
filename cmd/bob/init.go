@@ -49,8 +49,9 @@ func writeDefaultBobfile() error {
 		ProjectName:                projectName,
 		Builders: []BuilderSpec{
 			{
-				Name:     "default",
-				PassEnvs: []string{},
+				Name:       "default",
+				PassEnvs:   []string{},
+				DevCommand: []string{"bash"},
 			},
 		},
 	}

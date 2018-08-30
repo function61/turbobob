@@ -25,8 +25,6 @@ func dev(builderName string) error {
 
 	containerName := devContainerName(bobfile, builder.Name)
 
-	devCommand := builder.DevCommandOrDefaultToBash()
-
 	var dockerCmd []string
 	if isDevContainerRunning(containerName) {
 		dockerCmd = append([]string{
@@ -34,7 +32,7 @@ func dev(builderName string) error {
 			"exec",
 			"--interactive",
 			"--tty",
-			containerName}, devCommand...)
+			containerName}, builder.DevCommand...)
 	} else {
 		imageName := builderImageName(bobfile, builder.Name)
 
@@ -68,7 +66,7 @@ func dev(builderName string) error {
 		}
 
 		dockerCmd = append(dockerCmd, imageName)
-		dockerCmd = append(dockerCmd, devCommand...)
+		dockerCmd = append(dockerCmd, builder.DevCommand...)
 	}
 
 	cmd := exec.Command(dockerCmd[0], dockerCmd[1:]...)
