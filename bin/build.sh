@@ -12,6 +12,15 @@ downloadDependencies() {
 	dep ensure
 }
 
+checkFormatting() {
+	local offenders=$(gofmt -l .)
+
+	if [ ! -z "$offenders" ]; then
+		>&2 echo "formatting errors: $offenders"
+		exit 1
+	fi
+}
+
 unitTests() {
 	go test ./...
 }
@@ -45,6 +54,8 @@ rm -rf rel
 mkdir rel
 
 run downloadDependencies
+
+run checkFormatting
 
 run staticAnalysis
 
