@@ -2,9 +2,11 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 )
 
@@ -68,4 +70,30 @@ func dockerRelayEnvVars(dockerArgs []string, build *BuildMetadata, publishArtefa
 	}
 
 	return dockerArgs, nil
+}
+
+var dockerCredsRe = regexp.MustCompile("^([^:]+):(.+)")
+
+func loginToDockerHub() error {
+	credsParts := dockerCredsRe.FindStringSubmatch(os.Getenv("DOCKER_CREDS"))
+	if len(credsParts) != 3 {
+		return ErrDockerCredsEnvNotSet
+	}
+
+	username := credsParts[1]
+	password := credsParts[2]
+
+	printHeading(fmt.Sprintf("Logging in to Docker Hub as %s", username))
+
+	loginCmd := passthroughStdoutAndStderr(exec.Command(
+		"docker",
+		"login",
+		"--username", username,
+		"--password", password))
+
+	if err := loginCmd.Run(); err != nil {
+		return err
+	}
+
+	return nil
 }

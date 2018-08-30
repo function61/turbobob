@@ -11,6 +11,7 @@ var (
 	ErrBobfileNotFound           = errors.New("bob.json does not exist. Run $ bob init")
 	ErrInitBobfileExists         = errors.New("cannot init; Bobfile already exists")
 	ErrUnsupportedBobfileVersion = errors.New("Unsupported Bobfile version")
+	ErrDockerCredsEnvNotSet      = errors.New("DOCKER_CREDS not set")
 )
 
 func unknownCommand(command string) error {

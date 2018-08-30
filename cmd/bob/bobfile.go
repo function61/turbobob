@@ -8,10 +8,11 @@ import (
 const bobfileName = "turbobob.json"
 
 type Bobfile struct {
-	FileDescriptionBoilerplate string        `json:"for_description_of_this_file_see"`
-	VersionMajor               int           `json:"version_major"`
-	ProjectName                string        `json:"project_name"`
-	Builders                   []BuilderSpec `json:"builders"`
+	FileDescriptionBoilerplate string            `json:"for_description_of_this_file_see"`
+	VersionMajor               int               `json:"version_major"`
+	ProjectName                string            `json:"project_name"`
+	Builders                   []BuilderSpec     `json:"builders"`
+	DockerImages               []DockerImageSpec `json:"docker_images"`
 }
 
 type BuilderSpec struct {
@@ -19,6 +20,11 @@ type BuilderSpec struct {
 	MountDestination string   `json:"mount_destination"`
 	DevCommand       []string `json:"dev_command"`
 	PassEnvs         []string `json:"pass_envs"`
+}
+
+type DockerImageSpec struct {
+	Image          string `json:"image"`
+	DockerfilePath string `json:"dockerfile_path"`
 }
 
 func (b *BuilderSpec) MountDestinationOrDefaultToApp() string {

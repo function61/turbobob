@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"os"
@@ -25,7 +26,7 @@ script:
 	return ioutil.WriteFile(".travis.yml", []byte(boilerplateReplaced), 0600)
 }
 
-func writeDefaultBobfile() error {
+func writeDefaultBobfile(producesDockerImage bool) error {
 	exists, errExistsCheck := fileExists(bobfileName)
 	if errExistsCheck != nil {
 		return errExistsCheck
@@ -54,6 +55,14 @@ func writeDefaultBobfile() error {
 				DevCommand: []string{"bash"},
 			},
 		},
+		DockerImages: []DockerImageSpec{},
+	}
+
+	if producesDockerImage {
+		defaults.DockerImages = append(defaults.DockerImages, DockerImageSpec{
+			Image:          "yourcompany/" + projectName,
+			DockerfilePath: "Dockerfile",
+		})
 	}
 
 	asJson, errJson := json.MarshalIndent(&defaults, "", "\t")
@@ -61,11 +70,15 @@ func writeDefaultBobfile() error {
 		return errJson
 	}
 
-	return ioutil.WriteFile(bobfileName, asJson, 0700)
+	return ioutil.WriteFile(
+		bobfileName,
+		[]byte(fmt.Sprintf("%s\n", asJson)),
+		0700)
 }
 
 func initEntry() *cobra.Command {
 	travis := false
+	docker := false
 
 	cmd := &cobra.Command{
 		Use:   "init",
@@ -76,11 +89,12 @@ func initEntry() *cobra.Command {
 				reactToError(writeTravisBoilerplate())
 			}
 
-			reactToError(writeDefaultBobfile())
+			reactToError(writeDefaultBobfile(docker))
 		},
 	}
 
 	cmd.Flags().BoolVarP(&travis, "travis", "", travis, "Write Travis CI boilerplate")
+	cmd.Flags().BoolVarP(&docker, "docker", "", docker, "This project should produce a Docker image?")
 
 	return cmd
 }
