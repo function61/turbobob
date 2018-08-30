@@ -53,6 +53,10 @@ func readBobfile() (*Bobfile, error) {
 		return nil, err
 	}
 
+	if bobfile.VersionMajor != 1 {
+		return ErrUnsupportedBobfileVersion
+	}
+
 	return &bobfile, nil
 }
 

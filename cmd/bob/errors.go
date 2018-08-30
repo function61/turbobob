@@ -5,11 +5,12 @@ import (
 )
 
 var (
-	ErrBuilderNotFound          = errors.New("builder not found")
-	ErrCiRevisionIdEnvNotSet    = errors.New("CI_REVISION_ID not set")
-	ErrVcMechanismNotIdentified = errors.New("VC mechanism not identified")
-	ErrBobfileNotFound          = errors.New("bob.json does not exist. Run $ bob init")
-	ErrInitBobfileExists        = errors.New("cannot init; Bobfile already exists")
+	ErrBuilderNotFound           = errors.New("builder not found")
+	ErrCiRevisionIdEnvNotSet     = errors.New("CI_REVISION_ID not set")
+	ErrVcMechanismNotIdentified  = errors.New("VC mechanism not identified")
+	ErrBobfileNotFound           = errors.New("bob.json does not exist. Run $ bob init")
+	ErrInitBobfileExists         = errors.New("cannot init; Bobfile already exists")
+	ErrUnsupportedBobfileVersion = errors.New("Unsupported Bobfile version")
 )
 
 func unknownCommand(command string) error {
