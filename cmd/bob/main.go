@@ -35,7 +35,7 @@ var rootCmd = &cobra.Command{
 }
 
 func printHeading(content string) {
-	fmt.Printf("# %s\n", content)
+	fmt.Printf("\n====== %s\n", content)
 }
 
 func main() {
