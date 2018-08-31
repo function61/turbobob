@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/apcera/termtables"
 	"github.com/spf13/cobra"
 	"os"
 	"strings"
@@ -18,23 +19,38 @@ func info() error {
 		return errMetadata
 	}
 
-	fmt.Printf("Project name: %s\n", bobfile.ProjectName)
-	fmt.Printf("VcKind: %s\n", metadata.VcKind)
-	fmt.Printf("Revision ID (full): %s (%s)\n", metadata.RevisionIdShort, metadata.RevisionId)
-	fmt.Printf("Friendly revision: %s\n", metadata.FriendlyRevisionId)
+	basicDetails := termtables.CreateTable()
+	basicDetails.AddRow("Project name", bobfile.ProjectName)
+	basicDetails.AddRow("VcKind", metadata.VcKind)
+	basicDetails.AddRow("Revision ID (full)", fmt.Sprintf("%s (%s)", metadata.RevisionIdShort, metadata.RevisionId))
+	basicDetails.AddRow("Friendly revision", metadata.FriendlyRevisionId)
+
+	fmt.Printf("BASIC DETAILS\n%s\n", basicDetails.Render())
 
 	for _, builder := range bobfile.Builders {
-		fmt.Printf("\n----\nBuilder: %s\n", builder.Name)
-		fmt.Printf("Mount dir: %s\n", builder.MountDestination)
+		builderTable := termtables.CreateTable()
+		builderTable.AddRow("Name", builder.Name)
+		builderTable.AddRow("Mount destination", builder.MountDestination)
+		builderTable.AddRow("Dev command", strings.Join(builder.DevCommand, " "))
+
 		for _, envKey := range builder.PassEnvs {
-			setOrNot := "NOT SET"
+			setOrNot := "✗ (not set)"
 			if os.Getenv(envKey) != "" {
-				setOrNot = "SET"
+				setOrNot = "✓ (set)"
 			}
 
-			fmt.Printf("Dev command: %s\n", strings.Join(builder.DevCommand, " "))
-			fmt.Printf("ENV: %s (%s)\n", envKey, setOrNot)
+			builderTable.AddRow(fmt.Sprintf("ENV(%s)", envKey), setOrNot)
 		}
+
+		fmt.Printf("BUILDER\n%s\n", builderTable.Render())
+	}
+
+	for _, image := range bobfile.DockerImages {
+		imageTable := termtables.CreateTable()
+		imageTable.AddRow("Image", image.Image)
+		imageTable.AddRow("Dockerfile path", image.DockerfilePath)
+
+		fmt.Printf("DOCKER IMAGE\n%s\n", imageTable.Render())
 	}
 
 	return nil

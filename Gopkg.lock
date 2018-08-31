@@ -2,10 +2,31 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "code.cloudfoundry.org/bytefmt"
+  packages = ["."]
+  revision = "b31f603f5e1e047fdb38584e1a922dcc5c4de5c8"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/apcera/termtables"
+  packages = [
+    ".",
+    "term"
+  ]
+  revision = "bcbc5dc54055d14996b256d348fb75cc6debe282"
+
+[[projects]]
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
+
+[[projects]]
+  name = "github.com/mattn/go-runewidth"
+  packages = ["."]
+  revision = "ce7b0b5c7b45a81508558cd1dba6bb1e4ddb51bb"
+  version = "v0.0.3"
 
 [[projects]]
   name = "github.com/spf13/cobra"
@@ -22,6 +43,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "97eb70e5b0cdcc0eaa2731c309de85cff66b263adf3904f48deb7f66d0d2a5a2"
+  inputs-digest = "cefb4cd513e8b3932a3a171306036df764c1441a1d9762882f09df051bf8a607"
   solver-name = "gps-cdcl"
   solver-version = 1
