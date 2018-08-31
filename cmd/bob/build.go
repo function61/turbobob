@@ -103,7 +103,7 @@ func buildCommon(bobfile *Bobfile, metadata *BuildMetadata, publishArtefacts boo
 		}
 	}
 
-	if len(bobfile.DockerImages) > 0 {
+	if len(bobfile.DockerImages) > 0 && publishArtefacts {
 		if err := loginToDockerHub(); err != nil {
 			return err
 		}
