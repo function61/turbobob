@@ -107,11 +107,11 @@ func buildCommon(bobfile *Bobfile, metadata *BuildMetadata, publishArtefacts boo
 		if err := loginToDockerHub(); err != nil {
 			return err
 		}
+	}
 
-		for _, dockerImage := range bobfile.DockerImages {
-			if err := buildAndPushOneDockerImage(dockerImage, metadata, publishArtefacts); err != nil {
-				return err
-			}
+	for _, dockerImage := range bobfile.DockerImages {
+		if err := buildAndPushOneDockerImage(dockerImage, metadata, publishArtefacts); err != nil {
+			return err
 		}
 	}
 
