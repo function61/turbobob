@@ -18,7 +18,8 @@ type BuildMetadata struct {
 }
 
 func revisionMetadataFromFull(revisionId string, vcKind string) *BuildMetadata {
-	revisionIdShort := revisionId[0:16]
+	// https://stackoverflow.com/questions/18134627/how-much-of-a-git-sha-is-generally-considered-necessary-to-uniquely-identify-a
+	revisionIdShort := revisionId[0:8]
 	friendlyRevId := time.Now().Format("20060102_1504") + "_" + revisionIdShort
 
 	return &BuildMetadata{
