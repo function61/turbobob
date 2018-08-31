@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/apcera/termtables"
 	"github.com/spf13/cobra"
-	"os"
 	"strings"
 )
 
@@ -35,7 +34,7 @@ func info() error {
 
 		for _, envKey := range builder.PassEnvs {
 			setOrNot := "✗ (not set)"
-			if os.Getenv(envKey) != "" {
+			if isEnvVarPresent(envKey) {
 				setOrNot = "✓ (set)"
 			}
 
@@ -52,6 +51,25 @@ func info() error {
 
 		fmt.Printf("DOCKER IMAGE\n%s\n", imageTable.Render())
 	}
+
+	checksTable := termtables.CreateTable()
+	checksTable.AddHeaders("CHECKS", "Ok", "Reason")
+
+	checksResults, errRunningChecks := RunChecks(bobfile)
+	if errRunningChecks != nil {
+		return errRunningChecks
+	}
+
+	for _, check := range checksResults {
+		okChar := "✓"
+		if !check.Ok {
+			okChar = "✗"
+		}
+
+		checksTable.AddRow(check.Name, okChar, check.Reason)
+	}
+
+	fmt.Printf("%s\n", checksTable.Render())
 
 	return nil
 }
