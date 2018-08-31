@@ -65,7 +65,7 @@ func buildAndRunOneBuilder(builder BuilderSpec, bobfile *Bobfile, metadata *Buil
 func buildAndPushOneDockerImage(dockerImage DockerImageSpec, metadata *BuildMetadata, publishArtefacts bool) error {
 	tagWithoutVersion := dockerImage.Image
 	tag := tagWithoutVersion + ":" + metadata.FriendlyRevisionId
-	dockerfilePath := "Dockerfile"
+	dockerfilePath := dockerImage.DockerfilePath
 
 	printHeading(fmt.Sprintf("Building %s", tag))
 
