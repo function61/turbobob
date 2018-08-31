@@ -6,7 +6,7 @@
 What is this?
 -------------
 
-Turbo Bob (the builder) is an abstraction for building, developing & debugging your software, whether it happens in your laptop or in a CI system.
+Turbo Bob (the builder) is an abstraction for building and developing your software, whether it happens in your laptop or in a CI system.
 
 Usage of Turbo Bob, in every project you're developing:
 
