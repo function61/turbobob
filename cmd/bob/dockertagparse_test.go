@@ -25,6 +25,11 @@ func TestParseDockerTag(t *testing.T) {
 		t,
 		serialize(ParseDockerTag("docker.io/joonas/redis:1.2.3.4")),
 		"registry<docker.io> namespace<joonas> repository<redis> tag<1.2.3.4>")
+
+	EqualString(
+		t,
+		serialize(ParseDockerTag("123456.dkr.ecr.us-east-1.amazonaws.com/joonas.fi-blog")),
+		"registry<123456.dkr.ecr.us-east-1.amazonaws.com> namespace<> repository<joonas.fi-blog> tag<>")
 }
 
 func serialize(tag *DockerTag) string {
