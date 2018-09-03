@@ -2,9 +2,11 @@ package main
 
 import (
 	"errors"
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/aws/endpoints"
-	"github.com/aws/aws-sdk-go-v2/service/ecr"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/endpoints"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ecr"
 	"net/http"
 	"os"
 	"regexp"
@@ -51,21 +53,19 @@ func (d *AwsEcrCredentialsObtainer) IsObtainable() error {
 }
 
 func (d *AwsEcrCredentialsObtainer) Obtain() (*DockerCredentials, error) {
-	cfg := aws.NewConfig()
-	cfg.Credentials = aws.NewStaticCredentialsProvider(
+
+	awsConf := aws.NewConfig().WithRegion(endpoints.UsEast1RegionID).WithCredentials(credentials.NewStaticCredentials(
 		os.Getenv("AWS_ACCESS_KEY_ID"),
 		os.Getenv("AWS_SECRET_ACCESS_KEY"),
-		"")
+		""))
 
-	// TODO: support other regions as well
-	cfg.Region = endpoints.UsEast1RegionID
+	ecrClient := ecr.New(session.Must(session.NewSession()), awsConf)
 
-	ecrClient := ecr.New(*cfg)
+	req, resp := ecrClient.GetAuthorizationTokenRequest(&ecr.GetAuthorizationTokenInput{
+		// RegistryIds: []*string{},
+	})
 
-	resp, err := ecrClient.GetAuthorizationTokenRequest(&ecr.GetAuthorizationTokenInput{
-		RegistryIds: []string{},
-	}).Send()
-	if err != nil {
+	if err := req.Send(); err != nil {
 		return nil, err
 	}
 
