@@ -8,25 +8,22 @@ import (
 )
 
 func info() error {
-	bobfile, errBobfile := readBobfile()
-	if errBobfile != nil {
-		return errBobfile
+	buildCtx, err := constructBuildContext(true) // FIXME: static publishArtefacts
+	if err != nil {
+		return err
 	}
 
-	metadata, errMetadata := resolveMetadataFromVersionControl()
-	if errMetadata != nil {
-		return errMetadata
-	}
+	metadata := buildCtx.BuildMetadata
 
 	basicDetails := termtables.CreateTable()
-	basicDetails.AddRow("Project name", bobfile.ProjectName)
+	basicDetails.AddRow("Project name", buildCtx.Bobfile.ProjectName)
 	basicDetails.AddRow("VcKind", metadata.VcKind)
 	basicDetails.AddRow("Revision ID (full)", fmt.Sprintf("%s (%s)", metadata.RevisionIdShort, metadata.RevisionId))
 	basicDetails.AddRow("Friendly revision", metadata.FriendlyRevisionId)
 
 	fmt.Printf("BASIC DETAILS\n%s\n", basicDetails.Render())
 
-	for _, builder := range bobfile.Builders {
+	for _, builder := range buildCtx.Bobfile.Builders {
 		builderTable := termtables.CreateTable()
 		builderTable.AddRow("Name", builder.Name)
 		builderTable.AddRow("Mount destination", builder.MountDestination)
@@ -44,7 +41,7 @@ func info() error {
 		fmt.Printf("BUILDER\n%s\n", builderTable.Render())
 	}
 
-	for _, image := range bobfile.DockerImages {
+	for _, image := range buildCtx.Bobfile.DockerImages {
 		imageTable := termtables.CreateTable()
 		imageTable.AddRow("Image", image.Image)
 		imageTable.AddRow("Dockerfile path", image.DockerfilePath)
@@ -55,7 +52,7 @@ func info() error {
 	checksTable := termtables.CreateTable()
 	checksTable.AddHeaders("CHECKS", "Ok", "Reason")
 
-	checksResults, errRunningChecks := RunChecks(bobfile)
+	checksResults, errRunningChecks := RunChecks(buildCtx)
 	if errRunningChecks != nil {
 		return errRunningChecks
 	}

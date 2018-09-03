@@ -5,14 +5,16 @@ import (
 )
 
 var (
-	ErrBuilderNotFound           = errors.New("builder not found")
-	ErrCiRevisionIdEnvNotSet     = errors.New("CI_REVISION_ID not set")
-	ErrVcMechanismNotIdentified  = errors.New("VC mechanism not identified")
-	ErrBobfileNotFound           = errors.New("turbobob.json does not exist. Run $ bob init")
-	ErrInitBobfileExists         = errors.New("cannot init; Bobfile already exists")
-	ErrUnsupportedBobfileVersion = errors.New("Unsupported Bobfile version")
-	ErrDockerCredsEnvNotSet      = errors.New("DOCKER_CREDS not set")
-	ErrTravisfileAlreadyExists   = errors.New("Travis's file already exists")
+	ErrBuilderNotFound             = errors.New("builder not found")
+	ErrCiRevisionIdEnvNotSet       = errors.New("CI_REVISION_ID not set")
+	ErrVcMechanismNotIdentified    = errors.New("VC mechanism not identified")
+	ErrBobfileNotFound             = errors.New("turbobob.json does not exist. Run $ bob init")
+	ErrInitBobfileExists           = errors.New("cannot init; Bobfile already exists")
+	ErrUnsupportedBobfileVersion   = errors.New("Unsupported Bobfile version")
+	ErrDockerCredsEnvNotSet        = errors.New("DOCKER_CREDS not set")
+	ErrInvalidDockerCredsEnvFormat = errors.New("Invalid format for DOCKER_CREDS")
+	ErrTravisfileAlreadyExists     = errors.New("Travis's file already exists")
+	ErrUnableToParseDockerTag      = errors.New("Unable to parse Docker tag")
 )
 
 func unknownCommand(command string) error {

@@ -25,6 +25,7 @@ type BuilderSpec struct {
 type DockerImageSpec struct {
 	Image          string `json:"image"`
 	DockerfilePath string `json:"dockerfile_path"`
+	AuthType       string `json:"auth_type"` // creds_from_env | aws_ecr
 }
 
 func (b *BuilderSpec) MountDestinationOrDefaultToApp() string {

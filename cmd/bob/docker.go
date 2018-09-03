@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"regexp"
 	"strings"
 )
 
@@ -72,24 +71,31 @@ func dockerRelayEnvVars(dockerArgs []string, build *BuildMetadata, publishArtefa
 	return dockerArgs, nil
 }
 
-var dockerCredsRe = regexp.MustCompile("^([^:]+):(.+)")
-
-func loginToDockerHub() error {
-	credsParts := dockerCredsRe.FindStringSubmatch(os.Getenv("DOCKER_CREDS"))
-	if len(credsParts) != 3 {
-		return ErrDockerCredsEnvNotSet
+func loginToDockerRegistry(dockerImage DockerImageSpec) error {
+	credentialsObtainer := getDockerCredentialsObtainer(dockerImage)
+	creds, err := credentialsObtainer.Obtain()
+	if err != nil {
+		return err
 	}
 
-	username := credsParts[1]
-	password := credsParts[2]
+	tagParsed := ParseDockerTag(dockerImage.Image)
+	if tagParsed == nil {
+		return ErrUnableToParseDockerTag
+	}
 
-	printHeading(fmt.Sprintf("Logging in to Docker Hub as %s", username))
+	registryDefaulted := tagParsed.Registry
+	if registryDefaulted == "" {
+		registryDefaulted = "docker.io"
+	}
+
+	printHeading(fmt.Sprintf("Logging in as %s to %s", creds.Username, registryDefaulted))
 
 	loginCmd := passthroughStdoutAndStderr(exec.Command(
 		"docker",
 		"login",
-		"--username", username,
-		"--password", password))
+		"--username", creds.Username,
+		"--password", creds.Password,
+		registryDefaulted))
 
 	if err := loginCmd.Run(); err != nil {
 		return err

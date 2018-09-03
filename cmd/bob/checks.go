@@ -4,10 +4,10 @@ import (
 	"fmt"
 )
 
-func RunChecks(bobfile *Bobfile) ([]CheckResult, error) {
+func RunChecks(buildCtx *BuildContext) ([]CheckResult, error) {
 	ctx := &CheckContext{
-		Bobfile: bobfile,
-		Results: []CheckResult{},
+		BuildContext: buildCtx,
+		Results:      []CheckResult{},
 	}
 
 	checks := []func(*CheckContext) error{
@@ -59,21 +59,25 @@ func readmePresent(ctx *CheckContext) error {
 func dockerRegistryCredentialsPresent(ctx *CheckContext) error {
 	registryCredentials := ctx.NewCheck("Docker registry credentials")
 
-	if len(ctx.Bobfile.DockerImages) == 0 {
+	if len(ctx.BuildContext.Bobfile.DockerImages) == 0 {
 		return registryCredentials.OkWithReason("n/a")
 	}
 
-	if isEnvVarPresent("DOCKER_CREDS") {
-		return registryCredentials.Ok()
+	for _, image := range ctx.BuildContext.Bobfile.DockerImages {
+		obtainableErr := getDockerCredentialsObtainer(image).IsObtainable()
+
+		if obtainableErr != nil {
+			return registryCredentials.Fail(obtainableErr.Error())
+		}
 	}
 
-	return registryCredentials.Fail("DOCKER_CREDS not defined")
+	return registryCredentials.Ok()
 }
 
 func passableEnvVarsPresent(ctx *CheckContext) error {
 	keyVisitedChecker := map[string]bool{}
 
-	for _, builder := range ctx.Bobfile.Builders {
+	for _, builder := range ctx.BuildContext.Bobfile.Builders {
 		for _, envKey := range builder.PassEnvs {
 			if _, set := keyVisitedChecker[envKey]; set {
 				continue // ENV already visited
@@ -103,8 +107,8 @@ type CheckResult struct {
 }
 
 type CheckContext struct {
-	Bobfile *Bobfile
-	Results []CheckResult
+	BuildContext *BuildContext
+	Results      []CheckResult
 }
 
 type CheckResultBuilder struct {

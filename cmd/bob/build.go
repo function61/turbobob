@@ -7,6 +7,12 @@ import (
 	"os/exec"
 )
 
+type BuildContext struct {
+	Bobfile          *Bobfile
+	PublishArtefacts bool
+	BuildMetadata    *BuildMetadata
+}
+
 /*
 func buildInCi(bobfile *Bobfile) error {
 	revisionId := os.Getenv("CI_REVISION_ID")
@@ -20,17 +26,17 @@ func buildInCi(bobfile *Bobfile) error {
 }
 */
 
-func buildAndRunOneBuilder(builder BuilderSpec, bobfile *Bobfile, metadata *BuildMetadata, publishArtefacts bool) error {
+func buildAndRunOneBuilder(builder BuilderSpec, buildCtx *BuildContext) error {
 	wd, errWd := os.Getwd()
 	if errWd != nil {
 		return errWd
 	}
 
-	imageName := builderImageName(bobfile, builder.Name)
+	imageName := builderImageName(buildCtx.Bobfile, builder.Name)
 
 	printHeading(fmt.Sprintf("Building builder %s (as %s)", builder.Name, imageName))
 
-	if err := buildBuilder(bobfile, &builder); err != nil {
+	if err := buildBuilder(buildCtx.Bobfile, &builder); err != nil {
 		return err
 	}
 
@@ -46,7 +52,7 @@ func buildAndRunOneBuilder(builder BuilderSpec, bobfile *Bobfile, metadata *Buil
 	}
 
 	// inserts ["--env", "FOO"] pairs for each PassEnvs
-	buildArgs, errEnv := dockerRelayEnvVars(buildArgs, metadata, publishArtefacts, builder.PassEnvs)
+	buildArgs, errEnv := dockerRelayEnvVars(buildArgs, buildCtx.BuildMetadata, buildCtx.PublishArtefacts, builder.PassEnvs)
 	if errEnv != nil {
 		return errEnv
 	}
@@ -62,9 +68,9 @@ func buildAndRunOneBuilder(builder BuilderSpec, bobfile *Bobfile, metadata *Buil
 	return nil
 }
 
-func buildAndPushOneDockerImage(dockerImage DockerImageSpec, metadata *BuildMetadata, publishArtefacts bool) error {
+func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildContext) error {
 	tagWithoutVersion := dockerImage.Image
-	tag := tagWithoutVersion + ":" + metadata.FriendlyRevisionId
+	tag := tagWithoutVersion + ":" + buildCtx.BuildMetadata.FriendlyRevisionId
 	dockerfilePath := dockerImage.DockerfilePath
 
 	printHeading(fmt.Sprintf("Building %s", tag))
@@ -80,7 +86,7 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, metadata *BuildMeta
 		return err
 	}
 
-	if publishArtefacts {
+	if buildCtx.PublishArtefacts {
 		printHeading(fmt.Sprintf("Pushing %s", tag))
 
 		pushCmd := passthroughStdoutAndStderr(exec.Command(
@@ -96,21 +102,19 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, metadata *BuildMeta
 	return nil
 }
 
-func buildCommon(bobfile *Bobfile, metadata *BuildMetadata, publishArtefacts bool) error {
-	for _, builder := range bobfile.Builders {
-		if err := buildAndRunOneBuilder(builder, bobfile, metadata, publishArtefacts); err != nil {
+func buildCommon(buildCtx *BuildContext) error {
+	for _, builder := range buildCtx.Bobfile.Builders {
+		if err := buildAndRunOneBuilder(builder, buildCtx); err != nil {
 			return err
 		}
 	}
 
-	if len(bobfile.DockerImages) > 0 && publishArtefacts {
-		if err := loginToDockerHub(); err != nil {
+	for _, dockerImage := range buildCtx.Bobfile.DockerImages {
+		if err := loginToDockerRegistry(dockerImage); err != nil {
 			return err
 		}
-	}
 
-	for _, dockerImage := range bobfile.DockerImages {
-		if err := buildAndPushOneDockerImage(dockerImage, metadata, publishArtefacts); err != nil {
+		if err := buildAndPushOneDockerImage(dockerImage, buildCtx); err != nil {
 			return err
 		}
 	}
@@ -118,18 +122,33 @@ func buildCommon(bobfile *Bobfile, metadata *BuildMetadata, publishArtefacts boo
 	return nil
 }
 
-func build(publishArtefacts bool) error {
+func constructBuildContext(publishArtefacts bool) (*BuildContext, error) {
 	bobfile, errBobfile := readBobfile()
 	if errBobfile != nil {
-		return errBobfile
+		return nil, errBobfile
 	}
 
 	metadata, err := resolveMetadataFromVersionControl()
 	if err != nil {
+		return nil, err
+	}
+
+	buildCtx := &BuildContext{
+		Bobfile:          bobfile,
+		PublishArtefacts: publishArtefacts,
+		BuildMetadata:    metadata,
+	}
+
+	return buildCtx, nil
+}
+
+func build(publishArtefacts bool) error {
+	buildCtx, err := constructBuildContext(publishArtefacts)
+	if err != nil {
 		return err
 	}
 
-	return buildCommon(bobfile, metadata, publishArtefacts)
+	return buildCommon(buildCtx)
 }
 
 func buildEntry() *cobra.Command {
