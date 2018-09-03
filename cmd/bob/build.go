@@ -110,8 +110,10 @@ func buildCommon(buildCtx *BuildContext) error {
 	}
 
 	for _, dockerImage := range buildCtx.Bobfile.DockerImages {
-		if err := loginToDockerRegistry(dockerImage); err != nil {
-			return err
+		if buildCtx.PublishArtefacts {
+			if err := loginToDockerRegistry(dockerImage); err != nil {
+				return err
+			}
 		}
 
 		if err := buildAndPushOneDockerImage(dockerImage, buildCtx); err != nil {
