@@ -13,7 +13,8 @@ downloadDependencies() {
 }
 
 checkFormatting() {
-	local offenders=$(gofmt -l .)
+	# unfortunately we need to list formattable directories because "." would include vendor/
+	local offenders=$(gofmt -l cmd/)
 
 	if [ ! -z "$offenders" ]; then
 		>&2 echo "formatting errors: $offenders"
