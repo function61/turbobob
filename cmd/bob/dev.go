@@ -7,7 +7,7 @@ import (
 	"os/exec"
 )
 
-func dev(builderName string) error {
+func dev(builderName string, envsAreRequired bool) error {
 	bobfile, errBobfile := readBobfile()
 	if errBobfile != nil {
 		return errBobfile
@@ -60,7 +60,12 @@ func dev(builderName string) error {
 
 		// inserts ["--env", "FOO"] pairs for each PassEnvs
 		var errEnv error
-		dockerCmd, errEnv = dockerRelayEnvVars(dockerCmd, metadata, false, builder.PassEnvs)
+		dockerCmd, errEnv = dockerRelayEnvVars(
+			dockerCmd,
+			metadata,
+			false,
+			builder.PassEnvs,
+			envsAreRequired)
 		if errEnv != nil {
 			return errEnv
 		}
@@ -82,6 +87,8 @@ func dev(builderName string) error {
 }
 
 func devEntry() *cobra.Command {
+	norequireEnvs := false
+
 	cmd := &cobra.Command{
 		Use:   "dev",
 		Short: "Enter builder container in dev mode",
@@ -92,9 +99,11 @@ func devEntry() *cobra.Command {
 				builderName = args[0]
 			}
 
-			reactToError(dev(builderName))
+			reactToError(dev(builderName, !norequireEnvs))
 		},
 	}
+
+	cmd.Flags().BoolVarP(&norequireEnvs, "norequire-envs", "n", norequireEnvs, "Don´t error out if not all ENV vars are set")
 
 	return cmd
 }

@@ -52,7 +52,12 @@ func buildAndRunOneBuilder(builder BuilderSpec, buildCtx *BuildContext) error {
 	}
 
 	// inserts ["--env", "FOO"] pairs for each PassEnvs
-	buildArgs, errEnv := dockerRelayEnvVars(buildArgs, buildCtx.BuildMetadata, buildCtx.PublishArtefacts, builder.PassEnvs)
+	buildArgs, errEnv := dockerRelayEnvVars(
+		buildArgs,
+		buildCtx.BuildMetadata,
+		buildCtx.PublishArtefacts,
+		builder.PassEnvs,
+		true)
 	if errEnv != nil {
 		return errEnv
 	}
