@@ -27,8 +27,9 @@ var version = "dev"
 */
 
 var rootCmd = &cobra.Command{
-	Use:   os.Args[0],
-	Short: "Turbo Bob (the builder) helps you build and develop your projects.",
+	Use:     os.Args[0],
+	Short:   "Turbo Bob (the builder) helps you build and develop your projects.",
+	Version: version,
 }
 
 func printHeading(content string) {
@@ -40,14 +41,6 @@ func main() {
 	rootCmd.AddCommand(buildEntry())
 	rootCmd.AddCommand(devEntry())
 	rootCmd.AddCommand(infoEntry())
-
-	rootCmd.AddCommand(&cobra.Command{
-		Use:   "version",
-		Short: "Shows version number of this app",
-		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("%s\n", version)
-		},
-	})
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
