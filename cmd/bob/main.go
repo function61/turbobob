@@ -29,9 +29,6 @@ var version = "dev"
 var rootCmd = &cobra.Command{
 	Use:   os.Args[0],
 	Short: "Turbo Bob (the builder) helps you build and develop your projects.",
-	Run: func(cmd *cobra.Command, args []string) {
-		cmd.HelpFunc()(cmd, args)
-	},
 }
 
 func printHeading(content string) {
