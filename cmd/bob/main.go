@@ -26,23 +26,26 @@ var version = "dev"
 	- Any combination of those
 */
 
-var rootCmd = &cobra.Command{
-	Use:     os.Args[0],
-	Short:   "Turbo Bob (the builder) helps you build and develop your projects.",
-	Version: version,
-}
-
 func printHeading(content string) {
 	fmt.Printf("\n====== %s\n", content)
 }
 
 func main() {
-	rootCmd.AddCommand(initEntry())
-	rootCmd.AddCommand(buildEntry())
-	rootCmd.AddCommand(devEntry())
-	rootCmd.AddCommand(infoEntry())
+	// we've to init root Cobra command here (and not in global scope as examples would suggest),
+	// not only because this is cleaner but also because reference to global "version" var would
+	// refer to the "dev" value even when overriding it from build command. I don't know why it works like that.
+	app := &cobra.Command{
+		Use:     os.Args[0],
+		Short:   "Turbo Bob (the builder) helps you build and develop your projects.",
+		Version: version,
+	}
 
-	if err := rootCmd.Execute(); err != nil {
+	app.AddCommand(initEntry())
+	app.AddCommand(buildEntry())
+	app.AddCommand(devEntry())
+	app.AddCommand(infoEntry())
+
+	if err := app.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
