@@ -24,10 +24,17 @@ func info() error {
 	fmt.Printf("BASIC DETAILS\n%s\n", basicDetails.Render())
 
 	for _, builder := range buildCtx.Bobfile.Builders {
+		ports := "(none)"
+
+		if len(builder.DevPorts) > 0 {
+			ports = strings.Join(builder.DevPorts, ", ")
+		}
+
 		builderTable := termtables.CreateTable()
 		builderTable.AddRow("Name", builder.Name)
 		builderTable.AddRow("Mount destination", builder.MountDestination)
 		builderTable.AddRow("Dev command", strings.Join(builder.DevCommand, " "))
+		builderTable.AddRow("Dev ports", ports)
 
 		for _, envKey := range builder.PassEnvs {
 			setOrNot := "✗ (not set)"

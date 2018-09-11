@@ -62,6 +62,7 @@ func writeDefaultBobfile(producesDockerImage bool) error {
 				Name:       "default",
 				PassEnvs:   []string{},
 				DevCommand: []string{"bash"},
+				DevPorts:   []string{},
 			},
 		},
 		DockerImages: []DockerImageSpec{},

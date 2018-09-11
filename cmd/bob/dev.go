@@ -58,6 +58,10 @@ func dev(builderName string, envsAreRequired bool) error {
 			"--volume", "/tmp/bob-tmp:/tmp",
 		}
 
+		for _, port := range builder.DevPorts {
+			dockerCmd = append(dockerCmd, "--publish", port)
+		}
+
 		// inserts ["--env", "FOO"] pairs for each PassEnvs
 		var errEnv error
 		dockerCmd, errEnv = dockerRelayEnvVars(
