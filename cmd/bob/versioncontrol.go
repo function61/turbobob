@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -32,17 +31,16 @@ func revisionMetadataFromFull(revisionId string, timestamp time.Time, vcKind str
 	}
 }
 
-func resolveMetadataFromVersionControl() (*BuildMetadata, error) {
-	wd, errWd := os.Getwd()
-	if errWd != nil {
-		return nil, errWd
+func revisionMetadataForDev() *BuildMetadata {
+	return &BuildMetadata{
+		VcKind:             "managedByCi", // FIXME
+		RevisionId:         "dev",
+		RevisionIdShort:    "dev",
+		FriendlyRevisionId: "dev",
 	}
+}
 
-	vc, errVcDetermine := determineVcForDirectory(wd)
-	if errVcDetermine != nil {
-		return nil, errVcDetermine
-	}
-
+func resolveMetadataFromVersionControl(vc Versioncontrol) (*BuildMetadata, error) {
 	revisionId, timestamp, err := vc.Identify()
 	if err != nil {
 		return nil, err
@@ -80,6 +78,9 @@ func determineVcForDirectory(dir string) (Versioncontrol, error) {
 type Versioncontrol interface {
 	Identify() (string, time.Time, error)
 	VcKind() string
+	CloneTo(destination string) error
+	Pull() error
+	Update(revision string) error
 }
 
 type Git struct {
@@ -106,14 +107,29 @@ func (g *Git) Identify() (string, time.Time, error) {
 	return parts[0], timestamp.UTC(), nil
 }
 
+func (g *Git) CloneTo(destination string) error {
+	_, err := execWithDir(g.dir, "git", "clone", "--no-checkout", g.dir, destination)
+	return err
+}
+
+func (g *Git) Pull() error {
+	_, err := execWithDir(g.dir, "git", "fetch")
+	return err
+}
+
+func (g *Git) Update(revision string) error {
+	_, err := execWithDir(g.dir, "git", "checkout", "--force", revision)
+	return err
+}
+
 type Mercurial struct {
 	dir string
 }
 
 func (g *Mercurial) VcKind() string {
 	return "hg"
-
 }
+
 func (m *Mercurial) Identify() (string, time.Time, error) {
 	output, err := execWithDir(m.dir, "hg", "log", "--rev", ".", "--template", "{node},{date|isodate}")
 	if err != nil {
@@ -128,6 +144,21 @@ func (m *Mercurial) Identify() (string, time.Time, error) {
 	}
 
 	return parts[0], timestamp.UTC(), nil
+}
+
+func (m *Mercurial) CloneTo(destination string) error {
+	_, err := execWithDir(m.dir, "hg", "clone", "--noupdate", m.dir, destination)
+	return err
+}
+
+func (m *Mercurial) Pull() error {
+	_, err := execWithDir(m.dir, "hg", "pull")
+	return err
+}
+
+func (m *Mercurial) Update(revision string) error {
+	_, err := execWithDir(m.dir, "hg", "update", "--rev", revision)
+	return err
 }
 
 func execWithDir(dir string, args ...string) (string, error) {

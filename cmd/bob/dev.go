@@ -42,11 +42,6 @@ func dev(builderName string, envsAreRequired bool) error {
 			return err
 		}
 
-		metadata, errMetadata := resolveMetadataFromVersionControl()
-		if errMetadata != nil {
-			return errMetadata
-		}
-
 		dockerCmd = []string{
 			"docker",
 			"run",
@@ -66,7 +61,7 @@ func dev(builderName string, envsAreRequired bool) error {
 		var errEnv error
 		dockerCmd, errEnv = dockerRelayEnvVars(
 			dockerCmd,
-			metadata,
+			revisionMetadataForDev(),
 			false,
 			builder.PassEnvs,
 			envsAreRequired)

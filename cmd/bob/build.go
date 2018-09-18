@@ -8,23 +8,14 @@ import (
 )
 
 type BuildContext struct {
-	Bobfile          *Bobfile
-	PublishArtefacts bool
-	BuildMetadata    *BuildMetadata
+	Bobfile           *Bobfile
+	OriginDir         string // where the repo exists
+	WorkspaceDir      string // where the revision is being built
+	PublishArtefacts  bool
+	CloningStepNeeded bool // not done in CI
+	VersionControl    Versioncontrol
+	BuildMetadata     *BuildMetadata
 }
-
-/*
-func buildInCi(bobfile *Bobfile) error {
-	revisionId := os.Getenv("CI_REVISION_ID")
-	if revisionId == "" {
-		return ErrCiRevisionIdEnvNotSet
-	}
-
-	metadata := revisionMetadataFromFull(revisionId, "managedByCi")
-
-	return buildCommon(bobfile, metadata)
-}
-*/
 
 func buildAndRunOneBuilder(builder BuilderSpec, buildCtx *BuildContext) error {
 	wd, errWd := os.Getwd()
@@ -107,7 +98,69 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 	return nil
 }
 
+func cloneToWorkdir(buildCtx *BuildContext) error {
+	rootForProject := projectSpecificDir(buildCtx.Bobfile.ProjectName, "")
+	rootForProjectExists, rootForProjectExistsErr := fileExists(rootForProject)
+	if rootForProjectExistsErr != nil {
+		return rootForProjectExistsErr
+	}
+
+	if !rootForProjectExists {
+		printHeading(fmt.Sprintf("Creating project root %s", rootForProject))
+
+		if errMkdir := os.MkdirAll(rootForProject, 0700); errMkdir != nil {
+			return errMkdir
+		}
+	}
+
+	workspaceDirExists, workspaceDirExistsErr := fileExists(buildCtx.WorkspaceDir)
+	if workspaceDirExistsErr != nil {
+		return workspaceDirExistsErr
+	}
+
+	if !workspaceDirExists {
+		printHeading(fmt.Sprintf("%s does not exist; cloning", buildCtx.WorkspaceDir))
+
+		if err := buildCtx.VersionControl.CloneTo(buildCtx.WorkspaceDir); err != nil {
+			return err
+		}
+	}
+
+	workspaceRepo, errWorkspaceRepo := determineVcForDirectory(buildCtx.WorkspaceDir)
+	if errWorkspaceRepo != nil {
+		return errWorkspaceRepo
+	}
+
+	printHeading(fmt.Sprintf("Changing dir to %s", buildCtx.WorkspaceDir))
+
+	if err := os.Chdir(buildCtx.WorkspaceDir); err != nil {
+		return err
+	}
+
+	/*
+		printHeading("Pulling")
+
+		if err := workspaceRepo.Pull(); err != nil {
+			return err
+		}
+	*/
+
+	printHeading(fmt.Sprintf("Updating to %s", buildCtx.BuildMetadata.RevisionId))
+
+	if err := workspaceRepo.Update(buildCtx.BuildMetadata.RevisionId); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func buildCommon(buildCtx *BuildContext) error {
+	if buildCtx.CloningStepNeeded {
+		if err := cloneToWorkdir(buildCtx); err != nil {
+			return err
+		}
+	}
+
 	for _, builder := range buildCtx.Bobfile.Builders {
 		if err := buildAndRunOneBuilder(builder, buildCtx); err != nil {
 			return err
@@ -135,18 +188,38 @@ func constructBuildContext(publishArtefacts bool) (*BuildContext, error) {
 		return nil, errBobfile
 	}
 
-	metadata, err := resolveMetadataFromVersionControl()
+	repoOriginDir, errGetwd := os.Getwd()
+	if errGetwd != nil {
+		return nil, errGetwd
+	}
+
+	versionControl, errVcDetermine := determineVcForDirectory(repoOriginDir)
+	if errVcDetermine != nil {
+		return nil, errVcDetermine
+	}
+
+	metadata, err := resolveMetadataFromVersionControl(versionControl)
 	if err != nil {
 		return nil, err
 	}
 
+	areWeInCi := os.Getenv("CI_REVISION_ID") != ""
+
 	buildCtx := &BuildContext{
-		Bobfile:          bobfile,
-		PublishArtefacts: publishArtefacts,
-		BuildMetadata:    metadata,
+		Bobfile:           bobfile,
+		PublishArtefacts:  publishArtefacts,
+		BuildMetadata:     metadata,
+		OriginDir:         repoOriginDir,
+		WorkspaceDir:      projectSpecificDir(bobfile.ProjectName, "workspace"),
+		CloningStepNeeded: !areWeInCi,
+		VersionControl:    versionControl,
 	}
 
 	return buildCtx, nil
+}
+
+func projectSpecificDir(projectName string, dirName string) string {
+	return "/tmp/bob/" + projectName + "/" + dirName
 }
 
 func build(publishArtefacts bool) error {
