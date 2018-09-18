@@ -10,6 +10,8 @@ import (
 
 // TODO: https://github.com/function61/buildbot/blob/master/bin/buildbot.sh
 
+var zeroTime = time.Time{}
+
 type BuildMetadata struct {
 	VcKind             string // git | hg | managedByCi
 	RevisionId         string
@@ -17,10 +19,10 @@ type BuildMetadata struct {
 	FriendlyRevisionId string
 }
 
-func revisionMetadataFromFull(revisionId string, vcKind string) *BuildMetadata {
+func revisionMetadataFromFull(revisionId string, timestamp time.Time, vcKind string) *BuildMetadata {
 	// https://stackoverflow.com/questions/18134627/how-much-of-a-git-sha-is-generally-considered-necessary-to-uniquely-identify-a
 	revisionIdShort := revisionId[0:8]
-	friendlyRevId := time.Now().Format("20060102_1504") + "_" + revisionIdShort
+	friendlyRevId := timestamp.Format("20060102_1504") + "_" + revisionIdShort
 
 	return &BuildMetadata{
 		VcKind:             vcKind,
@@ -41,12 +43,12 @@ func resolveMetadataFromVersionControl() (*BuildMetadata, error) {
 		return nil, errVcDetermine
 	}
 
-	revisionId, err := vc.Identify()
+	revisionId, timestamp, err := vc.Identify()
 	if err != nil {
 		return nil, err
 	}
 
-	return revisionMetadataFromFull(revisionId, vc.VcKind()), nil
+	return revisionMetadataFromFull(revisionId, timestamp, vc.VcKind()), nil
 }
 
 func determineVcForDirectory(dir string) (Versioncontrol, error) {
@@ -76,7 +78,7 @@ func determineVcForDirectory(dir string) (Versioncontrol, error) {
 }
 
 type Versioncontrol interface {
-	Identify() (string, error)
+	Identify() (string, time.Time, error)
 	VcKind() string
 }
 
@@ -88,13 +90,20 @@ func (g *Git) VcKind() string {
 	return "git"
 }
 
-func (g *Git) Identify() (string, error) {
-	output, err := execWithDir(g.dir, "git", "rev-parse", "HEAD")
+func (g *Git) Identify() (string, time.Time, error) {
+	output, err := execWithDir(g.dir, "git", "show", "--no-patch", "--format=%H,%ci", "HEAD")
 	if err != nil {
-		return output, err
+		return output, zeroTime, err
 	}
 
-	return strings.TrimRight(output, "\r\n"), nil
+	parts := strings.Split(strings.TrimRight(output, "\r\n"), ",")
+
+	timestamp, errTime := time.Parse("2006-01-02 15:04:05 -0700", parts[1])
+	if errTime != nil {
+		return "", zeroTime, errTime
+	}
+
+	return parts[0], timestamp.UTC(), nil
 }
 
 type Mercurial struct {
@@ -105,8 +114,20 @@ func (g *Mercurial) VcKind() string {
 	return "hg"
 
 }
-func (m *Mercurial) Identify() (string, error) {
-	return execWithDir(m.dir, "hg", "log", "--rev", ".", "--template", "{node}")
+func (m *Mercurial) Identify() (string, time.Time, error) {
+	output, err := execWithDir(m.dir, "hg", "log", "--rev", ".", "--template", "{node},{date|isodate}")
+	if err != nil {
+		return "", zeroTime, err
+	}
+
+	parts := strings.Split(output, ",")
+
+	timestamp, errTime := time.Parse("2006-01-02 15:04 -0700", parts[1])
+	if errTime != nil {
+		return "", zeroTime, errTime
+	}
+
+	return parts[0], timestamp.UTC(), nil
 }
 
 func execWithDir(dir string, args ...string) (string, error) {
