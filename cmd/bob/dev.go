@@ -94,7 +94,7 @@ func devEntry() *cobra.Command {
 	norequireEnvs := false
 
 	cmd := &cobra.Command{
-		Use:   "dev",
+		Use:   "dev [builderName]",
 		Short: "Enter builder container in dev mode",
 		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
