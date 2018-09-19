@@ -35,7 +35,8 @@ buildLinuxArm() {
 }
 
 buildLinuxAmd64() {
-	(cd cmd/bob && GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=$FRIENDLY_REV_ID" -o ../../rel/bob_linux-amd64)
+	# compile statically so this works on Alpine that doesn't have glibc
+	(cd cmd/bob && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-X main.version=$FRIENDLY_REV_ID -extldflags \"-static\"" -o ../../rel/bob_linux-amd64)
 }
 
 uploadBuildArtefacts() {
