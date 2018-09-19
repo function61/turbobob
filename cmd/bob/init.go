@@ -10,14 +10,19 @@ import (
 	"strings"
 )
 
+const (
+	travisFilePath = ".travis.yml"
+	gitlabFilePath = ".gitlab-ci.yml"
+)
+
 func writeTravisBoilerplate() error {
-	exists, errExistsCheck := fileExists(".travis.yml")
+	exists, errExistsCheck := fileExists(travisFilePath)
 	if errExistsCheck != nil {
 		return errExistsCheck
 	}
 
 	if exists {
-		return ErrTravisfileAlreadyExists
+		return ErrCiFileAlreadyExists
 	}
 
 	boilerplate := `# Minimal Travis conf to bootstrap Turbo Bob
@@ -32,7 +37,36 @@ script:
 
 	boilerplateReplaced := strings.Replace(boilerplate, "_VERSION_", version, -1)
 
-	return ioutil.WriteFile(".travis.yml", []byte(boilerplateReplaced), 0600)
+	return ioutil.WriteFile(travisFilePath, []byte(boilerplateReplaced), 0600)
+}
+
+func writeGitLabBoilerplate() error {
+	exists, errExistsCheck := fileExists(gitlabFilePath)
+	if errExistsCheck != nil {
+		return errExistsCheck
+	}
+
+	if exists {
+		return ErrCiFileAlreadyExists
+	}
+
+	boilerplate := `# Minimal Gitlab CI conf to bootstrap Turbo Bob
+
+build:
+  script:
+    - apk add --no-cache curl git
+    - curl --fail --location --output bob https://dl.bintray.com/function61/turbobob/20180919_1430_dae525b2/bob_linux-amd64 && chmod +x bob
+    - CI_REVISION_ID="$CI_COMMIT_SHA" DOCKER_HOST="tcp://docker:2375" ./bob build --publish-artefacts
+  image: docker:18.06-dind
+  services:
+    - docker:dind
+  tags:
+    - docker
+`
+
+	boilerplateReplaced := strings.Replace(boilerplate, "_VERSION_", version, -1)
+
+	return ioutil.WriteFile(gitlabFilePath, []byte(boilerplateReplaced), 0600)
 }
 
 func writeDefaultBobfile(producesDockerImage bool) error {
@@ -89,6 +123,7 @@ func writeDefaultBobfile(producesDockerImage bool) error {
 
 func initEntry() *cobra.Command {
 	travis := false
+	gitLab := false
 	docker := false
 
 	cmd := &cobra.Command{
@@ -100,11 +135,16 @@ func initEntry() *cobra.Command {
 				reactToError(writeTravisBoilerplate())
 			}
 
+			if gitLab {
+				reactToError(writeGitLabBoilerplate())
+			}
+
 			reactToError(writeDefaultBobfile(docker))
 		},
 	}
 
 	cmd.Flags().BoolVarP(&travis, "travis", "", travis, "Write Travis CI boilerplate")
+	cmd.Flags().BoolVarP(&gitLab, "gitlab", "", gitLab, "Write GitLab CI boilerplate")
 	cmd.Flags().BoolVarP(&docker, "docker", "", docker, "This project should produce a Docker image?")
 
 	return cmd

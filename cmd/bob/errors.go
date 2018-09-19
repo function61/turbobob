@@ -13,7 +13,7 @@ var (
 	ErrUnsupportedBobfileVersion   = errors.New("Unsupported Bobfile version")
 	ErrDockerCredsEnvNotSet        = errors.New("DOCKER_CREDS not set")
 	ErrInvalidDockerCredsEnvFormat = errors.New("Invalid format for DOCKER_CREDS")
-	ErrTravisfileAlreadyExists     = errors.New("Travis's file already exists")
+	ErrCiFileAlreadyExists         = errors.New("CI file already exists")
 	ErrUnableToParseDockerTag      = errors.New("Unable to parse Docker tag")
 )
 
