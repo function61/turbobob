@@ -7,8 +7,6 @@ import (
 	"time"
 )
 
-// TODO: https://github.com/function61/buildbot/blob/master/bin/buildbot.sh
-
 var zeroTime = time.Time{}
 
 type BuildMetadata struct {
@@ -18,19 +16,7 @@ type BuildMetadata struct {
 	FriendlyRevisionId string
 }
 
-func revisionMetadataFromFull(revisionId string, timestamp time.Time, vcKind string) *BuildMetadata {
-	// https://stackoverflow.com/questions/18134627/how-much-of-a-git-sha-is-generally-considered-necessary-to-uniquely-identify-a
-	revisionIdShort := revisionId[0:8]
-	friendlyRevId := timestamp.Format("20060102_1504") + "_" + revisionIdShort
-
-	return &BuildMetadata{
-		VcKind:             vcKind,
-		RevisionId:         revisionId,
-		RevisionIdShort:    revisionIdShort,
-		FriendlyRevisionId: friendlyRevId,
-	}
-}
-
+// TODO: maybe merge with resolveMetadataFromVersionControl(.., false)
 func revisionMetadataForDev() *BuildMetadata {
 	return &BuildMetadata{
 		VcKind:             "managedByCi", // FIXME
@@ -40,13 +26,28 @@ func revisionMetadataForDev() *BuildMetadata {
 	}
 }
 
-func resolveMetadataFromVersionControl(vc Versioncontrol) (*BuildMetadata, error) {
-	revisionId, timestamp, err := vc.Identify()
+func resolveMetadataFromVersionControl(vc Versioncontrol, onlyCommitted bool) (*BuildMetadata, error) {
+	revisionId, revisionTimestamp, err := vc.Identify()
 	if err != nil {
 		return nil, err
 	}
 
-	return revisionMetadataFromFull(revisionId, timestamp, vc.VcKind()), nil
+	// https://stackoverflow.com/questions/18134627/how-much-of-a-git-sha-is-generally-considered-necessary-to-uniquely-identify-a
+	revisionIdShort := revisionId[0:8]
+	friendlyRevId := revisionTimestamp.Format("20060102_1504") + "_" + revisionIdShort
+
+	if !onlyCommitted {
+		revisionId += "-uncommitted"
+		revisionIdShort += "-uncommitted"
+		friendlyRevId = time.Now().Format("20060102_1504") + "_" + revisionIdShort
+	}
+
+	return &BuildMetadata{
+		VcKind:             vc.VcKind(),
+		RevisionId:         revisionId,
+		RevisionIdShort:    revisionIdShort,
+		FriendlyRevisionId: friendlyRevId,
+	}, nil
 }
 
 func determineVcForDirectory(dir string) (Versioncontrol, error) {

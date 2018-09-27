@@ -182,7 +182,7 @@ func buildCommon(buildCtx *BuildContext) error {
 	return nil
 }
 
-func constructBuildContext(publishArtefacts bool) (*BuildContext, error) {
+func constructBuildContext(publishArtefacts bool, onlyCommitted bool) (*BuildContext, error) {
 	bobfile, errBobfile := readBobfile()
 	if errBobfile != nil {
 		return nil, errBobfile
@@ -198,12 +198,14 @@ func constructBuildContext(publishArtefacts bool) (*BuildContext, error) {
 		return nil, errVcDetermine
 	}
 
-	metadata, err := resolveMetadataFromVersionControl(versionControl)
+	metadata, err := resolveMetadataFromVersionControl(versionControl, onlyCommitted)
 	if err != nil {
 		return nil, err
 	}
 
 	areWeInCi := os.Getenv("CI_REVISION_ID") != ""
+
+	cloningStepNeeded := !areWeInCi && onlyCommitted
 
 	buildCtx := &BuildContext{
 		Bobfile:           bobfile,
@@ -211,7 +213,7 @@ func constructBuildContext(publishArtefacts bool) (*BuildContext, error) {
 		BuildMetadata:     metadata,
 		OriginDir:         repoOriginDir,
 		WorkspaceDir:      projectSpecificDir(bobfile.ProjectName, "workspace"),
-		CloningStepNeeded: !areWeInCi,
+		CloningStepNeeded: cloningStepNeeded,
 		VersionControl:    versionControl,
 	}
 
@@ -222,8 +224,8 @@ func projectSpecificDir(projectName string, dirName string) string {
 	return "/tmp/bob/" + projectName + "/" + dirName
 }
 
-func build(publishArtefacts bool) error {
-	buildCtx, err := constructBuildContext(publishArtefacts)
+func build(publishArtefacts bool, uncommitted bool) error {
+	buildCtx, err := constructBuildContext(publishArtefacts, uncommitted)
 	if err != nil {
 		return err
 	}
@@ -233,17 +235,19 @@ func build(publishArtefacts bool) error {
 
 func buildEntry() *cobra.Command {
 	publishArtefacts := false
+	uncommitted := false
 
 	cmd := &cobra.Command{
 		Use:   "build",
 		Short: "Builds the project",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			reactToError(build(publishArtefacts))
+			reactToError(build(publishArtefacts, !uncommitted))
 		},
 	}
 
 	cmd.Flags().BoolVarP(&publishArtefacts, "publish-artefacts", "p", publishArtefacts, "Whether to publish the artefacts")
+	cmd.Flags().BoolVarP(&uncommitted, "uncommitted", "u", uncommitted, "Include uncommitted changes")
 
 	return cmd
 }
