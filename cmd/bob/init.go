@@ -93,10 +93,11 @@ func writeDefaultBobfile(producesDockerImage bool) error {
 		ProjectName:                projectName,
 		Builders: []BuilderSpec{
 			{
-				Name:       "default",
-				PassEnvs:   []string{},
-				DevCommand: []string{"bash"},
-				DevPorts:   []string{},
+				Name:             "default",
+				MountDestination: "/app",
+				PassEnvs:         []string{},
+				DevCommand:       []string{"bash"},
+				DevPorts:         []string{},
 			},
 		},
 		DockerImages: []DockerImageSpec{},

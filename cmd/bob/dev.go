@@ -49,7 +49,7 @@ func dev(builderName string, envsAreRequired bool) error {
 			"--interactive",
 			"--tty",
 			"--name", containerName,
-			"--volume", wd + ":" + builder.MountDestinationOrDefaultToApp(),
+			"--volume", wd + ":" + builder.MountDestination,
 			"--volume", "/tmp/bob-tmp:/tmp",
 		}
 

@@ -29,14 +29,6 @@ type DockerImageSpec struct {
 	AuthType       string `json:"auth_type"` // creds_from_env | aws_ecr
 }
 
-func (b *BuilderSpec) MountDestinationOrDefaultToApp() string {
-	if b.MountDestination != "" {
-		return b.MountDestination
-	}
-
-	return "/app"
-}
-
 // FIXME: Bobfile should actually be read only after correct
 // revision has been checked out from VCs
 func readBobfile() (*Bobfile, error) {

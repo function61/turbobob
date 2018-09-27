@@ -38,7 +38,7 @@ func buildAndRunOneBuilder(builder BuilderSpec, buildCtx *BuildContext) error {
 		"run",
 		"--rm",
 		"--tty",
-		"--volume", wd + ":" + builder.MountDestinationOrDefaultToApp(),
+		"--volume", wd + ":" + builder.MountDestination,
 		"--volume", "/tmp/bob-tmp:/tmp",
 	}
 

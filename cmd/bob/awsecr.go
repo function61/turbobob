@@ -53,7 +53,6 @@ func (d *AwsEcrCredentialsObtainer) IsObtainable() error {
 }
 
 func (d *AwsEcrCredentialsObtainer) Obtain() (*DockerCredentials, error) {
-
 	awsConf := aws.NewConfig().WithRegion(endpoints.UsEast1RegionID).WithCredentials(credentials.NewStaticCredentials(
 		os.Getenv("AWS_ACCESS_KEY_ID"),
 		os.Getenv("AWS_SECRET_ACCESS_KEY"),
