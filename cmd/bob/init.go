@@ -50,6 +50,9 @@ func writeGitLabBoilerplate() error {
 		return ErrCiFileAlreadyExists
 	}
 
+	// https://gitlab.com/ayufan/container-registry/blob/master/.gitlab-ci.yml
+	// https://gitlab.com/gitlab-org/gitlab-runner/issues/1250
+	// https://stackoverflow.com/questions/39608736/docker-in-docker-with-gitlab-shared-runner-for-building-and-pushing-docker-image
 	boilerplate := `# Minimal Gitlab CI conf to bootstrap Turbo Bob
 
 build:
