@@ -73,6 +73,10 @@ func dev(builderName string, envsAreRequired bool) error {
 		dockerCmd = append(dockerCmd, builder.DevCommand...)
 	}
 
+	for _, proTip := range builder.DevProTips {
+		fmt.Println(proTip)
+	}
+
 	cmd := exec.Command(dockerCmd[0], dockerCmd[1:]...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout

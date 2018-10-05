@@ -20,6 +20,7 @@ type BuilderSpec struct {
 	MountDestination string   `json:"mount_destination"`
 	DevCommand       []string `json:"dev_command"`
 	DevPorts         []string `json:"dev_ports"`
+	DevProTips       []string `json:"dev_pro_tips"`
 	PassEnvs         []string `json:"pass_envs"`
 }
 

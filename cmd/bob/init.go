@@ -97,6 +97,7 @@ func writeDefaultBobfile(producesDockerImage bool) error {
 				MountDestination: "/app",
 				PassEnvs:         []string{},
 				DevCommand:       []string{"bash"},
+				DevProTips:       []string{},
 				DevPorts:         []string{},
 			},
 		},
