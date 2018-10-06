@@ -6,8 +6,9 @@
 		{
 			"name": "default",
 			"dev_command": ["bash"],
+			"dev_ports": [],
 			"mount_destination": "/go/src/github.com/function61/turbobob",
-			"pass_envs": ["BINTRAY_APIKEY"]
+			"pass_envs": ["BINTRAY_CREDS"]
 		}
 	]
 }

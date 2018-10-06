@@ -3,20 +3,25 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:662a18ecf55317daa51ea75dd49cdc936b768019ae80e1c448decc5fe6065fc1"
   name = "code.cloudfoundry.org/bytefmt"
   packages = ["."]
+  pruneopts = "UT"
   revision = "b31f603f5e1e047fdb38584e1a922dcc5c4de5c8"
 
 [[projects]]
   branch = "master"
+  digest = "1:f06367e46fad737b4eabdd21093ade373557a6ad34fbea3a845576c84712caa4"
   name = "github.com/apcera/termtables"
   packages = [
     ".",
-    "term"
+    "term",
   ]
+  pruneopts = "UT"
   revision = "bcbc5dc54055d14996b256d348fb75cc6debe282"
 
 [[projects]]
+  digest = "1:aa0165e15a7812619e1c7c4b41daa822d0a881b384d68f3fac75ffab6df26600"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -48,49 +53,71 @@
     "private/protocol/rest",
     "private/protocol/xml/xmlutil",
     "service/ecr",
-    "service/sts"
+    "service/sts",
   ]
+  pruneopts = "UT"
   revision = "04abd557eeaab3cfdded45467eea00fc03db9cb9"
   version = "v1.15.26"
 
 [[projects]]
+  digest = "1:5abd6a22805b1919f6a6bca0ae58b13cef1f3412812f38569978f43ef02743d4"
   name = "github.com/go-ini/ini"
   packages = ["."]
+  pruneopts = "UT"
   revision = "5cf292cae48347c2490ac1a58fe36735fb78df7e"
   version = "v1.38.2"
 
 [[projects]]
+  digest = "1:870d441fe217b8e689d7949fef6e43efbc787e50f200cb1e70dbca9204a1d6be"
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
+  pruneopts = "UT"
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
 
 [[projects]]
+  digest = "1:e22af8c7518e1eab6f2eab2b7d7558927f816262586cd6ed9f349c97a6c285c4"
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
+  pruneopts = "UT"
   revision = "0b12d6b5"
 
 [[projects]]
+  digest = "1:cdb899c199f907ac9fb50495ec71212c95cb5b0e0a8ee0800da0238036091033"
   name = "github.com/mattn/go-runewidth"
   packages = ["."]
+  pruneopts = "UT"
   revision = "ce7b0b5c7b45a81508558cd1dba6bb1e4ddb51bb"
   version = "v0.0.3"
 
 [[projects]]
+  digest = "1:645cabccbb4fa8aab25a956cbcbdf6a6845ca736b2c64e197ca7cbb9d210b939"
   name = "github.com/spf13/cobra"
   packages = ["."]
+  pruneopts = "UT"
   revision = "ef82de70bb3f60c65fb8eebacbb2d122ef517385"
   version = "v0.0.3"
 
 [[projects]]
+  digest = "1:dab83a1bbc7ad3d7a6ba1a1cc1760f25ac38cdf7d96a5cdd55cd915a4f5ceaf9"
   name = "github.com/spf13/pflag"
   packages = ["."]
+  pruneopts = "UT"
   revision = "9a97c102cda95a86cec2345a6f09f55a939babf5"
   version = "v1.0.2"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "32976b2920aac08c71a8263cfcab1931d24fba9e81458bcd8479986581af2c81"
+  input-imports = [
+    "code.cloudfoundry.org/bytefmt",
+    "github.com/apcera/termtables",
+    "github.com/aws/aws-sdk-go/aws",
+    "github.com/aws/aws-sdk-go/aws/credentials",
+    "github.com/aws/aws-sdk-go/aws/endpoints",
+    "github.com/aws/aws-sdk-go/aws/session",
+    "github.com/aws/aws-sdk-go/service/ecr",
+    "github.com/spf13/cobra",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
