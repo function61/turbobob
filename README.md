@@ -1,7 +1,7 @@
 ![](misc/mascot/mascot.png)
 
-[![Build Status](https://travis-ci.org/function61/turbobob.svg?branch=master)](https://travis-ci.org/function61/turbobob)
-[![Download](https://api.bintray.com/packages/function61/turbobob/main/images/download.svg)](https://bintray.com/function61/turbobob/main/_latestVersion#files)
+[![Build Status](https://img.shields.io/travis/function61/turbobob.svg?style=for-the-badge)](https://travis-ci.org/function61/turbobob)
+[![Download](https://img.shields.io/bintray/v/function61/turbobob/main.svg?style=for-the-badge)](https://bintray.com/function61/turbobob/main/_latestVersion#files)
 
 What is this?
 -------------
