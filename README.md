@@ -28,6 +28,26 @@ By keeping these commands consistent across each project we'll minimize mental f
 Examples
 --------
 
+A few sample projects that shows how Turbo Bob is used for builds:
+
+- this project
+	- uses buildkit [function61/buildkit-golang](https://github.com/function61/buildkit-golang)
+- [function61/james](https://github.com/function61/james)
+	- uses buildkit [function61/buildkit-golang](https://github.com/function61/buildkit-golang)
+- [function61/lambda-alertmanager](https://github.com/function61/lambda-alertmanager)
+	- uses buildkit [function61/buildkit-js](https://github.com/function61/buildkit-js)
+
+What is a buildkit? It's not strictly a Turbo Bob concept - it only means that instead of
+constructing the whole build environment in your own repo in the `Dockerfile.default-build`, that
+Dockerfile is mostly empty and most of its configuration comes from the `FROM` image referenced
+in the Dockerfile from another repo. This makes for smaller build Dockerfiles (but you can
+still do customizations). This makes builds faster and increases standardization and
+reusability across projects whose build environments will be similar anyways.
+
+
+How does it work?
+-----------------
+
 This very project is built with Bob on Travis. [Travis configuration](.travis.yml) is minimal - it basically just requires Docker, downloads Bob and copies `TRAVIS_COMMIT` ENV variable to `CI_REVISION_ID` and asks Bob to do the rest.
 
 The process is exactly the same whether you use a different CI system. You can even run builds exactly the same way on your laptop by just running `$ bob build`.
