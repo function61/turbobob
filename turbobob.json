@@ -8,7 +8,8 @@
 			"dev_command": ["bash"],
 			"dev_ports": [],
 			"mount_destination": "/go/src/github.com/function61/turbobob",
-			"pass_envs": ["BINTRAY_CREDS"]
+			"pass_envs": ["BINTRAY_CREDS"],
+			"contextless_build": true
 		}
 	]
 }
