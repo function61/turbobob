@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 )
 
@@ -65,7 +66,26 @@ func readBobfile() (*Bobfile, error) {
 		return nil, ErrIncorrectFileDescriptionBp
 	}
 
+	if err := assertUniqueBuilderNames(bobfile); err != nil {
+		return nil, err
+	}
+
 	return bobfile, nil
+}
+
+func assertUniqueBuilderNames(bobfile *Bobfile) error {
+	alreadySeenNames := map[string]bool{}
+
+	for _, builder := range bobfile.Builders {
+		_, alreadyExists := alreadySeenNames[builder.Name]
+		if alreadyExists {
+			return fmt.Errorf("duplicate builder name: %s", builder.Name)
+		}
+
+		alreadySeenNames[builder.Name] = true
+	}
+
+	return nil
 }
 
 func findBuilder(bobfile *Bobfile, builderName string) *BuilderSpec {
