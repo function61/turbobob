@@ -103,6 +103,7 @@ func writeDefaultBobfile(producesDockerImage bool) error {
 				DevCommand:       []string{"bash"},
 				DevProTips:       []string{},
 				DevPorts:         []string{},
+				ContextlessBuild: false,
 			},
 		},
 		DockerImages: []DockerImageSpec{},

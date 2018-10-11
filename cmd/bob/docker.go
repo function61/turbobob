@@ -23,8 +23,8 @@ func devContainerName(bobfile *Bobfile, builderName string) string {
 	return "tbdev-" + bobfile.ProjectName + "-" + builderName
 }
 
-func builderDockerfilePath(builderName string) string {
-	return "Dockerfile." + builderName + "-build"
+func builderDockerfilePath(builder *BuilderSpec) string {
+	return "Dockerfile." + builder.Name + "-build"
 }
 
 func builderImageName(bobfile *Bobfile, builderName string) string {
@@ -32,18 +32,36 @@ func builderImageName(bobfile *Bobfile, builderName string) string {
 }
 
 func buildBuilder(bobfile *Bobfile, builder *BuilderSpec) error {
-	dockerfileContent, err := ioutil.ReadFile(builderDockerfilePath(builder.Name))
-	if err != nil {
-		return err
-	}
-
 	imageName := builderImageName(bobfile, builder.Name)
 
+	var imageBuildCmd *exec.Cmd = nil
+
 	// provide Dockerfile from stdin for contextless build
-	imageBuildCmd := exec.Command("docker", "build", "-t", imageName, "-")
-	imageBuildCmd.Stdin = bytes.NewBuffer(dockerfileContent)
-	imageBuildCmd.Stdout = os.Stdout
-	imageBuildCmd.Stderr = os.Stderr
+	if builder.ContextlessBuild {
+		dockerfileContent, err := ioutil.ReadFile(builderDockerfilePath(builder))
+		if err != nil {
+			return err
+		}
+
+		// FIXME: would "--file -" be more semantic?
+		imageBuildCmd = exec.Command(
+			"docker",
+			"build",
+			"--tag", imageName,
+			"-")
+		imageBuildCmd.Stdin = bytes.NewBuffer(dockerfileContent)
+		imageBuildCmd.Stdout = os.Stdout
+		imageBuildCmd.Stderr = os.Stderr
+	} else {
+		imageBuildCmd = exec.Command(
+			"docker",
+			"build",
+			"--tag", imageName,
+			"--file", builderDockerfilePath(builder),
+			".")
+		imageBuildCmd.Stdout = os.Stdout
+		imageBuildCmd.Stderr = os.Stderr
+	}
 
 	if err := imageBuildCmd.Run(); err != nil {
 		return err

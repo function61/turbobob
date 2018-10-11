@@ -26,6 +26,7 @@ type BuilderSpec struct {
 	DevPorts         []string `json:"dev_ports"`
 	DevProTips       []string `json:"dev_pro_tips"`
 	PassEnvs         []string `json:"pass_envs"`
+	ContextlessBuild bool     `json:"contextless_build"`
 }
 
 type DockerImageSpec struct {
