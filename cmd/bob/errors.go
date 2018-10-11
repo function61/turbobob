@@ -15,6 +15,7 @@ var (
 	ErrInvalidDockerCredsEnvFormat = errors.New("Invalid format for DOCKER_CREDS")
 	ErrCiFileAlreadyExists         = errors.New("CI file already exists")
 	ErrUnableToParseDockerTag      = errors.New("Unable to parse Docker tag")
+	ErrIncorrectFileDescriptionBp  = errors.New("you are not supposed to change FileDescriptionBoilerplate")
 )
 
 func unknownCommand(command string) error {

@@ -5,7 +5,10 @@ import (
 	"os"
 )
 
-const bobfileName = "turbobob.json"
+const (
+	bobfileName                = "turbobob.json"
+	fileDescriptionBoilerplate = "https://github.com/function61/turbobob"
+)
 
 type Bobfile struct {
 	FileDescriptionBoilerplate string            `json:"for_description_of_this_file_see"`
@@ -50,6 +53,10 @@ func readBobfile() (*Bobfile, error) {
 
 	if bobfile.VersionMajor != 1 {
 		return nil, ErrUnsupportedBobfileVersion
+	}
+
+	if bobfile.FileDescriptionBoilerplate != fileDescriptionBoilerplate {
+		return nil, ErrIncorrectFileDescriptionBp
 	}
 
 	return &bobfile, nil

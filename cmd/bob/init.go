@@ -91,7 +91,7 @@ func writeDefaultBobfile(producesDockerImage bool) error {
 	projectName := filepath.Base(cwd)
 
 	defaults := Bobfile{
-		FileDescriptionBoilerplate: "https://github.com/function61/turbobob",
+		FileDescriptionBoilerplate: fileDescriptionBoilerplate,
 		VersionMajor:               1,
 		ProjectName:                projectName,
 		Builders: []BuilderSpec{
