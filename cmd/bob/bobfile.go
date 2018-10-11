@@ -47,8 +47,11 @@ func readBobfile() (*Bobfile, error) {
 	}
 	defer bobfileFile.Close()
 
-	var bobfile Bobfile
-	if err := json.NewDecoder(bobfileFile).Decode(&bobfile); err != nil {
+	decoder := json.NewDecoder(bobfileFile)
+	decoder.DisallowUnknownFields()
+
+	bobfile := &Bobfile{}
+	if err := decoder.Decode(bobfile); err != nil {
 		return nil, err
 	}
 
@@ -60,7 +63,7 @@ func readBobfile() (*Bobfile, error) {
 		return nil, ErrIncorrectFileDescriptionBp
 	}
 
-	return &bobfile, nil
+	return bobfile, nil
 }
 
 func findBuilder(bobfile *Bobfile, builderName string) *BuilderSpec {
