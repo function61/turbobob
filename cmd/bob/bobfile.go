@@ -20,6 +20,7 @@ type Bobfile struct {
 
 type BuilderSpec struct {
 	Name             string   `json:"name"`
+	MountSource      string   `json:"mount_source"`
 	MountDestination string   `json:"mount_destination"`
 	DevCommand       []string `json:"dev_command"`
 	DevPorts         []string `json:"dev_ports"`
