@@ -24,6 +24,12 @@ func devContainerName(bobfile *Bobfile, builderName string) string {
 }
 
 func builderDockerfilePath(builder *BuilderSpec) string {
+	if builder.DockerfilePath != "" {
+		return builder.DockerfilePath
+	}
+
+	// TODO: in the future warn about this? it would be better to
+	//       be more explicit and thus have less magic
 	return "Dockerfile." + builder.Name + "-build"
 }
 

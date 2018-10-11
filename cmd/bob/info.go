@@ -32,6 +32,7 @@ func info() error {
 
 		builderTable := termtables.CreateTable()
 		builderTable.AddRow("Name", builder.Name)
+		builderTable.AddRow("Dockerfile path", builder.DockerfilePath)
 		builderTable.AddRow("Mount source", builder.MountSource)
 		builderTable.AddRow("Mount destination", builder.MountDestination)
 		builderTable.AddRow("Dev command", strings.Join(builder.DevCommand, " "))
