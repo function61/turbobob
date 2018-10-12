@@ -77,8 +77,7 @@ func assertUniqueBuilderNames(bobfile *Bobfile) error {
 	alreadySeenNames := map[string]bool{}
 
 	for _, builder := range bobfile.Builders {
-		_, alreadyExists := alreadySeenNames[builder.Name]
-		if alreadyExists {
+		if _, alreadyExists := alreadySeenNames[builder.Name]; alreadyExists {
 			return fmt.Errorf("duplicate builder name: %s", builder.Name)
 		}
 
