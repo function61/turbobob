@@ -5,6 +5,7 @@
 	"builders": [
 		{
 			"name": "default",
+			"dockerfile_path": "build-default.Dockerfile",
 			"dev_command": ["bash"],
 			"dev_ports": [],
 			"mount_destination": "/go/src/github.com/function61/turbobob",
