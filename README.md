@@ -30,12 +30,13 @@ Examples
 
 A few sample projects that shows how Turbo Bob is used for builds:
 
-- this project
-	- uses buildkit [function61/buildkit-golang](https://github.com/function61/buildkit-golang)
 - [function61/james](https://github.com/function61/james)
 	- uses buildkit [function61/buildkit-golang](https://github.com/function61/buildkit-golang)
 - [function61/lambda-alertmanager](https://github.com/function61/lambda-alertmanager)
 	- uses buildkit [function61/buildkit-js](https://github.com/function61/buildkit-js)
+- [function61/home-automation-hub](https://github.com/function61/home-automation-hub)
+	- uses *both* Go- and JS buildkits (which neatly demoes the hygiene of keeping different
+	ecosystems' build tools separate - they could even run different distros!)
 
 What is a buildkit? It's not strictly a Turbo Bob concept - it only means that instead of
 constructing the whole build environment in your own repo in the `build-default.Dockerfile`, that
