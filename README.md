@@ -38,7 +38,7 @@ A few sample projects that shows how Turbo Bob is used for builds:
 	- uses buildkit [function61/buildkit-js](https://github.com/function61/buildkit-js)
 
 What is a buildkit? It's not strictly a Turbo Bob concept - it only means that instead of
-constructing the whole build environment in your own repo in the `Dockerfile.default-build`, that
+constructing the whole build environment in your own repo in the `build-default.Dockerfile`, that
 Dockerfile is mostly empty and most of its configuration comes from the `FROM` image referenced
 in the Dockerfile from another repo. This makes for smaller build Dockerfiles (but you can
 still do customizations). This makes builds faster and increases standardization and
@@ -62,8 +62,8 @@ Here's what happens when a new commit lands in this repo:
 - Github notifies Travis of a new commit
 - Travis reads [.travis.yml](.travis.yml) which downloads Bob and hands off build process to it
 - Bob reads [turbobob.json](turbobob.json)
-- `turbobob.json` tells Bob to build [Dockerfile.default-build](Dockerfile.default-build)
-- Bob starts container based off built image of `Dockerfile.default-build` and runs [bin/build.sh](bin/build.sh) *inside the container*
+- `turbobob.json` tells Bob to build [build-default.Dockerfile](build-default.Dockerfile)
+- Bob starts container based off built image of `build-default.Dockerfile` and runs [bin/build.sh](bin/build.sh) *inside the container*
 
 
 Install
