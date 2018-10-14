@@ -133,12 +133,17 @@ func initEntry() *cobra.Command {
 	travis := false
 	gitLab := false
 	docker := false
+	ignoreDevWarning := false
 
 	cmd := &cobra.Command{
 		Use:   "init",
 		Short: "Initializes this project with a default turbobob.json",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
+			if version == "dev" && !ignoreDevWarning {
+				reactToError(ErrInitingWithBobDevVersion)
+			}
+
 			if travis {
 				reactToError(writeTravisBoilerplate())
 			}
@@ -154,6 +159,7 @@ func initEntry() *cobra.Command {
 	cmd.Flags().BoolVarP(&travis, "travis", "", travis, "Write Travis CI boilerplate")
 	cmd.Flags().BoolVarP(&gitLab, "gitlab", "", gitLab, "Write GitLab CI boilerplate")
 	cmd.Flags().BoolVarP(&docker, "docker", "", docker, "This project should produce a Docker image?")
+	cmd.Flags().BoolVarP(&ignoreDevWarning, "ignore-dev-warning", "", ignoreDevWarning, "Don't complain about initing with Bob's dev version")
 
 	return cmd
 }
