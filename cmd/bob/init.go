@@ -58,7 +58,7 @@ func writeGitLabBoilerplate() error {
 build:
   script:
     - apk add --no-cache curl git
-    - curl --fail --location --output bob https://dl.bintray.com/function61/turbobob/20180919_1430_dae525b2/bob_linux-amd64 && chmod +x bob
+    - curl --fail --location --output bob https://dl.bintray.com/function61/turbobob/_VERSION_/bob_linux-amd64 && chmod +x bob
     - CI_REVISION_ID="$CI_COMMIT_SHA" DOCKER_HOST="tcp://docker:2375" ./bob build --publish-artefacts
   image: docker:18.06-dind
   services:
