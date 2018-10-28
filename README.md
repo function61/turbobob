@@ -27,10 +27,9 @@ when doing context switching, since the commands are the same for each project w
 you're building a Docker-based image or running anything custom that produces build
 artefacts.
 
-There's a document that
-[your project can link to for build & help instructions](docs/external-how-to-build-and-dev.md).
-This explains Bob's value proposition quite well and serves as the first introduction for
-new Bob users. See an
+There's a [document that your project can link to](docs/external-how-to-build-and-dev.md)
+for build & help instructions. This explains Bob's value proposition quite well and serves
+as the first introduction for new Bob users. See an
 [example of a project's build docs linking to Bob](https://github.com/function61/ruuvinator#how-to-build--develop).
 
 
