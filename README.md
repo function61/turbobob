@@ -34,6 +34,15 @@ new Bob users. See an
 [example of a project's build docs linking to Bob](https://github.com/function61/ruuvinator#how-to-build--develop).
 
 
+Install
+-------
+
+```
+$ VERSION_TO_DOWNLOAD="..." # find this from Bintray. Looks like: 20180828_1449_b9d7759cf80f0b4a
+$ sudo curl --location --fail --output /usr/local/bin/bob "https://dl.bintray.com/function61/turbobob/$VERSION_TO_DOWNLOAD/bob_linux-amd64" && sudo chmod +x /usr/local/bin/bob
+```
+
+
 Examples
 --------
 
@@ -74,12 +83,3 @@ Here's what happens when a new commit lands in this repo:
 - Bob reads [turbobob.json](turbobob.json)
 - `turbobob.json` tells Bob to build [build-default.Dockerfile](build-default.Dockerfile)
 - Bob starts container based off built image of `build-default.Dockerfile` and runs [bin/build.sh](bin/build.sh) *inside the container*
-
-
-Install
--------
-
-```
-$ VERSION_TO_DOWNLOAD="..." # find this from Bintray. Looks like: 20180828_1449_b9d7759cf80f0b4a
-$ sudo curl --location --fail --output /usr/local/bin/bob "https://dl.bintray.com/function61/turbobob/$VERSION_TO_DOWNLOAD/bob_linux-amd64" && sudo chmod +x /usr/local/bin/bob
-```
