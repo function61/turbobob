@@ -25,7 +25,7 @@ $ bob build
 By keeping these commands consistent across each project we'll minimize mental friction
 when doing context switching, since the commands are the same for each project whether
 you're building a Docker-based image or running anything custom that produces build
-artefacts or anything custom.
+artefacts.
 
 There's a document that
 [your project can link to for build & help instructions](docs/external-how-to-build-and-dev.md).
