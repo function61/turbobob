@@ -39,8 +39,8 @@ Philosophy
 - Your project must support a simple `build` and `dev` interface. If you can't, you're
   probably doing something wrong and you should simplify it. The `build` command usually just
   runs your project's `bin/build.sh` (or equivalent) command inside a container. The `dev`
-  command usually runs Bash inside the container but doesn't execute `bin/build.sh` so you
-  can manually invoke or debug the build process (or a subset of it).
+  command usually starts Bash terminal inside the container but doesn't execute `bin/build.sh`
+  so you can manually invoke or debug the build process (or a subset of it).
 
 - Build environment should be stateless & immutable. No longer missing build tools or
   mismatched versions within your team. Nothing to install on your CI server (except Docker).
@@ -55,7 +55,7 @@ Philosophy
 
 - No vendor lock-in for a CI system. Bob can seamlessly build projects on your laptop, Jenkins,
   Travis, GitLab etc. CI needs to only provide the working directory and Docker - everything
-  else like uploading artefacts to S3, BinTray etc. should be a build container concern to
+  else like uploading artefacts to S3, Bintray etc. should be a build container concern to
   provide full independence.
 
 
