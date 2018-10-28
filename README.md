@@ -34,6 +34,32 @@ new Bob users. See an
 [example of a project's build docs linking to Bob](https://github.com/function61/ruuvinator#how-to-build--develop).
 
 
+Philosophy
+----------
+
+- Your project must support a simple `build` and `dev` interface. If you can't, you're
+  probably doing something wrong and you should simplify it. The `build` command usually just
+  runs your project's `bin/build.sh` (or equivalent) command inside a container. The `dev`
+  command usually runs Bash inside the container but doesn't execute `bin/build.sh` so you
+  can manually invoke or debug the build process (or a subset of it).
+
+- Build environment should be stateless & immutable. No longer missing build tools or
+  mismatched versions within your team. Nothing to install on your CI server (except Docker).
+
+- Decouple build-time dependencies from runtime dependencies
+  ([build container pattern](https://medium.com/@alexeiled/docker-pattern-the-build-container-b0d0e86ad601)),
+  so build tools will not be shipped to production (smaller images & less attack surface).
+
+- Dev/CI/production environment parity as close as possible. Dev environment is the same as
+  build & CI environment. What's built on dev (`$ bob build`) is exactly the same or as
+  close as possible (`$ bob build --uncommitted`) as to what will end up running in production.
+
+- No vendor lock-in for a CI system. Bob can seamlessly build projects on your laptop, Jenkins,
+  Travis, GitLab etc. CI needs to only provide the working directory and Docker - everything
+  else like uploading artefacts to S3, BinTray etc. should be a build container concern to
+  provide full independence.
+
+
 Install
 -------
 
