@@ -22,8 +22,8 @@ To build your project:
 $ bob build
 ```
 
-By keeping these commands consistent across each project we'll minimize mental friction
-when doing context switching, since the commands are the same for each project whether
+By keeping these commands consistent across each project we'll minimize friction with
+mental context switching, since the commands are the same for each project whether
 you're building a Docker-based image or running anything custom that produces build
 artefacts.
 
