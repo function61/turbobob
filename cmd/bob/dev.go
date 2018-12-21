@@ -74,8 +74,12 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 		dockerCmd = append(dockerCmd, builder.DevCommand...)
 	}
 
+	if len(builder.DevPorts) > 0 {
+		fmt.Printf("Pro-tip: mapped dev ports: %s\n", strings.Join(builder.DevPorts, ", "))
+	}
+
 	for _, proTip := range builder.DevProTips {
-		fmt.Println(proTip)
+		fmt.Printf("Pro-tip: %s\n", proTip)
 	}
 
 	return dockerCmd, nil
