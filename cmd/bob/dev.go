@@ -50,7 +50,7 @@ func dev(builderName string, envsAreRequired bool) error {
 			"--tty",
 			"--name", containerName,
 			"--volume", wd + "/" + builder.MountSource + ":" + builder.MountDestination,
-			"--volume", "/tmp/bob-tmp:/tmp",
+			"--volume", "/tmp/build:/tmp/build", // cannot map to /tmp because at least apt won't work (permission issues?)
 		}
 
 		for _, port := range builder.DevPorts {

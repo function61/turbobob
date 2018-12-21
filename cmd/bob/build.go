@@ -39,7 +39,7 @@ func buildAndRunOneBuilder(builder BuilderSpec, buildCtx *BuildContext) error {
 		"--rm",
 		"--tty",
 		"--volume", wd + "/" + builder.MountSource + ":" + builder.MountDestination,
-		"--volume", "/tmp/bob-tmp:/tmp",
+		"--volume", "/tmp/build:/tmp/build", // cannot map to /tmp because at least apt won't work (permission issues?)
 	}
 
 	// inserts ["--env", "FOO"] pairs for each PassEnvs
