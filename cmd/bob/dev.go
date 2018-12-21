@@ -5,22 +5,23 @@ import (
 	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
+	"strings"
 )
 
-func dev(builderName string, envsAreRequired bool) error {
+func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 	bobfile, errBobfile := readBobfile()
 	if errBobfile != nil {
-		return errBobfile
+		return nil, errBobfile
 	}
 
 	wd, errWd := os.Getwd()
 	if errWd != nil {
-		return errWd
+		return nil, errWd
 	}
 
 	builder := findBuilder(bobfile, builderName)
 	if builder == nil {
-		return ErrBuilderNotFound
+		return nil, ErrBuilderNotFound
 	}
 
 	containerName := devContainerName(bobfile, builder.Name)
@@ -39,7 +40,7 @@ func dev(builderName string, envsAreRequired bool) error {
 		printHeading(fmt.Sprintf("Building builder %s (as %s)", builder.Name, imageName))
 
 		if err := buildBuilder(bobfile, builder); err != nil {
-			return err
+			return nil, err
 		}
 
 		dockerCmd = []string{
@@ -66,7 +67,7 @@ func dev(builderName string, envsAreRequired bool) error {
 			builder.PassEnvs,
 			envsAreRequired)
 		if errEnv != nil {
-			return errEnv
+			return nil, errEnv
 		}
 
 		dockerCmd = append(dockerCmd, imageName)
@@ -75,6 +76,15 @@ func dev(builderName string, envsAreRequired bool) error {
 
 	for _, proTip := range builder.DevProTips {
 		fmt.Println(proTip)
+	}
+
+	return dockerCmd, nil
+}
+
+func dev(builderName string, envsAreRequired bool) error {
+	dockerCmd, err := devCommand(builderName, envsAreRequired)
+	if err != nil {
+		return err
 	}
 
 	cmd := exec.Command(dockerCmd[0], dockerCmd[1:]...)
@@ -91,6 +101,7 @@ func dev(builderName string, envsAreRequired bool) error {
 
 func devEntry() *cobra.Command {
 	norequireEnvs := false
+	dry := false
 
 	cmd := &cobra.Command{
 		Use:   "dev [builderName]",
@@ -102,11 +113,19 @@ func devEntry() *cobra.Command {
 				builderName = args[0]
 			}
 
-			reactToError(dev(builderName, !norequireEnvs))
+			if !dry {
+				reactToError(dev(builderName, !norequireEnvs))
+			} else {
+				dockerCommand, err := devCommand(builderName, !norequireEnvs)
+				reactToError(err)
+
+				fmt.Println(strings.Join(dockerCommand, " "))
+			}
 		},
 	}
 
 	cmd.Flags().BoolVarP(&norequireEnvs, "norequire-envs", "n", norequireEnvs, "Don´t error out if not all ENV vars are set")
+	cmd.Flags().BoolVarP(&dry, "dry", "", dry, "Just print out the dev command (you may need to do something exotic)")
 
 	return cmd
 }
