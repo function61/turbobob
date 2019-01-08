@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 )
 
@@ -58,6 +59,16 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 			dockerCmd = append(dockerCmd, "--publish", port)
 		}
 
+		archesToBuildFor := *bobfile.OsArches
+		devMachineArch := osArchCodeToOsArchesSpec(currentRunningGoOsArchToOsArchCode())
+
+		// to speed up dev, build only for the arch we're running now, but only if arches
+		// intersect (if project wants to build only for "neutral", and we're running on
+		// "linux-amd64", we wouldn't want to ask to build for "linux-amd64" since it's unsupported)
+		if osArchesIntersects(archesToBuildFor, devMachineArch) {
+			archesToBuildFor = devMachineArch
+		}
+
 		// inserts ["--env", "FOO"] pairs for each PassEnvs
 		var errEnv error
 		dockerCmd, errEnv = dockerRelayEnvVars(
@@ -65,7 +76,8 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 			revisionMetadataForDev(),
 			false,
 			builder.PassEnvs,
-			envsAreRequired)
+			envsAreRequired,
+			archesToBuildFor)
 		if errEnv != nil {
 			return nil, errEnv
 		}
@@ -132,4 +144,8 @@ func devEntry() *cobra.Command {
 	cmd.Flags().BoolVarP(&dry, "dry", "", dry, "Just print out the dev command (you may need to do something exotic)")
 
 	return cmd
+}
+
+func currentRunningGoOsArchToOsArchCode() OsArchCode {
+	return OsArchCode(fmt.Sprintf("%s-%s", runtime.GOOS, runtime.GOARCH))
 }

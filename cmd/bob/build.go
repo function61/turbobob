@@ -48,7 +48,8 @@ func buildAndRunOneBuilder(builder BuilderSpec, buildCtx *BuildContext) error {
 		buildCtx.BuildMetadata,
 		buildCtx.PublishArtefacts,
 		builder.PassEnvs,
-		true)
+		true,
+		*buildCtx.Bobfile.OsArches)
 	if errEnv != nil {
 		return errEnv
 	}
