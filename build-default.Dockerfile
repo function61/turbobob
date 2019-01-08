@@ -1,4 +1,4 @@
-FROM fn61/buildkit-golang:20181005_1740_183e9622c00c5c6b
+FROM fn61/buildkit-golang:20190108_1759_870854d1d97c4181
 
 WORKDIR /go/src/github.com/function61/turbobob
 
