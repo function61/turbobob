@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/function61/gokit/dynversion"
 	"github.com/spf13/cobra"
 	"os"
 )
-
-var version = "dev"
 
 /*	Process
 
@@ -37,7 +36,7 @@ func main() {
 	app := &cobra.Command{
 		Use:     os.Args[0],
 		Short:   "Turbo Bob (the builder) helps you build and develop your projects.",
-		Version: version,
+		Version: dynversion.Version,
 	}
 
 	app.AddCommand(initEntry())

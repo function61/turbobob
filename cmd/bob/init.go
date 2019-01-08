@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/function61/gokit/dynversion"
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"os"
@@ -36,7 +37,7 @@ script:
   - CI_REVISION_ID="$TRAVIS_COMMIT" ./bob build --publish-artefacts
 `
 
-	boilerplateReplaced := strings.Replace(boilerplate, "_VERSION_", version, -1)
+	boilerplateReplaced := strings.Replace(boilerplate, "_VERSION_", dynversion.Version, -1)
 
 	return ioutil.WriteFile(travisFilePath, []byte(boilerplateReplaced), 0600)
 }
@@ -66,7 +67,7 @@ build:
     - docker
 `
 
-	boilerplateReplaced := strings.Replace(boilerplate, "_VERSION_", version, -1)
+	boilerplateReplaced := strings.Replace(boilerplate, "_VERSION_", dynversion.Version, -1)
 
 	return ioutil.WriteFile(gitlabFilePath, []byte(boilerplateReplaced), 0600)
 }
@@ -139,7 +140,7 @@ func initEntry() *cobra.Command {
 		Short: "Initializes this project with a default turbobob.json",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			if version == "dev" && !ignoreDevWarning {
+			if dynversion.IsDevVersion() && !ignoreDevWarning {
 				reactToError(ErrInitingWithBobDevVersion)
 			}
 
