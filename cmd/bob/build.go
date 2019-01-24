@@ -12,7 +12,9 @@ type BuildContext struct {
 	OriginDir         string // where the repo exists
 	WorkspaceDir      string // where the revision is being built
 	PublishArtefacts  bool
-	CloningStepNeeded bool // not done in CI
+	CloningStepNeeded bool // false in CI, true in local (unless uncommited build requested)
+	BuilderNameFilter string
+	ENVsAreRequired   bool
 	VersionControl    Versioncontrol
 	BuildMetadata     *BuildMetadata
 }
@@ -48,7 +50,7 @@ func buildAndRunOneBuilder(builder BuilderSpec, buildCtx *BuildContext) error {
 		buildCtx.BuildMetadata,
 		buildCtx.PublishArtefacts,
 		builder.PassEnvs,
-		true,
+		buildCtx.ENVsAreRequired,
 		*buildCtx.Bobfile.OsArches)
 	if errEnv != nil {
 		return errEnv
@@ -163,6 +165,10 @@ func buildCommon(buildCtx *BuildContext) error {
 	}
 
 	for _, builder := range buildCtx.Bobfile.Builders {
+		if buildCtx.BuilderNameFilter != "" && builder.Name != buildCtx.BuilderNameFilter {
+			continue
+		}
+
 		if err := buildAndRunOneBuilder(builder, buildCtx); err != nil {
 			return err
 		}
@@ -184,7 +190,12 @@ func buildCommon(buildCtx *BuildContext) error {
 	return nil
 }
 
-func constructBuildContext(publishArtefacts bool, onlyCommitted bool) (*BuildContext, error) {
+func constructBuildContext(
+	publishArtefacts bool,
+	onlyCommitted bool,
+	builderNameFilter string,
+	envsAreRequired bool,
+) (*BuildContext, error) {
 	bobfile, errBobfile := readBobfile()
 	if errBobfile != nil {
 		return nil, errBobfile
@@ -216,6 +227,8 @@ func constructBuildContext(publishArtefacts bool, onlyCommitted bool) (*BuildCon
 		OriginDir:         repoOriginDir,
 		WorkspaceDir:      projectSpecificDir(bobfile.ProjectName, "workspace"),
 		CloningStepNeeded: cloningStepNeeded,
+		BuilderNameFilter: builderNameFilter,
+		ENVsAreRequired:   envsAreRequired,
 		VersionControl:    versionControl,
 	}
 
@@ -226,30 +239,27 @@ func projectSpecificDir(projectName string, dirName string) string {
 	return "/tmp/bob/" + projectName + "/" + dirName
 }
 
-func build(publishArtefacts bool, uncommitted bool) error {
-	buildCtx, err := constructBuildContext(publishArtefacts, uncommitted)
-	if err != nil {
-		return err
-	}
-
-	return buildCommon(buildCtx)
-}
-
 func buildEntry() *cobra.Command {
 	publishArtefacts := false
 	uncommitted := false
+	builderName := ""
+	norequireEnvs := false
 
 	cmd := &cobra.Command{
 		Use:   "build",
 		Short: "Builds the project",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			reactToError(build(publishArtefacts, !uncommitted))
+			buildCtx, err := constructBuildContext(publishArtefacts, !uncommitted, builderName, !norequireEnvs)
+			reactToError(err)
+			reactToError(buildCommon(buildCtx))
 		},
 	}
 
+	cmd.Flags().BoolVarP(&norequireEnvs, "norequire-envs", "n", norequireEnvs, "Don´t error out if not all ENV vars are set")
 	cmd.Flags().BoolVarP(&publishArtefacts, "publish-artefacts", "p", publishArtefacts, "Whether to publish the artefacts")
 	cmd.Flags().BoolVarP(&uncommitted, "uncommitted", "u", uncommitted, "Include uncommitted changes")
+	cmd.Flags().StringVarP(&builderName, "builder", "b", builderName, "If specified, runs only one builder instead of all")
 
 	return cmd
 }

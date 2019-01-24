@@ -8,7 +8,8 @@ import (
 )
 
 func info() error {
-	buildCtx, err := constructBuildContext(true, true) // FIXME: static publishArtefacts
+	// FIXME: too many assumptions
+	buildCtx, err := constructBuildContext(true, true, "", true)
 	if err != nil {
 		return err
 	}
