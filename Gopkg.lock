@@ -61,14 +61,15 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:23f440e067ebce99f2d29d5546483f8ea200ec888d3452f45238a6d43b4b4ad7"
+  digest = "1:dc10220c7b9ccfcfa8f60ac087aebcea915538b63d6e90cb10a9c074021269f3"
   name = "github.com/function61/gokit"
   packages = [
     "assert",
     "dynversion",
+    "jsonfile",
   ]
   pruneopts = "UT"
-  revision = "7397b370de1295275a4670bce87cc8f5f64e33fa"
+  revision = "ef6fdbd9fbdabf1960a9b894dcdd8dbaaa5a9dc2"
 
 [[projects]]
   digest = "1:5abd6a22805b1919f6a6bca0ae58b13cef1f3412812f38569978f43ef02743d4"
@@ -130,6 +131,7 @@
     "github.com/aws/aws-sdk-go/service/ecr",
     "github.com/function61/gokit/assert",
     "github.com/function61/gokit/dynversion",
+    "github.com/function61/gokit/jsonfile",
     "github.com/spf13/cobra",
   ]
   solver-name = "gps-cdcl"

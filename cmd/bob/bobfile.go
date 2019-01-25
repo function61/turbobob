@@ -1,8 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"github.com/function61/gokit/jsonfile"
 	"os"
 )
 
@@ -85,11 +85,8 @@ func readBobfile() (*Bobfile, error) {
 	}
 	defer bobfileFile.Close()
 
-	decoder := json.NewDecoder(bobfileFile)
-	decoder.DisallowUnknownFields()
-
 	bobfile := &Bobfile{}
-	if err := decoder.Decode(bobfile); err != nil {
+	if err := jsonfile.Unmarshal(bobfileFile, bobfile, true); err != nil {
 		return nil, err
 	}
 
