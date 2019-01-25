@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -23,28 +24,41 @@ func devContainerName(bobfile *Bobfile, builderName string) string {
 	return "tbdev-" + bobfile.ProjectName + "-" + builderName
 }
 
-func builderDockerfilePath(builder *BuilderSpec) string {
-	if builder.DockerfilePath != "" {
-		return builder.DockerfilePath
+func builderImageName(bobfile *Bobfile, builder BuilderSpec) string {
+	builderType, ref, err := parseBuilderUsesType(builder.Uses)
+	if err != nil {
+		panic(err)
 	}
 
-	// TODO: in the future warn about this? it would be better to
-	//       be more explicit and thus have less magic
-	return "Dockerfile." + builder.Name + "-build"
-}
-
-func builderImageName(bobfile *Bobfile, builderName string) string {
-	return "tb-" + bobfile.ProjectName + "-builder-" + builderName
+	switch builderType {
+	case builderUsesTypeImage:
+		return ref // "image:tag"
+	case builderUsesTypeDockerfile:
+		return "tb-" + bobfile.ProjectName + "-builder-" + builder.Name
+	default:
+		panic("unknown builderType")
+	}
 }
 
 func buildBuilder(bobfile *Bobfile, builder *BuilderSpec) error {
-	imageName := builderImageName(bobfile, builder.Name)
+	imageName := builderImageName(bobfile, *builder)
+
+	builderUsesType, dockerfilePath, err := parseBuilderUsesType(builder.Uses)
+	if err != nil {
+		return err
+	}
+
+	if builderUsesType != builderUsesTypeDockerfile {
+		return errors.New("buildBuilder(): incorrect uses type")
+	}
+
+	printHeading(fmt.Sprintf("Building builder %s (as %s)", builder.Name, imageName))
 
 	var imageBuildCmd *exec.Cmd = nil
 
 	// provide Dockerfile from stdin for contextless build
 	if builder.ContextlessBuild {
-		dockerfileContent, err := ioutil.ReadFile(builderDockerfilePath(builder))
+		dockerfileContent, err := ioutil.ReadFile(dockerfilePath)
 		if err != nil {
 			return err
 		}
@@ -63,7 +77,7 @@ func buildBuilder(bobfile *Bobfile, builder *BuilderSpec) error {
 			"docker",
 			"build",
 			"--tag", imageName,
-			"--file", builderDockerfilePath(builder),
+			"--file", dockerfilePath,
 			".")
 		imageBuildCmd.Stdout = os.Stdout
 		imageBuildCmd.Stderr = os.Stderr
@@ -89,10 +103,6 @@ func dockerRelayEnvVars(
 	}
 
 	env("FRIENDLY_REV_ID", build.FriendlyRevisionId)
-
-	if publishArtefacts { // TODO: this is deprecated
-		env("PUBLISH_ARTEFACTS", "true")
-	}
 
 	for _, envKey := range envsToRelay {
 		envValue := os.Getenv(envKey)

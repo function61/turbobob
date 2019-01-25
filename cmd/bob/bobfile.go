@@ -54,16 +54,22 @@ func (o *OsArchesSpec) AsBuildEnvVariables() []string {
 	return ret
 }
 
+type BuilderCommands struct {
+	Build   []string `json:"build"`
+	Publish []string `json:"publish"`
+	Dev     []string `json:"dev"`
+}
+
 type BuilderSpec struct {
-	Name             string   `json:"name"`
-	DockerfilePath   string   `json:"dockerfile_path"`
-	MountSource      string   `json:"mount_source"`
-	MountDestination string   `json:"mount_destination"`
-	DevCommand       []string `json:"dev_command"`
-	DevPorts         []string `json:"dev_ports"`
-	DevProTips       []string `json:"dev_pro_tips"`
-	PassEnvs         []string `json:"pass_envs"`
-	ContextlessBuild bool     `json:"contextless_build"`
+	Name             string          `json:"name"`
+	Uses             string          `json:"uses"` // "docker://alpine:latest" | "dockerfile://build-default.Dockerfile"
+	MountSource      string          `json:"mount_source"`
+	MountDestination string          `json:"mount_destination"`
+	Commands         BuilderCommands `json:"commands"`
+	DevPorts         []string        `json:"dev_ports"`
+	DevProTips       []string        `json:"dev_pro_tips"`
+	PassEnvs         []string        `json:"pass_envs"`
+	ContextlessBuild bool            `json:"contextless_build"`
 }
 
 type DockerImageSpec struct {

@@ -33,10 +33,12 @@ func info() error {
 
 		builderTable := termtables.CreateTable()
 		builderTable.AddRow("Name", builder.Name)
-		builderTable.AddRow("Dockerfile path", builder.DockerfilePath)
+		builderTable.AddRow("Uses", builder.Uses)
 		builderTable.AddRow("Mount source", builder.MountSource)
 		builderTable.AddRow("Mount destination", builder.MountDestination)
-		builderTable.AddRow("Dev command", strings.Join(builder.DevCommand, " "))
+		builderTable.AddRow("Build command", builderCommandToHumanReadable(builder.Commands.Build))
+		builderTable.AddRow("Publish command", strings.Join(builder.Commands.Publish, " "))
+		builderTable.AddRow("Dev command", strings.Join(builder.Commands.Dev, " "))
 		builderTable.AddRow("Dev ports", ports)
 
 		for _, envKey := range builder.PassEnvs {
@@ -90,4 +92,12 @@ func infoEntry() *cobra.Command {
 			reactToError(info())
 		},
 	}
+}
+
+func builderCommandToHumanReadable(cmd []string) string {
+	cmdHumanReadable := strings.Join(cmd, " ")
+	if cmdHumanReadable == "" {
+		cmdHumanReadable = "(default command of Docker image)"
+	}
+	return cmdHumanReadable
 }

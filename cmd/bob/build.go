@@ -19,21 +19,13 @@ type BuildContext struct {
 	BuildMetadata     *BuildMetadata
 }
 
-func buildAndRunOneBuilder(builder BuilderSpec, buildCtx *BuildContext) error {
+func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdToRun []string) error {
 	wd, errWd := os.Getwd()
 	if errWd != nil {
 		return errWd
 	}
 
-	imageName := builderImageName(buildCtx.Bobfile, builder.Name)
-
-	printHeading(fmt.Sprintf("Building builder %s (as %s)", builder.Name, imageName))
-
-	if err := buildBuilder(buildCtx.Bobfile, &builder); err != nil {
-		return err
-	}
-
-	printHeading(fmt.Sprintf("Building with %s", builder.Name))
+	printHeading(fmt.Sprintf("%s/%s (%s)", builder.Name, opDesc, builderCommandToHumanReadable(cmdToRun)))
 
 	buildArgs := []string{
 		"docker",
@@ -56,7 +48,11 @@ func buildAndRunOneBuilder(builder BuilderSpec, buildCtx *BuildContext) error {
 		return errEnv
 	}
 
-	buildArgs = append(buildArgs, imageName)
+	buildArgs = append(buildArgs, builderImageName(buildCtx.Bobfile, builder))
+
+	if len(cmdToRun) > 0 {
+		buildArgs = append(buildArgs, cmdToRun...)
+	}
 
 	buildCmd := passthroughStdoutAndStderr(exec.Command(buildArgs[0], buildArgs[1:]...))
 
@@ -157,19 +153,60 @@ func cloneToWorkdir(buildCtx *BuildContext) error {
 	return nil
 }
 
-func buildCommon(buildCtx *BuildContext) error {
+func build(buildCtx *BuildContext) error {
 	if buildCtx.CloningStepNeeded {
 		if err := cloneToWorkdir(buildCtx); err != nil {
 			return err
 		}
 	}
 
+	// build builders (TODO: check cache so this is not done unless necessary?)
 	for _, builder := range buildCtx.Bobfile.Builders {
 		if buildCtx.BuilderNameFilter != "" && builder.Name != buildCtx.BuilderNameFilter {
 			continue
 		}
 
-		if err := buildAndRunOneBuilder(builder, buildCtx); err != nil {
+		builderType, _, err := parseBuilderUsesType(builder.Uses)
+		if err != nil {
+			return err
+		}
+
+		// only need to build if a builder is dockerfile. images are ready for consumption.
+		if builderType != builderUsesTypeDockerfile {
+			continue
+		}
+
+		if err := buildBuilder(buildCtx.Bobfile, &builder); err != nil {
+			return err
+		}
+	}
+
+	// two passes:
+	//   1) run all builds with all phases except publish
+	//   2) run all builds with only publish phase (but only if publish requested)
+
+	// 1)
+	for _, builder := range buildCtx.Bobfile.Builders {
+		if buildCtx.BuilderNameFilter != "" && builder.Name != buildCtx.BuilderNameFilter {
+			continue
+		}
+
+		if err := runBuilder(builder, buildCtx, "build", builder.Commands.Build); err != nil {
+			return err
+		}
+	}
+
+	// 2)
+	for _, builder := range buildCtx.Bobfile.Builders {
+		if buildCtx.BuilderNameFilter != "" && builder.Name != buildCtx.BuilderNameFilter {
+			continue
+		}
+
+		if !buildCtx.PublishArtefacts || len(builder.Commands.Publish) == 0 {
+			continue
+		}
+
+		if err := runBuilder(builder, buildCtx, "publish", builder.Commands.Publish); err != nil {
 			return err
 		}
 	}
@@ -252,7 +289,7 @@ func buildEntry() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			buildCtx, err := constructBuildContext(publishArtefacts, !uncommitted, builderName, !norequireEnvs)
 			reactToError(err)
-			reactToError(buildCommon(buildCtx))
+			reactToError(build(buildCtx))
 		},
 	}
 

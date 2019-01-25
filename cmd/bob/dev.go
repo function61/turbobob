@@ -34,14 +34,19 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 			"exec",
 			"--interactive",
 			"--tty",
-			containerName}, builder.DevCommand...)
+			containerName}, builder.Commands.Dev...)
 	} else {
-		imageName := builderImageName(bobfile, builder.Name)
-
-		printHeading(fmt.Sprintf("Building builder %s (as %s)", builder.Name, imageName))
-
-		if err := buildBuilder(bobfile, builder); err != nil {
+		builderType, _, err := parseBuilderUsesType(builder.Uses)
+		if err != nil {
 			return nil, err
+		}
+
+		// only need to build if a builder is dockerfile. images are ready for consumption.
+		if builderType == builderUsesTypeDockerfile {
+			// internally prints heading
+			if err := buildBuilder(bobfile, builder); err != nil {
+				return nil, err
+			}
 		}
 
 		dockerCmd = []string{
@@ -82,8 +87,8 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 			return nil, errEnv
 		}
 
-		dockerCmd = append(dockerCmd, imageName)
-		dockerCmd = append(dockerCmd, builder.DevCommand...)
+		dockerCmd = append(dockerCmd, builderImageName(bobfile, *builder))
+		dockerCmd = append(dockerCmd, builder.Commands.Dev...)
 	}
 
 	if len(builder.DevPorts) > 0 {
