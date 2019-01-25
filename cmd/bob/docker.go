@@ -94,7 +94,7 @@ func dockerRelayEnvVars(
 	dockerArgs []string,
 	build *BuildMetadata,
 	publishArtefacts bool,
-	envsToRelay []string,
+	builder BuilderSpec,
 	envsAreRequired bool,
 	osArches OsArchesSpec,
 ) ([]string, error) {
@@ -104,13 +104,17 @@ func dockerRelayEnvVars(
 
 	env("FRIENDLY_REV_ID", build.FriendlyRevisionId)
 
-	for _, envKey := range envsToRelay {
+	for _, envKey := range builder.PassEnvs {
 		envValue := os.Getenv(envKey)
 		if envValue != "" {
 			dockerArgs = append(dockerArgs, "--env", envKey)
 		} else if envsAreRequired {
 			return nil, envVarMissingErr(envKey)
 		}
+	}
+
+	for envKey, envValue := range builder.Envs {
+		env(envKey, envValue)
 	}
 
 	// BUILD_LINUX_AMD64=true, BUILD_LINUX_ARM=true, ...

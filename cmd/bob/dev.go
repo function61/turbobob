@@ -80,7 +80,7 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 			dockerCmd,
 			revisionMetadataForDev(),
 			false,
-			builder.PassEnvs,
+			*builder,
 			envsAreRequired,
 			archesToBuildFor)
 		if errEnv != nil {

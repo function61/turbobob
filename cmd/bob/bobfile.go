@@ -61,15 +61,16 @@ type BuilderCommands struct {
 }
 
 type BuilderSpec struct {
-	Name             string          `json:"name"`
-	Uses             string          `json:"uses"` // "docker://alpine:latest" | "dockerfile://build-default.Dockerfile"
-	MountSource      string          `json:"mount_source"`
-	MountDestination string          `json:"mount_destination"`
-	Commands         BuilderCommands `json:"commands"`
-	DevPorts         []string        `json:"dev_ports"`
-	DevProTips       []string        `json:"dev_pro_tips"`
-	PassEnvs         []string        `json:"pass_envs"`
-	ContextlessBuild bool            `json:"contextless_build"`
+	Name             string            `json:"name"`
+	Uses             string            `json:"uses"` // "docker://alpine:latest" | "dockerfile://build-default.Dockerfile"
+	MountSource      string            `json:"mount_source"`
+	MountDestination string            `json:"mount_destination"`
+	Commands         BuilderCommands   `json:"commands"`
+	DevPorts         []string          `json:"dev_ports"`
+	DevProTips       []string          `json:"dev_pro_tips"`
+	Envs             map[string]string `json:"env"`
+	PassEnvs         []string          `json:"pass_envs"`
+	ContextlessBuild bool              `json:"contextless_build"`
 }
 
 type DockerImageSpec struct {

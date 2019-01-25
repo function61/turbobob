@@ -41,7 +41,7 @@ func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdT
 		buildArgs,
 		buildCtx.BuildMetadata,
 		buildCtx.PublishArtefacts,
-		builder.PassEnvs,
+		builder,
 		buildCtx.ENVsAreRequired,
 		*buildCtx.Bobfile.OsArches)
 	if errEnv != nil {
