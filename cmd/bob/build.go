@@ -36,6 +36,10 @@ func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdT
 		"--volume", "/tmp/build:/tmp/build", // cannot map to /tmp because at least apt won't work (permission issues?)
 	}
 
+	if builder.Workdir != "" {
+		buildArgs = append(buildArgs, "--workdir", builder.Workdir)
+	}
+
 	// inserts ["--env", "FOO"] pairs for each PassEnvs
 	buildArgs, errEnv := dockerRelayEnvVars(
 		buildArgs,

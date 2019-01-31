@@ -29,12 +29,18 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 
 	var dockerCmd []string
 	if isDevContainerRunning(containerName) {
-		dockerCmd = append([]string{
+		dockerCmd = []string{
 			"docker",
 			"exec",
 			"--interactive",
 			"--tty",
-			containerName}, builder.Commands.Dev...)
+			containerName}
+
+		if builder.Workdir != "" {
+			dockerCmd = append(dockerCmd, "--workdir", builder.Workdir)
+		}
+
+		dockerCmd = append(dockerCmd, builder.Commands.Dev...)
 	} else {
 		builderType, _, err := parseBuilderUsesType(builder.Uses)
 		if err != nil {
@@ -58,6 +64,10 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 			"--name", containerName,
 			"--volume", wd + "/" + builder.MountSource + ":" + builder.MountDestination,
 			"--volume", "/tmp/build:/tmp/build", // cannot map to /tmp because at least apt won't work (permission issues?)
+		}
+
+		if builder.Workdir != "" {
+			dockerCmd = append(dockerCmd, "--workdir", builder.Workdir)
 		}
 
 		for _, port := range builder.DevPorts {

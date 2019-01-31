@@ -65,6 +65,7 @@ type BuilderSpec struct {
 	Uses             string            `json:"uses"` // "docker://alpine:latest" | "dockerfile://build-default.Dockerfile"
 	MountSource      string            `json:"mount_source"`
 	MountDestination string            `json:"mount_destination"`
+	Workdir          string            `json:"workdir"`
 	Commands         BuilderCommands   `json:"commands"`
 	DevPorts         []string          `json:"dev_ports"`
 	DevProTips       []string          `json:"dev_pro_tips"`
