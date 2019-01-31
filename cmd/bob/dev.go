@@ -33,13 +33,13 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 			"docker",
 			"exec",
 			"--interactive",
-			"--tty",
-			containerName}
+			"--tty"}
 
 		if builder.Workdir != "" {
 			dockerCmd = append(dockerCmd, "--workdir", builder.Workdir)
 		}
 
+		dockerCmd = append(dockerCmd, containerName)
 		dockerCmd = append(dockerCmd, builder.Commands.Dev...)
 	} else {
 		builderType, _, err := parseBuilderUsesType(builder.Uses)
