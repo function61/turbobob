@@ -61,11 +61,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:dc10220c7b9ccfcfa8f60ac087aebcea915538b63d6e90cb10a9c074021269f3"
+  digest = "1:0abb3f5e36f0eac80168f430e11942a519e46b0031143d1d9e1eda64ac1c2ec9"
   name = "github.com/function61/gokit"
   packages = [
     "assert",
     "dynversion",
+    "fileexists",
     "jsonfile",
   ]
   pruneopts = "UT"
@@ -131,6 +132,7 @@
     "github.com/aws/aws-sdk-go/service/ecr",
     "github.com/function61/gokit/assert",
     "github.com/function61/gokit/dynversion",
+    "github.com/function61/gokit/fileexists",
     "github.com/function61/gokit/jsonfile",
     "github.com/spf13/cobra",
   ]

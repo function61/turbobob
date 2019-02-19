@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/function61/gokit/fileexists"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -51,7 +52,7 @@ func resolveMetadataFromVersionControl(vc Versioncontrol, onlyCommitted bool) (*
 }
 
 func determineVcForDirectory(dir string) (Versioncontrol, error) {
-	isHg, err := fileExists(filepath.Join(dir, ".hg"))
+	isHg, err := fileexists.Exists(filepath.Join(dir, ".hg"))
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +63,7 @@ func determineVcForDirectory(dir string) (Versioncontrol, error) {
 		}, nil
 	}
 
-	isGit, err := fileExists(filepath.Join(dir, ".git"))
+	isGit, err := fileexists.Exists(filepath.Join(dir, ".git"))
 	if err != nil {
 		return nil, err
 	}

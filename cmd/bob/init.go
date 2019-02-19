@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/function61/gokit/dynversion"
+	"github.com/function61/gokit/fileexists"
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"os"
@@ -17,7 +18,7 @@ const (
 )
 
 func writeTravisBoilerplate() error {
-	exists, errExistsCheck := fileExists(travisFilePath)
+	exists, errExistsCheck := fileexists.Exists(travisFilePath)
 	if errExistsCheck != nil {
 		return errExistsCheck
 	}
@@ -43,7 +44,7 @@ script:
 }
 
 func writeGitLabBoilerplate() error {
-	exists, errExistsCheck := fileExists(gitlabFilePath)
+	exists, errExistsCheck := fileexists.Exists(gitlabFilePath)
 	if errExistsCheck != nil {
 		return errExistsCheck
 	}
@@ -73,7 +74,7 @@ build:
 }
 
 func writeDefaultBobfile(producesDockerImage bool) error {
-	exists, errExistsCheck := fileExists(bobfileName)
+	exists, errExistsCheck := fileexists.Exists(bobfileName)
 	if errExistsCheck != nil {
 		return errExistsCheck
 	}

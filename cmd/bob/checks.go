@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/function61/gokit/fileexists"
 )
 
 func RunChecks(buildCtx *BuildContext) ([]CheckResult, error) {
@@ -29,7 +30,7 @@ func RunChecks(buildCtx *BuildContext) ([]CheckResult, error) {
 func licensePresent(ctx *CheckContext) error {
 	licenseCheck := ctx.NewCheck("License present")
 
-	exists, errChecking := fileExists("LICENSE")
+	exists, errChecking := fileexists.Exists("LICENSE")
 	if errChecking != nil {
 		return errChecking
 	}
@@ -44,7 +45,7 @@ func licensePresent(ctx *CheckContext) error {
 func readmePresent(ctx *CheckContext) error {
 	readmeCheck := ctx.NewCheck("Readme present")
 
-	exists, errChecking := fileExists("README.md")
+	exists, errChecking := fileexists.Exists("README.md")
 	if errChecking != nil {
 		return errChecking
 	}

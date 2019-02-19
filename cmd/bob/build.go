@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/function61/gokit/fileexists"
 	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
@@ -103,7 +104,7 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 
 func cloneToWorkdir(buildCtx *BuildContext) error {
 	rootForProject := projectSpecificDir(buildCtx.Bobfile.ProjectName, "")
-	rootForProjectExists, rootForProjectExistsErr := fileExists(rootForProject)
+	rootForProjectExists, rootForProjectExistsErr := fileexists.Exists(rootForProject)
 	if rootForProjectExistsErr != nil {
 		return rootForProjectExistsErr
 	}
@@ -116,7 +117,7 @@ func cloneToWorkdir(buildCtx *BuildContext) error {
 		}
 	}
 
-	workspaceDirExists, workspaceDirExistsErr := fileExists(buildCtx.WorkspaceDir)
+	workspaceDirExists, workspaceDirExistsErr := fileexists.Exists(buildCtx.WorkspaceDir)
 	if workspaceDirExistsErr != nil {
 		return workspaceDirExistsErr
 	}
