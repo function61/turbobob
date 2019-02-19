@@ -51,6 +51,14 @@ func resolveMetadataFromVersionControl(vc Versioncontrol, onlyCommitted bool) (*
 	}, nil
 }
 
+func NewGit(dir string) Versioncontrol {
+	return &Git{dir: dir}
+}
+
+func NewMercurial(dir string) Versioncontrol {
+	return &Mercurial{dir: dir}
+}
+
 func determineVcForDirectory(dir string) (Versioncontrol, error) {
 	isHg, err := fileexists.Exists(filepath.Join(dir, ".hg"))
 	if err != nil {
@@ -58,9 +66,7 @@ func determineVcForDirectory(dir string) (Versioncontrol, error) {
 	}
 
 	if isHg {
-		return &Mercurial{
-			dir: dir,
-		}, nil
+		return NewMercurial(dir), nil
 	}
 
 	isGit, err := fileexists.Exists(filepath.Join(dir, ".git"))
@@ -69,9 +75,7 @@ func determineVcForDirectory(dir string) (Versioncontrol, error) {
 	}
 
 	if isGit {
-		return &Git{
-			dir: dir,
-		}, nil
+		return NewGit(dir), nil
 	}
 
 	return nil, ErrVcMechanismNotIdentified
