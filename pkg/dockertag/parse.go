@@ -1,30 +1,32 @@
-package main
+package dockertag
 
 import (
 	"regexp"
 	"strings"
 )
 
+const DockerHubHostname = "docker.io"
+
 // could also use github.com/docker/distribution/reference but it seems confusing
 
 // thanks https://github.com/mafintosh/docker-parse-image/blob/master/index.js
 var parseRe = regexp.MustCompile("^(?:([^\\/]+)\\/)?(?:([^\\/]+)\\/)?([^@:\\/]+)(?:[@:](.+))?$")
 
-type DockerTag struct {
+type Tag struct {
 	Registry   string
 	Namespace  string
 	Repository string
 	Tag        string
 }
 
-func ParseDockerTag(serialized string) *DockerTag {
+func Parse(serialized string) *Tag {
 	match := parseRe.FindStringSubmatch(serialized)
 	if len(match) != 5 {
 		return nil
 	}
 
 	if match[2] == "" && match[1] != "" && !strings.Contains(match[1], ".") {
-		return &DockerTag{
+		return &Tag{
 			Registry:   "",
 			Namespace:  match[1],
 			Repository: match[3],
@@ -32,7 +34,7 @@ func ParseDockerTag(serialized string) *DockerTag {
 		}
 	}
 
-	return &DockerTag{
+	return &Tag{
 		Registry:   match[1],
 		Namespace:  match[2],
 		Repository: match[3],

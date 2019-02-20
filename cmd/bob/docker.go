@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/function61/turbobob/pkg/dockertag"
 	"github.com/function61/turbobob/pkg/versioncontrol"
 	"io/ioutil"
 	"os"
@@ -133,14 +134,14 @@ func loginToDockerRegistry(dockerImage DockerImageSpec) error {
 		return err
 	}
 
-	tagParsed := ParseDockerTag(dockerImage.Image)
+	tagParsed := dockertag.Parse(dockerImage.Image)
 	if tagParsed == nil {
 		return ErrUnableToParseDockerTag
 	}
 
 	registryDefaulted := tagParsed.Registry
 	if registryDefaulted == "" {
-		registryDefaulted = "docker.io"
+		registryDefaulted = dockertag.DockerHubHostname // docker.io
 	}
 
 	printHeading(fmt.Sprintf("Logging in as %s to %s", creds.Username, registryDefaulted))
