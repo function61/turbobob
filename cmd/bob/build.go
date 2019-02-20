@@ -268,14 +268,20 @@ func constructBuildContext(
 
 	areWeInCi := os.Getenv("CI_REVISION_ID") != ""
 
+	workspaceDir := projectSpecificDir(bobfile.ProjectName, "workspace")
+
 	cloningStepNeeded := !areWeInCi && onlyCommitted
+
+	if !cloningStepNeeded {
+		workspaceDir = repoOriginDir
+	}
 
 	buildCtx := &BuildContext{
 		Bobfile:           bobfile,
 		PublishArtefacts:  publishArtefacts,
 		RevisionId:        metadata,
 		OriginDir:         repoOriginDir,
-		WorkspaceDir:      projectSpecificDir(bobfile.ProjectName, "workspace"),
+		WorkspaceDir:      workspaceDir,
 		CloningStepNeeded: cloningStepNeeded,
 		BuilderNameFilter: builderNameFilter,
 		ENVsAreRequired:   envsAreRequired,
