@@ -17,7 +17,15 @@ type Bobfile struct {
 	ProjectName                string            `json:"project_name"`
 	Builders                   []BuilderSpec     `json:"builders"`
 	DockerImages               []DockerImageSpec `json:"docker_images"`
+	Subrepos                   []SubrepoSpec     `json:"subrepos"`
 	OsArches                   *OsArchesSpec     `json:"os_arches"`
+}
+
+type SubrepoSpec struct {
+	Source      string `json:"source"`
+	Kind        VcKind `json:"kind"`
+	Destination string `json:"destination"`
+	Revision    string `json:"revision"`
 }
 
 // documents os/arch combos which this project's build artefacts support.
@@ -108,6 +116,16 @@ func readBobfile() (*Bobfile, error) {
 
 	if err := assertUniqueBuilderNames(bobfile); err != nil {
 		return nil, err
+	}
+
+	for _, subrepo := range bobfile.Subrepos {
+		// https://stackoverflow.com/questions/19633763/unmarshaling-json-in-golang-required-field
+		// we cannot even check for empty value in custom type's UnmarshalJSON() because if
+		// the value is missing, the func does not get called. IOW unmarshaling can still
+		// end up in broken data, so we must check it manually..
+		if subrepo.Kind == "" {
+			return nil, fmt.Errorf("Subrepo Kind cannot be empty")
+		}
 	}
 
 	if bobfile.OsArches == nil {

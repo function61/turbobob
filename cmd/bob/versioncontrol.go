@@ -1,12 +1,51 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/function61/gokit/fileexists"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
 )
+
+type VcKind string
+
+func (s VcKind) MarshalJSON() ([]byte, error) {
+	return []byte(`"` + string(s) + `"`), nil
+}
+
+func (s *VcKind) UnmarshalJSON(b []byte) error {
+	var raw string
+	err := json.Unmarshal(b, &raw)
+	if err != nil {
+		return err
+	}
+
+	kind, err := vcKindFromString(raw)
+	if err != nil {
+		return err
+	}
+	*s = kind
+	return nil
+}
+
+const (
+	VcKindGit       VcKind = "git"
+	VcKindMercurial VcKind = "hg"
+)
+
+func vcKindFromString(input string) (VcKind, error) {
+	switch VcKind(input) {
+	case VcKindGit:
+		return VcKindGit, nil
+	case VcKindMercurial:
+		return VcKindMercurial, nil
+	default:
+		return "", fmt.Errorf("illegal VcKind: %s", input)
+	}
+}
 
 var zeroTime = time.Time{}
 
@@ -57,6 +96,17 @@ func NewGit(dir string) Versioncontrol {
 
 func NewMercurial(dir string) Versioncontrol {
 	return &Mercurial{dir: dir}
+}
+
+func vcForDir(dir string, kind VcKind) (Versioncontrol, error) {
+	switch kind {
+	case VcKindGit:
+		return NewGit(dir), nil
+	case VcKindMercurial:
+		return NewMercurial(dir), nil
+	default:
+		return nil, fmt.Errorf("unsupported VcKind: %s", kind)
+	}
 }
 
 func determineVcForDirectory(dir string) (Versioncontrol, error) {
@@ -119,7 +169,8 @@ func (g *Git) Identify() (string, time.Time, error) {
 }
 
 func (g *Git) CloneFrom(source string) error {
-	_, err := execWithDir(g.dir, "git", "clone", "--no-checkout", source, g.dir)
+	// cannot set dir, because target dir does not yet exist
+	_, err := execWithDir("", "git", "clone", "--no-checkout", source, g.dir)
 	return err
 }
 
@@ -162,6 +213,7 @@ func (m *Mercurial) Identify() (string, time.Time, error) {
 }
 
 func (m *Mercurial) CloneFrom(source string) error {
+	// cannot set dir, because target dir does not yet exist
 	_, err := execWithDir("", "hg", "clone", "--noupdate", source, m.dir)
 	return err
 }

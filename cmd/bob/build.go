@@ -166,6 +166,12 @@ func build(buildCtx *BuildContext) error {
 		}
 	}
 
+	for _, subrepo := range buildCtx.Bobfile.Subrepos {
+		if err := ensureSubrepoCloned(buildCtx.WorkspaceDir+"/"+subrepo.Destination, subrepo); err != nil {
+			return err
+		}
+	}
+
 	// build builders (TODO: check cache so this is not done unless necessary?)
 	for _, builder := range buildCtx.Bobfile.Builders {
 		if buildCtx.BuilderNameFilter != "" && builder.Name != buildCtx.BuilderNameFilter {

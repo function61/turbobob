@@ -25,6 +25,12 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 		return nil, ErrBuilderNotFound
 	}
 
+	for _, subrepo := range bobfile.Subrepos {
+		if err := ensureSubrepoCloned(wd+"/"+subrepo.Destination, subrepo); err != nil {
+			return nil, err
+		}
+	}
+
 	containerName := devContainerName(bobfile, builder.Name)
 
 	var dockerCmd []string
