@@ -4,5 +4,5 @@ sudo: required
 services: docker
 language: minimal
 script:
-  - curl --fail --location --output bob https://dl.bintray.com/function61/turbobob/20190215_1406_9218bf67/bob_linux-amd64 && chmod +x bob
+  - curl --fail --location --output bob https://dl.bintray.com/function61/turbobob/20190131_1250_72be3ef5/bob_linux-amd64 && chmod +x bob
   - CI_REVISION_ID="$TRAVIS_COMMIT" ./bob build --publish-artefacts

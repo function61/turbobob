@@ -1,7 +1,7 @@
 ![](misc/mascot/mascot.png)
 
 [![Build Status](https://img.shields.io/travis/function61/turbobob.svg?style=for-the-badge)](https://travis-ci.org/function61/turbobob)
-[![Download](https://img.shields.io/bintray/v/function61/turbobob/main.svg?style=for-the-badge&label=Download)](https://bintray.com/function61/turbobob/main/_latestVersion#files)
+[![Download](https://img.shields.io/bintray/v/function61/dl/turbobob.svg?style=for-the-badge&label=Download)](https://bintray.com/function61/dl/turbobob/_latestVersion#files)
 
 What is this?
 -------------
@@ -64,7 +64,7 @@ Install
 
 ```
 $ VERSION_TO_DOWNLOAD="..." # find this from Bintray. Looks like: 20180828_1449_b9d7759cf80f0b4a
-$ sudo curl --location --fail --output /usr/local/bin/bob "https://dl.bintray.com/function61/turbobob/$VERSION_TO_DOWNLOAD/bob_linux-amd64" && sudo chmod +x /usr/local/bin/bob
+$ sudo curl --location --fail --output /usr/local/bin/bob "https://dl.bintray.com/function61/dl/turbobob/$VERSION_TO_DOWNLOAD/bob_linux-amd64" && sudo chmod +x /usr/local/bin/bob
 ```
 
 
