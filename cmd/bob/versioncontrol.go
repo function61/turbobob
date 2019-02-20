@@ -84,13 +84,18 @@ func determineVcForDirectory(dir string) (Versioncontrol, error) {
 type Versioncontrol interface {
 	Identify() (string, time.Time, error)
 	VcKind() string
-	CloneTo(destination string) error
+	WithAnotherDir(dir string) Versioncontrol
+	CloneFrom(source string) error
 	Pull() error
 	Update(revision string) error
 }
 
 type Git struct {
 	dir string
+}
+
+func (g *Git) WithAnotherDir(dir string) Versioncontrol {
+	return &Git{dir: dir}
 }
 
 func (g *Git) VcKind() string {
@@ -113,8 +118,8 @@ func (g *Git) Identify() (string, time.Time, error) {
 	return parts[0], timestamp.UTC(), nil
 }
 
-func (g *Git) CloneTo(destination string) error {
-	_, err := execWithDir(g.dir, "git", "clone", "--no-checkout", g.dir, destination)
+func (g *Git) CloneFrom(source string) error {
+	_, err := execWithDir(g.dir, "git", "clone", "--no-checkout", source, g.dir)
 	return err
 }
 
@@ -136,6 +141,10 @@ func (g *Mercurial) VcKind() string {
 	return "hg"
 }
 
+func (g *Mercurial) WithAnotherDir(dir string) Versioncontrol {
+	return &Mercurial{dir: dir}
+}
+
 func (m *Mercurial) Identify() (string, time.Time, error) {
 	output, err := execWithDir(m.dir, "hg", "log", "--rev", ".", "--template", "{node},{date|isodate}")
 	if err != nil {
@@ -152,8 +161,8 @@ func (m *Mercurial) Identify() (string, time.Time, error) {
 	return parts[0], timestamp.UTC(), nil
 }
 
-func (m *Mercurial) CloneTo(destination string) error {
-	_, err := execWithDir(m.dir, "hg", "clone", "--noupdate", m.dir, destination)
+func (m *Mercurial) CloneFrom(source string) error {
+	_, err := execWithDir("", "hg", "clone", "--noupdate", source, m.dir)
 	return err
 }
 

@@ -125,7 +125,8 @@ func cloneToWorkdir(buildCtx *BuildContext) error {
 	if !workspaceDirExists {
 		printHeading(fmt.Sprintf("%s does not exist; cloning", buildCtx.WorkspaceDir))
 
-		if err := buildCtx.VersionControl.CloneTo(buildCtx.WorkspaceDir); err != nil {
+		cloned := buildCtx.VersionControl.WithAnotherDir(buildCtx.WorkspaceDir)
+		if err := cloned.CloneFrom(buildCtx.OriginDir); err != nil {
 			return err
 		}
 	}
