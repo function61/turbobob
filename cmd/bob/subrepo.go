@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/function61/gokit/fileexists"
+	"github.com/function61/turbobob/pkg/versioncontrol"
 )
 
 func ensureSubrepoCloned(destination string, subrepo SubrepoSpec) error {
@@ -17,7 +18,7 @@ func ensureSubrepoCloned(destination string, subrepo SubrepoSpec) error {
 
 	printHeading(fmt.Sprintf("Cloning subrepo %s -> %s", subrepo.Source, destination))
 
-	repo, err := vcForDir(destination, subrepo.Kind)
+	repo, err := versioncontrol.ForDir(destination, subrepo.Kind)
 	if err != nil {
 		return err
 	}

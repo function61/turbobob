@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/function61/turbobob/pkg/versioncontrol"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -92,7 +93,7 @@ func buildBuilder(bobfile *Bobfile, builder *BuilderSpec) error {
 
 func dockerRelayEnvVars(
 	dockerArgs []string,
-	build *BuildMetadata,
+	revisionId *versioncontrol.RevisionId,
 	publishArtefacts bool,
 	builder BuilderSpec,
 	envsAreRequired bool,
@@ -102,7 +103,7 @@ func dockerRelayEnvVars(
 		dockerArgs = append(dockerArgs, "--env", key+"="+value)
 	}
 
-	env("FRIENDLY_REV_ID", build.FriendlyRevisionId)
+	env("FRIENDLY_REV_ID", revisionId.FriendlyRevisionId)
 
 	for _, envKey := range builder.PassEnvs {
 		envValue := os.Getenv(envKey)

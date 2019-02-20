@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/function61/turbobob/pkg/versioncontrol"
 	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
@@ -94,7 +95,7 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 		var errEnv error
 		dockerCmd, errEnv = dockerRelayEnvVars(
 			dockerCmd,
-			revisionMetadataForDev(),
+			revisionIdForDev(),
 			false,
 			*builder,
 			envsAreRequired,
@@ -169,4 +170,14 @@ func devEntry() *cobra.Command {
 
 func currentRunningGoOsArchToOsArchCode() OsArchCode {
 	return OsArchCode(fmt.Sprintf("%s-%s", runtime.GOOS, runtime.GOARCH))
+}
+
+// TODO: maybe merge with resolveMetadataFromVersionControl(.., false)
+func revisionIdForDev() *versioncontrol.RevisionId {
+	return &versioncontrol.RevisionId{
+		VcKind:             "managedByCi", // FIXME
+		RevisionId:         "dev",
+		RevisionIdShort:    "dev",
+		FriendlyRevisionId: "dev",
+	}
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/function61/gokit/jsonfile"
+	"github.com/function61/turbobob/pkg/versioncontrol"
 	"os"
 )
 
@@ -22,10 +23,10 @@ type Bobfile struct {
 }
 
 type SubrepoSpec struct {
-	Source      string `json:"source"`
-	Kind        VcKind `json:"kind"`
-	Destination string `json:"destination"`
-	Revision    string `json:"revision"`
+	Source      string              `json:"source"`
+	Kind        versioncontrol.Kind `json:"kind"`
+	Destination string              `json:"destination"`
+	Revision    string              `json:"revision"`
 }
 
 // documents os/arch combos which this project's build artefacts support.

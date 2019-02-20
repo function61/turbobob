@@ -14,13 +14,13 @@ func info() error {
 		return err
 	}
 
-	metadata := buildCtx.BuildMetadata
+	revisionId := buildCtx.RevisionId // shorthand
 
 	basicDetails := termtables.CreateTable()
 	basicDetails.AddRow("Project name", buildCtx.Bobfile.ProjectName)
-	basicDetails.AddRow("VcKind", metadata.VcKind)
-	basicDetails.AddRow("Revision ID (full)", fmt.Sprintf("%s (%s)", metadata.RevisionIdShort, metadata.RevisionId))
-	basicDetails.AddRow("Friendly revision", metadata.FriendlyRevisionId)
+	basicDetails.AddRow("VcKind", revisionId.VcKind)
+	basicDetails.AddRow("Revision ID (full)", fmt.Sprintf("%s (%s)", revisionId.RevisionIdShort, revisionId.RevisionId))
+	basicDetails.AddRow("Friendly revision", revisionId.FriendlyRevisionId)
 
 	fmt.Printf("BASIC DETAILS\n%s\n", basicDetails.Render())
 

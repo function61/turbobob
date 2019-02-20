@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/function61/gokit/fileexists"
+	"github.com/function61/turbobob/pkg/versioncontrol"
 	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
@@ -16,8 +17,8 @@ type BuildContext struct {
 	CloningStepNeeded bool // false in CI, true in local (unless uncommited build requested)
 	BuilderNameFilter string
 	ENVsAreRequired   bool
-	VersionControl    Versioncontrol
-	BuildMetadata     *BuildMetadata
+	VersionControl    versioncontrol.Interface
+	RevisionId        *versioncontrol.RevisionId
 }
 
 func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdToRun []string) error {
@@ -44,7 +45,7 @@ func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdT
 	// inserts ["--env", "FOO"] pairs for each PassEnvs
 	buildArgs, errEnv := dockerRelayEnvVars(
 		buildArgs,
-		buildCtx.BuildMetadata,
+		buildCtx.RevisionId,
 		buildCtx.PublishArtefacts,
 		builder,
 		buildCtx.ENVsAreRequired,
@@ -70,7 +71,7 @@ func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdT
 
 func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildContext) error {
 	tagWithoutVersion := dockerImage.Image
-	tag := tagWithoutVersion + ":" + buildCtx.BuildMetadata.FriendlyRevisionId
+	tag := tagWithoutVersion + ":" + buildCtx.RevisionId.FriendlyRevisionId
 	dockerfilePath := dockerImage.DockerfilePath
 
 	printHeading(fmt.Sprintf("Building %s", tag))
@@ -131,7 +132,7 @@ func cloneToWorkdir(buildCtx *BuildContext) error {
 		}
 	}
 
-	workspaceRepo, errWorkspaceRepo := determineVcForDirectory(buildCtx.WorkspaceDir)
+	workspaceRepo, errWorkspaceRepo := versioncontrol.DetectForDirectory(buildCtx.WorkspaceDir)
 	if errWorkspaceRepo != nil {
 		return errWorkspaceRepo
 	}
@@ -150,9 +151,9 @@ func cloneToWorkdir(buildCtx *BuildContext) error {
 		}
 	*/
 
-	printHeading(fmt.Sprintf("Updating to %s", buildCtx.BuildMetadata.RevisionId))
+	printHeading(fmt.Sprintf("Updating to %s", buildCtx.RevisionId.RevisionId))
 
-	if err := workspaceRepo.Update(buildCtx.BuildMetadata.RevisionId); err != nil {
+	if err := workspaceRepo.Update(buildCtx.RevisionId.RevisionId); err != nil {
 		return err
 	}
 
@@ -255,12 +256,12 @@ func constructBuildContext(
 		return nil, errGetwd
 	}
 
-	versionControl, errVcDetermine := determineVcForDirectory(repoOriginDir)
+	versionControl, errVcDetermine := versioncontrol.DetectForDirectory(repoOriginDir)
 	if errVcDetermine != nil {
 		return nil, errVcDetermine
 	}
 
-	metadata, err := resolveMetadataFromVersionControl(versionControl, onlyCommitted)
+	metadata, err := versioncontrol.CurrentRevisionId(versionControl, onlyCommitted)
 	if err != nil {
 		return nil, err
 	}
@@ -272,7 +273,7 @@ func constructBuildContext(
 	buildCtx := &BuildContext{
 		Bobfile:           bobfile,
 		PublishArtefacts:  publishArtefacts,
-		BuildMetadata:     metadata,
+		RevisionId:        metadata,
 		OriginDir:         repoOriginDir,
 		WorkspaceDir:      projectSpecificDir(bobfile.ProjectName, "workspace"),
 		CloningStepNeeded: cloningStepNeeded,
