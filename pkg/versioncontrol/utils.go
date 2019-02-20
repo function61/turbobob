@@ -1,6 +1,7 @@
 package versioncontrol
 
 import (
+	"fmt"
 	"os/exec"
 	"time"
 )
@@ -13,7 +14,7 @@ func execWithDir(dir string, args ...string) (string, error) {
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%v: %s", err, output)
 	}
 
 	return string(output), nil
