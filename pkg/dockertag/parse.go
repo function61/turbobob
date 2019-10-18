@@ -10,7 +10,8 @@ const DockerHubHostname = "docker.io"
 // could also use github.com/docker/distribution/reference but it seems confusing
 
 // thanks https://github.com/mafintosh/docker-parse-image/blob/master/index.js
-var parseRe = regexp.MustCompile("^(?:([^\\/]+)\\/)?(?:([^\\/]+)\\/)?([^@:\\/]+)(?:[@:](.+))?$")
+// + https://github.com/mafintosh/docker-parse-image/pull/2
+var parseRe = regexp.MustCompile("^(?:([^\\/]+)\\/)?(?:([^\\/]+)\\/)?([^@:]+)(?:[@:](.+))?$")
 
 type Tag struct {
 	Registry   string
