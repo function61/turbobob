@@ -10,17 +10,6 @@
   revision = "b31f603f5e1e047fdb38584e1a922dcc5c4de5c8"
 
 [[projects]]
-  branch = "master"
-  digest = "1:f06367e46fad737b4eabdd21093ade373557a6ad34fbea3a845576c84712caa4"
-  name = "github.com/apcera/termtables"
-  packages = [
-    ".",
-    "term",
-  ]
-  pruneopts = "UT"
-  revision = "bcbc5dc54055d14996b256d348fb75cc6debe282"
-
-[[projects]]
   digest = "1:aa0165e15a7812619e1c7c4b41daa822d0a881b384d68f3fac75ffab6df26600"
   name = "github.com/aws/aws-sdk-go"
   packages = [
@@ -104,6 +93,17 @@
   version = "v0.0.3"
 
 [[projects]]
+  branch = "master"
+  digest = "1:a929894406e1036f89d0586550a523317917ac89380c365422d0e032417c3637"
+  name = "github.com/scylladb/termtables"
+  packages = [
+    ".",
+    "term",
+  ]
+  pruneopts = "UT"
+  revision = "c4c0b6d42ff48f1769c3626062d1e3f363f1a662"
+
+[[projects]]
   digest = "1:645cabccbb4fa8aab25a956cbcbdf6a6845ca736b2c64e197ca7cbb9d210b939"
   name = "github.com/spf13/cobra"
   packages = ["."]
@@ -124,7 +124,6 @@
   analyzer-version = 1
   input-imports = [
     "code.cloudfoundry.org/bytefmt",
-    "github.com/apcera/termtables",
     "github.com/aws/aws-sdk-go/aws",
     "github.com/aws/aws-sdk-go/aws/credentials",
     "github.com/aws/aws-sdk-go/aws/endpoints",
@@ -134,6 +133,7 @@
     "github.com/function61/gokit/dynversion",
     "github.com/function61/gokit/fileexists",
     "github.com/function61/gokit/jsonfile",
+    "github.com/scylladb/termtables",
     "github.com/spf13/cobra",
   ]
   solver-name = "gps-cdcl"

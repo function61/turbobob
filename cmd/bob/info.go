@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/apcera/termtables"
+	"github.com/scylladb/termtables"
 	"github.com/spf13/cobra"
 	"strings"
 )
