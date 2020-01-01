@@ -39,6 +39,7 @@ type OsArchesSpec struct {
 	LinuxArm64     bool `json:"linux-arm64"`
 	WindowsNeutral bool `json:"windows-neutral"` // works on Windows, arch doesn't matter
 	WindowsAmd64   bool `json:"windows-amd64"`
+	DarwinAmd64    bool `json:"darwin-amd64"`
 }
 
 func (o *OsArchesSpec) AsBuildEnvVariables() []string {

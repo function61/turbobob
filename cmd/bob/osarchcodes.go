@@ -20,6 +20,8 @@ func osArchCodeToOsArchesSpec(code OsArchCode) OsArchesSpec {
 		return OsArchesSpec{WindowsNeutral: true}
 	case "windows-amd64":
 		return OsArchesSpec{WindowsAmd64: true}
+	case "darwin-amd64":
+		return OsArchesSpec{DarwinAmd64: true}
 	default:
 		return OsArchesSpec{}
 	}
@@ -33,5 +35,6 @@ func osArchesIntersects(a OsArchesSpec, b OsArchesSpec) bool {
 		a.LinuxArm && b.LinuxArm ||
 		a.LinuxArm64 && b.LinuxArm64 ||
 		a.WindowsNeutral && b.WindowsNeutral ||
-		a.WindowsAmd64 && b.WindowsAmd64
+		a.WindowsAmd64 && b.WindowsAmd64 ||
+		a.DarwinAmd64 && b.DarwinAmd64
 }
