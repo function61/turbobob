@@ -61,6 +61,8 @@ func (o *OsArchesSpec) AsBuildEnvVariables() []string {
 	maybeAppend(o.LinuxArm, "BUILD_LINUX_ARM")
 	maybeAppend(o.LinuxArm64, "BUILD_LINUX_ARM64")
 
+	maybeAppend(o.DarwinAmd64, "BUILD_DARWIN_AMD64")
+
 	return ret
 }
 

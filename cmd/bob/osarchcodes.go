@@ -1,6 +1,10 @@
 package main
 
-// "linux-amd64" (JSON keys in OsArchesSpec)
+// looks like "linux-amd64" (JSON keys in OsArchesSpec). need to add to
+// - OsArchesSpec
+// - AsBuildEnvVariables()
+// - osArchCodeToOsArchesSpec()
+// - osArchesIntersects()
 type OsArchCode string
 
 // TODO: a test that guarantees that this is in sync with OsArchesSpec?
