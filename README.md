@@ -67,6 +67,9 @@ Philosophy
 Install
 -------
 
+Requires Docker for use, so currently only Linux is supported. Windows support might come
+later as Windows' Linux subsystem keeps maturing.
+
 ```
 $ VERSION_TO_DOWNLOAD="..." # find this from Bintray. Looks like: 20180828_1449_b9d7759cf80f0b4a
 $ sudo curl --location --fail --output /usr/local/bin/bob "https://dl.bintray.com/function61/dl/turbobob/$VERSION_TO_DOWNLOAD/bob_linux-amd64" && sudo chmod +x /usr/local/bin/bob
