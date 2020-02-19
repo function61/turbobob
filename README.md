@@ -18,8 +18,10 @@ Contents:
   * [Travis CI](#travis-ci)
   * [GitLab](#gitlab)
   * [Other CI systems](#other-ci-systems)
-- [Examples](#examples)
-- [How does it work?](#how-does-it-work)
+- [Examples / how does it work?](#examples-how-does-it-work)
+  * [Examples](#examples)
+  * [How does turbobob.json work?](#how-does-turbobobjson-work)
+  * [Why multiple buildkits?](#why-multiple-buildkits)
 
 
 What is this?
@@ -139,36 +141,39 @@ Bob internally pretty much just calls `$ docker` commands, so you should be able
 Bob anywhere where you've got Docker. If you've done so, please add details here to help others.
 
 
-Examples
---------
+Examples / how does it work?
+----------------------------
 
-A few sample projects that shows how Turbo Bob is used for builds:
+### Examples
 
+Look for the `turbobob.json` file in each of these repos.
+
+A few sample projects that shows how Turbo Bob is used for builds - most of them use
+multiple container images for builds ("buildkits"):
+
+- This project itself
 - [function61/james](https://github.com/function61/james)
-	- uses buildkit [function61/buildkit-golang](https://github.com/function61/buildkit-golang)
+	* uses [function61/buildkit-golang](https://github.com/function61/buildkit-golang)
+  * uses [function61/buildkit-publisher](https://github.com/function61/buildkit-publisher)
 - [function61/lambda-alertmanager](https://github.com/function61/lambda-alertmanager)
-	- uses buildkit [function61/buildkit-js](https://github.com/function61/buildkit-js)
-- [function61/home-automation-hub](https://github.com/function61/home-automation-hub)
-	- uses *both* Go- and JS buildkits (which neatly demoes the hygiene of keeping different
-	ecosystems' build tools separate - they could even run different distros!)
-
-What is a buildkit? It's not strictly a Turbo Bob concept - it only means that instead of
-constructing the whole build environment in your own repo in the `build-default.Dockerfile`, that
-Dockerfile is mostly empty and most of its configuration comes from the `FROM` image referenced
-in the Dockerfile from another repo. This makes for smaller build Dockerfiles (but you can
-still do customizations). This makes builds faster and increases standardization and
-reusability across projects whose build environments will be similar anyways.
+  * uses [function61/buildkit-golang](https://github.com/function61/buildkit-golang)
+	* uses [function61/buildkit-js](https://github.com/function61/buildkit-js)
+  * uses [function61/buildkit-publisher](https://github.com/function61/buildkit-publisher)
+- [function61/hautomo](https://github.com/function61/hautomo)
+  * uses [function61/buildkit-golang](https://github.com/function61/buildkit-golang)
+  * uses [function61/buildkit-js](https://github.com/function61/buildkit-js) (via `build-alexaconnector.Dockerfile`)
+  * uses [function61/buildkit-publisher](https://github.com/function61/buildkit-publisher)
 
 
-How does it work?
------------------
+### How does turbobob.json work?
 
-This very project is built with Bob on Travis. [Travis configuration](.travis.yml) is minimal - it basically just:
+This very project is built with Bob on Travis. Its [Travis configuration](.travis.yml) is
+minimal - it basically just:
 
 - Requires Docker
 - Downloads Turbo Bob
 - Copies `TRAVIS_COMMIT` ENV variable to `CI_REVISION_ID` and
-- Asks Bob to do the rest:
+- Asks Bob to do the rest
 
 The process is exactly the same whether you use a different CI system. You can even run builds exactly the same way on your laptop by just running `$ bob build`.
 
@@ -177,8 +182,7 @@ Here's what happens when a new commit lands in this repo:
 - Github notifies Travis of a new commit
 - Travis clones repo, reads [.travis.yml](.travis.yml) which downloads Bob and hands off
   build process to it
-- Bob reads [turbobob.json](turbobob.json)
-- `turbobob.json` tells Bob:
+- Bob reads [turbobob.json](turbobob.json), which instructs to:
   * Run container off of image `fn61/buildkit-golang`
     ([repo](https://github.com/function61/buildkit-golang)) and run
     [bin/build.sh](bin/build.sh) inside it.
@@ -187,6 +191,19 @@ Here's what happens when a new commit lands in this repo:
     inside it (that shell script is from the image itself, while the build container's
     `build.sh` was from our repo)
 
-Why different images for build + publish steps? The build tooling image was for Go
-development. If we were developing a Rust project, we could still reuse the publish image
-for publishing our build artefacts.
+### Why multiple buildkits?
+
+If your project e.g. uses Go for backend and TypeScript for frontend, it's hygienic to
+keep the build tools separate so:
+
+- They can't conflict with each other.
+- One buildkit doing one thing enables reusability.
+  * All of function61's projects use `buildkit-golang`. The decision has already
+    [paid itself back](https://twitter.com/joonas_fi/status/1227522075780354048).
+- It also allows the build environments to evolve independently (update another buildkit
+  without breaking others).
+- Increases your chances of finding community-provided buildkits so you don't have to
+  maintain your own.
+
+p.s. "buildkit" is not a Turbo bob concept per se. It just means "a container image with
+tooling". You can probably use images with Turbo Bob that aren't designed with Turbo Bob in mind.
