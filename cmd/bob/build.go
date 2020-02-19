@@ -143,13 +143,11 @@ func cloneToWorkdir(buildCtx *BuildContext) error {
 		return err
 	}
 
-	/*
-		printHeading("Pulling")
+	printHeading("Pulling")
 
-		if err := workspaceRepo.Pull(); err != nil {
-			return err
-		}
-	*/
+	if err := workspaceRepo.Pull(); err != nil {
+		return err
+	}
 
 	printHeading(fmt.Sprintf("Updating to %s", buildCtx.RevisionId.RevisionId))
 
