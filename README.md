@@ -10,6 +10,7 @@ Modern, minimal container-based build/development tool to make any project´s de
 Contents:
 
 - [What is this?](#what-is-this)
+- [Documentation](#documentation)
 - [Philosophy](#philosophy)
 - [Install](#install)
 - [Supported build/CI platforms](#supported-build-ci-platforms)
@@ -31,7 +32,7 @@ Turbo Bob (the builder) is an abstraction for building and developing your softw
 
 Usage of Turbo Bob, in every project you're developing:
 
-```
+```console
 $ bob dev
 ```
 
@@ -39,7 +40,7 @@ This gives you a shell inside the build environment container with the working d
 
 To build your project:
 
-```
+```console
 $ bob build
 ```
 
@@ -52,6 +53,13 @@ There's a [document that your project can link to](docs/external-how-to-build-an
 for build & help instructions. This explains Bob's value proposition quite well and serves
 as the first introduction for new Bob users. See an
 [example of a project's build docs linking to Bob](https://github.com/function61/ruuvinator#how-to-build--develop).
+
+
+Documentation
+-------------
+
+- [Using Bob in your project](docs/using-bob-in-your-project/README.md)
+  * Also covers making your own builder images ("buildkits")
 
 
 Philosophy
@@ -86,7 +94,7 @@ Install
 Requires Docker for use, so currently only Linux is supported. Windows support might come
 later as Windows' Linux subsystem keeps maturing.
 
-```
+```console
 $ VERSION_TO_DOWNLOAD="..." # find this from Bintray. Looks like: 20180828_1449_b9d7759cf80f0b4a
 $ sudo curl --location --fail --output /usr/local/bin/bob "https://dl.bintray.com/function61/dl/turbobob/$VERSION_TO_DOWNLOAD/bob_linux-amd64" && sudo chmod +x /usr/local/bin/bob
 ```
@@ -123,7 +131,7 @@ turbobob.json).
 ### Travis CI
 
 Turbo Bob is being built on Travis CI. See our [Travis configuration](.travis.yml).
-(also deeper dive on "[How does it work?](#how-does-it-work)" -section).
+(also deeper dive on "[How does it work?](#how-does-turbobobjson-work)" -section).
 
 
 ### GitLab
