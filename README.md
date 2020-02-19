@@ -7,6 +7,20 @@ Modern, minimal container-based build/development tool to make any project´s de
 
 ![](docs/demo-screencast.gif)
 
+Contents:
+
+- [What is this?](#what-is-this)
+- [Philosophy](#philosophy)
+- [Install](#install)
+- [Supported build/CI platforms](#supported-build-ci-platforms)
+  * [Your own computer](#your-own-computer)
+  * [GitHub actions](#github-actions)
+  * [Travis CI](#travis-ci)
+  * [GitLab](#gitlab)
+  * [Other CI systems](#other-ci-systems)
+- [Examples](#examples)
+- [How does it work?](#how-does-it-work)
+
 
 What is this?
 -------------
