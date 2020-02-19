@@ -112,7 +112,18 @@ The process is exactly the same whether you use a different CI system. You can e
 Here's what happens when a new commit lands in this repo:
 
 - Github notifies Travis of a new commit
-- Travis reads [.travis.yml](.travis.yml) which downloads Bob and hands off build process to it
+- Travis clones repo, reads [.travis.yml](.travis.yml) which downloads Bob and hands off
+  build process to it
 - Bob reads [turbobob.json](turbobob.json)
-- `turbobob.json` tells Bob to build [build-default.Dockerfile](build-default.Dockerfile)
-- Bob starts container based off built image of `build-default.Dockerfile` and runs [bin/build.sh](bin/build.sh) *inside the container*
+- `turbobob.json` tells Bob:
+  * Run container off of image `fn61/buildkit-golang`
+    ([repo](https://github.com/function61/buildkit-golang)) and run
+    [bin/build.sh](bin/build.sh) inside it.
+  * For publishing step, run container off of image `fn61/buildkit-publisher`
+    ([repo](https://github.com/function61/buildkit-publisher)) and run `publish.sh rel/`
+    inside it (that shell script is from the image itself, while the build container's
+    `build.sh` was from our repo)
+
+Why different images for build + publish steps? The build tooling image was for Go
+development. If we were developing a Rust project, we could still reuse the publish image
+for publishing our build artefacts.
