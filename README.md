@@ -18,7 +18,7 @@ Contents:
   * [Travis CI](#travis-ci)
   * [GitLab](#gitlab)
   * [Other CI systems](#other-ci-systems)
-- [Examples / how does it work?](#examples-how-does-it-work)
+- [Examples / how does it work?](#examples--how-does-it-work)
   * [Examples](#examples)
   * [How does turbobob.json work?](#how-does-turbobobjson-work)
   * [Why multiple buildkits?](#why-multiple-buildkits)
@@ -153,11 +153,11 @@ multiple container images for builds ("buildkits"):
 
 - This project itself
 - [function61/james](https://github.com/function61/james)
-	* uses [function61/buildkit-golang](https://github.com/function61/buildkit-golang)
+  * uses [function61/buildkit-golang](https://github.com/function61/buildkit-golang)
   * uses [function61/buildkit-publisher](https://github.com/function61/buildkit-publisher)
 - [function61/lambda-alertmanager](https://github.com/function61/lambda-alertmanager)
   * uses [function61/buildkit-golang](https://github.com/function61/buildkit-golang)
-	* uses [function61/buildkit-js](https://github.com/function61/buildkit-js)
+  * uses [function61/buildkit-js](https://github.com/function61/buildkit-js)
   * uses [function61/buildkit-publisher](https://github.com/function61/buildkit-publisher)
 - [function61/hautomo](https://github.com/function61/hautomo)
   * uses [function61/buildkit-golang](https://github.com/function61/buildkit-golang)
@@ -167,21 +167,18 @@ multiple container images for builds ("buildkits"):
 
 ### How does turbobob.json work?
 
+The process is exactly the same whether you use a different CI system. You can even run
+builds exactly the same way on your laptop by just running `$ bob build`.
+
 This very project is built with Bob on Travis. Its [Travis configuration](.travis.yml) is
-minimal - it basically just:
-
-- Requires Docker
-- Downloads Turbo Bob
-- Copies `TRAVIS_COMMIT` ENV variable to `CI_REVISION_ID` and
-- Asks Bob to do the rest
-
-The process is exactly the same whether you use a different CI system. You can even run builds exactly the same way on your laptop by just running `$ bob build`.
-
-Here's what happens when a new commit lands in this repo:
+minimal. Here's what happens when a new commit lands in this repo::
 
 - Github notifies Travis of a new commit
-- Travis clones repo, reads [.travis.yml](.travis.yml) which downloads Bob and hands off
-  build process to it
+- Travis clones repo, reads [.travis.yml](.travis.yml) which:
+  * Requires Docker
+  * Downloads Turbo Bob
+  * Copies `TRAVIS_COMMIT` ENV variable to `CI_REVISION_ID`
+  * Hands off build process to Bob
 - Bob reads [turbobob.json](turbobob.json), which instructs to:
   * Run container off of image `fn61/buildkit-golang`
     ([repo](https://github.com/function61/buildkit-golang)) and run
@@ -190,6 +187,7 @@ Here's what happens when a new commit lands in this repo:
     ([repo](https://github.com/function61/buildkit-publisher)) and run `publish.sh rel/`
     inside it (that shell script is from the image itself, while the build container's
     `build.sh` was from our repo)
+
 
 ### Why multiple buildkits?
 
