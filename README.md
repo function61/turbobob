@@ -149,7 +149,7 @@ Examples / how does it work?
 Look for the `turbobob.json` file in each of these repos.
 
 A few sample projects that shows how Turbo Bob is used for builds - most of them use
-multiple container images for builds ("buildkits"):
+multiple container images ("buildkits") for builds:
 
 - This project itself
 - [function61/james](https://github.com/function61/james)
@@ -173,7 +173,7 @@ builds exactly the same way on your laptop by just running `$ bob build`.
 This very project is built with Bob on Travis. Its [Travis configuration](.travis.yml) is
 minimal. Here's what happens when a new commit lands in this repo::
 
-- Github notifies Travis of a new commit
+- GitHub notifies Travis of a new commit
 - Travis clones repo, reads [.travis.yml](.travis.yml) which:
   * Requires Docker
   * Downloads Turbo Bob
