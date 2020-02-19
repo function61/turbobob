@@ -11,7 +11,7 @@ const DockerHubHostname = "docker.io"
 
 // thanks https://github.com/mafintosh/docker-parse-image/blob/master/index.js
 // + https://github.com/mafintosh/docker-parse-image/pull/2
-var parseRe = regexp.MustCompile("^(?:([^\\/]+)\\/)?(?:([^\\/]+)\\/)?([^@:]+)(?:[@:](.+))?$")
+var parseRe = regexp.MustCompile(`^(?:([^\/]+)\/)?(?:([^\/]+)\/)?([^@:]+)(?:[@:](.+))?$`)
 
 type Tag struct {
 	Registry   string

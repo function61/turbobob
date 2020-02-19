@@ -182,6 +182,8 @@ func build(buildCtx *BuildContext) error {
 
 	// build builders (TODO: check cache so this is not done unless necessary?)
 	for _, builder := range buildCtx.Bobfile.Builders {
+		builder := builder // pin
+
 		if buildCtx.BuilderNameFilter != "" && builder.Name != buildCtx.BuilderNameFilter {
 			continue
 		}

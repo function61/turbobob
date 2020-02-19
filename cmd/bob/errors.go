@@ -6,7 +6,6 @@ import (
 
 var (
 	ErrBuilderNotFound             = errors.New("builder not found")
-	ErrCiRevisionIdEnvNotSet       = errors.New("CI_REVISION_ID not set")
 	ErrBobfileNotFound             = errors.New("turbobob.json does not exist. Run $ bob init")
 	ErrInitBobfileExists           = errors.New("cannot init; Bobfile already exists")
 	ErrUnsupportedBobfileVersion   = errors.New("Unsupported Bobfile version")
@@ -17,10 +16,6 @@ var (
 	ErrIncorrectFileDescriptionBp  = errors.New("you are not supposed to change FileDescriptionBoilerplate")
 	ErrInitingWithBobDevVersion    = errors.New("using dev version of Bob. Bob download URL will be wrong")
 )
-
-func unknownCommand(command string) error {
-	return errors.New("unknown command: " + command)
-}
 
 func envVarMissingErr(envKey string) error {
 	return errors.New("ENV var missing: " + envKey)

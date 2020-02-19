@@ -36,10 +36,12 @@ func licensePresent(ctx *CheckContext) error {
 	}
 
 	if exists {
-		return licenseCheck.Ok()
+		licenseCheck.Ok()
 	} else {
-		return licenseCheck.Fail("Project must have a LICENSE file")
+		licenseCheck.Fail("Project must have a LICENSE file")
 	}
+
+	return nil
 }
 
 func readmePresent(ctx *CheckContext) error {
@@ -51,28 +53,33 @@ func readmePresent(ctx *CheckContext) error {
 	}
 
 	if exists {
-		return readmeCheck.Ok()
+		readmeCheck.Ok()
 	} else {
-		return readmeCheck.Fail("Project must have a README.md file")
+		readmeCheck.Fail("Project must have a README.md file")
 	}
+
+	return nil
 }
 
 func dockerRegistryCredentialsPresent(ctx *CheckContext) error {
 	registryCredentials := ctx.NewCheck("Docker registry credentials")
 
 	if len(ctx.BuildContext.Bobfile.DockerImages) == 0 {
-		return registryCredentials.OkWithReason("n/a")
+		registryCredentials.OkWithReason("n/a")
+		return nil
 	}
 
 	for _, image := range ctx.BuildContext.Bobfile.DockerImages {
 		obtainableErr := getDockerCredentialsObtainer(image).IsObtainable()
 
 		if obtainableErr != nil {
-			return registryCredentials.Fail(obtainableErr.Error())
+			registryCredentials.Fail(obtainableErr.Error())
+			return nil
 		}
 	}
 
-	return registryCredentials.Ok()
+	registryCredentials.Ok()
+	return nil
 }
 
 func passableEnvVarsPresent(ctx *CheckContext) error {
@@ -121,31 +128,25 @@ func (c *CheckContext) NewCheck(name string) CheckResultBuilder {
 	return CheckResultBuilder{name: name, ctx: c}
 }
 
-func (c *CheckResultBuilder) Ok() error {
+func (c *CheckResultBuilder) Ok() {
 	c.ctx.Results = append(c.ctx.Results, CheckResult{
 		Name: c.name,
 		Ok:   true,
 	})
-
-	return nil
 }
 
-func (c *CheckResultBuilder) OkWithReason(reason string) error {
+func (c *CheckResultBuilder) OkWithReason(reason string) {
 	c.ctx.Results = append(c.ctx.Results, CheckResult{
 		Name:   c.name,
 		Ok:     true,
 		Reason: reason,
 	})
-
-	return nil
 }
 
-func (c *CheckResultBuilder) Fail(reason string) error {
+func (c *CheckResultBuilder) Fail(reason string) {
 	c.ctx.Results = append(c.ctx.Results, CheckResult{
 		Name:   c.name,
 		Ok:     false,
 		Reason: reason,
 	})
-
-	return nil
 }
