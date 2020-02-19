@@ -99,6 +99,7 @@ func dockerRelayEnvVars(
 	builder BuilderSpec,
 	envsAreRequired bool,
 	osArches OsArchesSpec,
+	fastbuild bool,
 ) ([]string, error) {
 	env := func(key, value string) {
 		dockerArgs = append(dockerArgs, "--env", key+"="+value)
@@ -122,6 +123,10 @@ func dockerRelayEnvVars(
 	// BUILD_LINUX_AMD64=true, BUILD_LINUX_ARM=true, ...
 	for _, buildEnv := range osArches.AsBuildEnvVariables() {
 		env(buildEnv, "true")
+	}
+
+	if fastbuild {
+		env("FASTBUILD", "1")
 	}
 
 	return dockerArgs, nil

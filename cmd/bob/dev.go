@@ -81,15 +81,7 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 			dockerCmd = append(dockerCmd, "--publish", port)
 		}
 
-		archesToBuildFor := *bobfile.OsArches
-		devMachineArch := osArchCodeToOsArchesSpec(currentRunningGoOsArchToOsArchCode())
-
-		// to speed up dev, build only for the arch we're running now, but only if arches
-		// intersect (if project wants to build only for "neutral", and we're running on
-		// "linux-amd64", we wouldn't want to ask to build for "linux-amd64" since it's unsupported)
-		if osArchesIntersects(archesToBuildFor, devMachineArch) {
-			archesToBuildFor = devMachineArch
-		}
+		archesToBuildFor := buildArchOnlyForCurrentlyRunningArch(*bobfile.OsArches)
 
 		// inserts ["--env", "FOO"] pairs for each PassEnvs
 		var errEnv error
@@ -99,7 +91,8 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 			false,
 			*builder,
 			envsAreRequired,
-			archesToBuildFor)
+			archesToBuildFor,
+			false)
 		if errEnv != nil {
 			return nil, errEnv
 		}
@@ -180,4 +173,17 @@ func revisionIdForDev() *versioncontrol.RevisionId {
 		RevisionIdShort:    "dev",
 		FriendlyRevisionId: "dev",
 	}
+}
+
+func buildArchOnlyForCurrentlyRunningArch(archesToBuildFor OsArchesSpec) OsArchesSpec {
+	devMachineArch := osArchCodeToOsArchesSpec(currentRunningGoOsArchToOsArchCode())
+
+	// to speed up dev, build only for the arch we're running now, but only if arches
+	// intersect (if project wants to build only for "neutral", and we're running on
+	// "linux-amd64", we wouldn't want to ask to build for "linux-amd64" since it's unsupported)
+	if osArchesIntersects(archesToBuildFor, devMachineArch) {
+		return devMachineArch
+	}
+
+	return archesToBuildFor
 }

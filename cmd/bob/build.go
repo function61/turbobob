@@ -19,6 +19,7 @@ type BuildContext struct {
 	ENVsAreRequired   bool
 	VersionControl    versioncontrol.Interface
 	RevisionId        *versioncontrol.RevisionId
+	FastBuild         bool // skip all non-essential steps (linting, testing etc.) to build faster
 }
 
 func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdToRun []string) error {
@@ -42,6 +43,13 @@ func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdT
 		buildArgs = append(buildArgs, "--workdir", builder.Workdir)
 	}
 
+	archesToBuildFor := *buildCtx.Bobfile.OsArches
+
+	if buildCtx.FastBuild {
+		// skip building other arches than what we're running on now
+		archesToBuildFor = buildArchOnlyForCurrentlyRunningArch(archesToBuildFor)
+	}
+
 	// inserts ["--env", "FOO"] pairs for each PassEnvs
 	buildArgs, errEnv := dockerRelayEnvVars(
 		buildArgs,
@@ -49,7 +57,8 @@ func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdT
 		buildCtx.PublishArtefacts,
 		builder,
 		buildCtx.ENVsAreRequired,
-		*buildCtx.Bobfile.OsArches)
+		archesToBuildFor,
+		buildCtx.FastBuild)
 	if errEnv != nil {
 		return errEnv
 	}
@@ -243,6 +252,7 @@ func constructBuildContext(
 	onlyCommitted bool,
 	builderNameFilter string,
 	envsAreRequired bool,
+	fastBuild bool,
 ) (*BuildContext, error) {
 	bobfile, errBobfile := readBobfile()
 	if errBobfile != nil {
@@ -284,6 +294,7 @@ func constructBuildContext(
 		BuilderNameFilter: builderNameFilter,
 		ENVsAreRequired:   envsAreRequired,
 		VersionControl:    versionControl,
+		FastBuild:         fastBuild,
 	}
 
 	return buildCtx, nil
@@ -298,13 +309,14 @@ func buildEntry() *cobra.Command {
 	uncommitted := false
 	builderName := ""
 	norequireEnvs := false
+	fastbuild := false
 
 	cmd := &cobra.Command{
 		Use:   "build",
 		Short: "Builds the project",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			buildCtx, err := constructBuildContext(publishArtefacts, !uncommitted, builderName, !norequireEnvs)
+			buildCtx, err := constructBuildContext(publishArtefacts, !uncommitted, builderName, !norequireEnvs, fastbuild)
 			reactToError(err)
 			if err := build(buildCtx); err != nil {
 				fmt.Println(err.Error())
@@ -316,6 +328,7 @@ func buildEntry() *cobra.Command {
 	cmd.Flags().BoolVarP(&norequireEnvs, "norequire-envs", "n", norequireEnvs, "Don´t error out if not all ENV vars are set")
 	cmd.Flags().BoolVarP(&publishArtefacts, "publish-artefacts", "p", publishArtefacts, "Whether to publish the artefacts")
 	cmd.Flags().BoolVarP(&uncommitted, "uncommitted", "u", uncommitted, "Include uncommitted changes")
+	cmd.Flags().BoolVarP(&fastbuild, "fast", "f", fastbuild, "Skip non-essential steps (linting, testing etc.)")
 	cmd.Flags().StringVarP(&builderName, "builder", "b", builderName, "If specified, runs only one builder instead of all")
 
 	return cmd
