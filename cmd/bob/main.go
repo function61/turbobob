@@ -44,14 +44,18 @@ func main() {
 	app.AddCommand(devEntry())
 	app.AddCommand(infoEntry())
 
-	if err := app.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	exitIfError(app.Execute())
 }
 
 func reactToError(err error) {
 	if err != nil {
 		panic(err)
+	}
+}
+
+func exitIfError(err error) {
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }

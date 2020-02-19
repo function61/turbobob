@@ -144,18 +144,18 @@ func initEntry() *cobra.Command {
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			if dynversion.IsDevVersion() && !ignoreDevWarning {
-				reactToError(ErrInitingWithBobDevVersion)
+				exitIfError(ErrInitingWithBobDevVersion)
 			}
 
 			if travis {
-				reactToError(writeTravisBoilerplate())
+				exitIfError(writeTravisBoilerplate())
 			}
 
 			if gitLab {
-				reactToError(writeGitLabBoilerplate())
+				exitIfError(writeGitLabBoilerplate())
 			}
 
-			reactToError(writeDefaultBobfile(docker))
+			exitIfError(writeDefaultBobfile(docker))
 		},
 	}
 
