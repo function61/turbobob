@@ -76,6 +76,55 @@ $ sudo curl --location --fail --output /usr/local/bin/bob "https://dl.bintray.co
 ```
 
 
+Supported build/CI platforms
+----------------------------
+
+Basic approach anywhere:
+
+1. Have Docker installed
+2. If you don't have Turbo Bob installed, download it
+3. Run `$ bob build`
+
+
+### Your own computer
+
+If your system can run Docker locally, you can build projects on your own computer.
+
+
+### GitHub actions
+
+See [example actions workflow file](https://github.com/function61/buildkit-publisher/commit/62f1b71ed6a17489394ccd431763ee36c958fb92).
+That commit also demonstrates how portable Bob is by moving from Travis CI -> GitHub
+actions - how it's just from small boilerplate to small boilerplate.
+
+GitHub actions' design is pretty similar to Turbo Bob's design ("run stuff inside containers").
+I started this project before actions was announced, so unfortunately there's currently no
+synergy with these projects. I'd like to research if Bob concepts could directly be mapped
+into actions' concepts (perhaps you could just generate actions' workflow file from
+turbobob.json).
+
+
+### Travis CI
+
+Turbo Bob is being built on Travis CI. See our [Travis configuration](.travis.yml).
+(also deeper dive on "[How does it work?](#how-does-it-work)" -section).
+
+
+### GitLab
+
+I've build projects on GitLab's public runners. See
+[example configuration](https://github.com/function61/turbobob/blob/8156ab2bc400181cb74b8ea324fa98a3fb9e82d2/cmd/bob/init.go#L56).
+
+
+### Other CI systems
+
+Bob's approach is pretty generic. You can see from Travis or GitLab configuration files
+that they just download Bob's binary first and hand off build to it.
+
+Bob internally pretty much just calls `$ docker` commands, so you should be able to port
+Bob anywhere where you've got Docker. If you've done so, please add details here to help others.
+
+
 Examples
 --------
 
