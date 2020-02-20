@@ -108,8 +108,13 @@ $ sudo curl --location --fail --output /usr/local/bin/bob "https://dl.bintray.co
 ### Windows
 
 I have used Turbo Bob in Windows through [Vagrant](https://www.vagrantup.com/) (= run Linux
-in VM) quite succesfully for years. I can edit my project files from the Windows host and
-those changes reflect inside the container just fine.
+in VM) quite succesfully for years.
+
+I can edit my project files from the Windows host and those changes reflect inside the
+container just fine, though the Linux setup is definitely simpler and has less moving parts.
+The setup looks like this:
+
+![Vagrant setup diagram](docs/vagrant-setup.png)
 
 
 ### Mac
