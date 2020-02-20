@@ -14,7 +14,7 @@ a different variable. Bob normalizes that into these variables listed here:
 | `REV_ID`          | 9c39d0271d0bd51c7ddfb55dc3051e68b6953c33 | Full hash of the commit |
 | `REV_ID_SHORT`    | 9c39d027               | REV_ID but shorter (8 hexits), still really low chance of collision |
 | `FASTBUILD`       | true                   | Present only if running `$ bob build --fast` |
-| `BUILD_*` (many)  | true                   | Explained in the other table              |
+| `BUILD_*` (many)  | true                   | Explained in the "OS / arch ENV variables" section |
 
 
 OS / arch ENV variables
@@ -24,8 +24,16 @@ The `BUILD_<os>_<arch>` variables tell which Operating System / Architecture com
 
 The naming follows [Go's OS & Arch codes](https://golang.org/doc/install/source#environment).
 
-If your project builds for Linux OS with AMD64 CPU architecture, there will be an
-environment variable with `BUILD_LINUX_AMD64=true`.
+If your project builds for Linux OS with AMD64 **and** ARM CPU architectures, these
+environment variables will be present:
+
+- `BUILD_LINUX_AMD64=true`
+- `BUILD_LINUX_ARM=true`
+
+Your build scripts should then check for presence of these variables to decide for which
+combinations to cross-compile.
+[Our buildkit for Go does automatic cross-compilation](https://github.com/function61/buildkit-golang/blob/06f93bc306852536b720f91369b1939d7112b175/build-common.sh#L108)
+for our Go projects.
 
 Why have knowledge of this on Bob level? When doing quick development iteration builds,
 you want the builds to be fast. `$ bob build` builds for all combos that your project
