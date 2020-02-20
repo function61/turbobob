@@ -128,7 +128,7 @@ func dockerRelayEnvVars(
 	}
 
 	if fastbuild {
-		env("FASTBUILD", "1")
+		env("FASTBUILD", "true")
 	}
 
 	return dockerArgs, nil
