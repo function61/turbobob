@@ -82,7 +82,7 @@ helloworld/
 Add code that you want to compile
 ---------------------------------
 
-Let's add a simple Go code file in `main.go`:
+Let's add a simple Go code as `main.go`:
 
 ```go
 package main
@@ -212,7 +212,7 @@ Travis build should kick off and eventually succeed. Nice work!
 (optional) Next steps
 ---------------------
 
-The `buildkit-golang` buildkit that we used, it has much more to offer like:
+The `buildkit-golang` buildkit that we used, has much more to offer like:
 
 - checking that code is formatted properly
 - running static analysis
