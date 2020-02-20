@@ -13,6 +13,9 @@ Contents:
 - [Documentation](#documentation)
 - [Philosophy](#philosophy)
 - [Install](#install)
+  * [Linux](#linux)
+  * [Windows](#windows)
+  * [Mac](#mac)
 - [Supported build/CI platforms](#supported-build-ci-platforms)
   * [Your own computer](#your-own-computer)
   * [GitHub actions](#github-actions)
@@ -91,13 +94,27 @@ Philosophy
 Install
 -------
 
-Requires Docker for use, so currently only Linux is supported. Windows support might come
-later as Windows' Linux subsystem keeps maturing.
+### Linux
+
+Requires Docker for use, so currently only Linux is supported. Native Windows support might
+come later as Windows' Linux subsystem keeps maturing.
 
 ```console
 $ VERSION_TO_DOWNLOAD="..." # find this from Bintray. Looks like: 20180828_1449_b9d7759cf80f0b4a
 $ sudo curl --location --fail --output /usr/local/bin/bob "https://dl.bintray.com/function61/dl/turbobob/$VERSION_TO_DOWNLOAD/bob_linux-amd64" && sudo chmod +x /usr/local/bin/bob
 ```
+
+### Windows
+
+I have used Turbo Bob in Windows through [Vagrant](https://www.vagrantup.com/) (= run Linux
+in VM) quite succesfully for years. I can edit my project files from the Windows host and
+those changes reflect inside the container just fine.
+
+
+### Mac
+
+I have no experience whatsoever with Mac, but I hear Vagrant works on Mac so maybe it
+works the same way I described it works on Windows.
 
 
 Supported build/CI platforms
