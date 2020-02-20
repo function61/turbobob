@@ -63,6 +63,7 @@ Documentation
 
 - [Using Bob in your project](docs/using-bob-in-your-project/README.md)
   * Also covers making your own builder images ("buildkits")
+- [ENV vars passed to build containers](docs/env-vars-passed-to-build-containers/README.md)
 
 
 Philosophy

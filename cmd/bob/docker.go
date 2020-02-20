@@ -106,6 +106,8 @@ func dockerRelayEnvVars(
 	}
 
 	env("FRIENDLY_REV_ID", revisionId.FriendlyRevisionId)
+	env("REV_ID", revisionId.RevisionId)
+	env("REV_ID_SHORT", revisionId.RevisionIdShort)
 
 	for _, envKey := range builder.PassEnvs {
 		envValue := os.Getenv(envKey)
