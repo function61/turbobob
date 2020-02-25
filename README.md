@@ -183,16 +183,16 @@ container images ("buildkits") for builds:
 
 - This project itself
 - [function61/james](https://github.com/function61/james)
-  * uses [function61/buildkit-golang](https://github.com/function61/buildkit-golang)
-  * uses [function61/buildkit-publisher](https://github.com/function61/buildkit-publisher)
+  * uses [buildkit-golang](https://github.com/function61/buildkit-golang)
+  * uses [buildkit-publisher](https://github.com/function61/buildkit-publisher)
 - [function61/lambda-alertmanager](https://github.com/function61/lambda-alertmanager)
-  * uses [function61/buildkit-golang](https://github.com/function61/buildkit-golang)
-  * uses [function61/buildkit-js](https://github.com/function61/buildkit-js)
-  * uses [function61/buildkit-publisher](https://github.com/function61/buildkit-publisher)
+  * uses [buildkit-golang](https://github.com/function61/buildkit-golang)
+  * uses [buildkit-js](https://github.com/function61/buildkit-js)
+  * uses [buildkit-publisher](https://github.com/function61/buildkit-publisher)
 - [function61/hautomo](https://github.com/function61/hautomo)
-  * uses [function61/buildkit-golang](https://github.com/function61/buildkit-golang)
-  * uses [function61/buildkit-js](https://github.com/function61/buildkit-js) (via `build-alexaconnector.Dockerfile`)
-  * uses [function61/buildkit-publisher](https://github.com/function61/buildkit-publisher)
+  * uses [buildkit-golang](https://github.com/function61/buildkit-golang)
+  * uses [buildkit-js](https://github.com/function61/buildkit-js) (via `build-alexaconnector.Dockerfile`)
+  * uses [buildkit-publisher](https://github.com/function61/buildkit-publisher)
 
 
 ### How does turbobob.json work?
@@ -201,7 +201,7 @@ The process is exactly the same whether you use a different CI system. You can e
 builds exactly the same way on your laptop by just running `$ bob build`.
 
 This very project is built with Bob on Travis. Its [Travis configuration](.travis.yml) is
-minimal. Here's what happens when a new commit lands in this repo::
+minimal. Here's what happens when a new commit lands in this repo:
 
 - GitHub notifies Travis of a new commit
 - Travis clones repo, reads [.travis.yml](.travis.yml) which:
