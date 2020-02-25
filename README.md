@@ -157,7 +157,7 @@ Turbo Bob is being built on Travis CI. See our [Travis configuration](.travis.ym
 
 ### GitLab
 
-I've build projects on GitLab's public runners. See
+I've built projects on GitLab's public runners with Bob. See
 [example configuration](https://github.com/function61/turbobob/blob/8156ab2bc400181cb74b8ea324fa98a3fb9e82d2/cmd/bob/init.go#L56).
 
 
