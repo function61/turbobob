@@ -109,7 +109,7 @@ Compile the code manually inside the container
 ----------------------------------------------
 
 To enter the container, all you have to do is run `$ bob dev`. You can identify you're
-inside your container, when your prompt looks like this:
+inside a container, when your prompt looks like this:
 
 ```
 root@64cd792a5d0e:/workspace# 

@@ -3,14 +3,20 @@
 [![Build Status](https://img.shields.io/travis/function61/turbobob.svg?style=for-the-badge)](https://travis-ci.org/function61/turbobob)
 [![Download](https://img.shields.io/bintray/v/function61/dl/turbobob.svg?style=for-the-badge&label=Download)](https://bintray.com/function61/dl/turbobob/_latestVersion#files)
 
-Modern, minimal container-based build/development tool to make any project´s dev easy and frictionless.
+Modern, minimal container-based build/development tool to make any project´s dev easy and
+frictionless. Note: while Bob uses containers for builds (and dev), your programs don't need
+to use containers!
 
 ![](docs/demo-screencast.gif)
 
 Contents:
 
 - [What is this?](#what-is-this)
-- [Documentation](#documentation)
+- Documentation (as separate documents)
+  * [Using Bob in your project](docs/using-bob-in-your-project/README.md) (also covers
+    making your own builder images - "buildkits")
+  * [ENV vars passed to build containers](docs/env-vars-passed-to-build-containers/README.md)
+  * [Displaying pro-tips on entering the dev environment](docs/dev-pro-tips/README.md) (also covers mapping network ports)
 - [Philosophy](#philosophy)
 - [Install](#install)
   * [Linux](#linux)
@@ -56,14 +62,6 @@ There's a [document that your project can link to](docs/external-how-to-build-an
 for build & help instructions. This explains Bob's value proposition quite well and serves
 as the first introduction for new Bob users. See an
 [example of a project's build docs linking to Bob](https://github.com/function61/ruuvinator#how-to-build--develop).
-
-
-Documentation
--------------
-
-- [Using Bob in your project](docs/using-bob-in-your-project/README.md)
-  * Also covers making your own builder images ("buildkits")
-- [ENV vars passed to build containers](docs/env-vars-passed-to-build-containers/README.md)
 
 
 Philosophy
@@ -175,12 +173,13 @@ Bob anywhere where you've got Docker. If you've done so, please add details here
 Examples / how does it work?
 ----------------------------
 
+**NOTE: The easiest way to understand is to read "Using Bob in your project" first!**
+
+
 ### Examples
 
-Look for the `turbobob.json` file in each of these repos.
-
-A few sample projects that shows how Turbo Bob is used for builds - most of them use
-multiple container images ("buildkits") for builds:
+Look for the `turbobob.json` file in each of these example repos. Most of them use multiple
+container images ("buildkits") for builds:
 
 - This project itself
 - [function61/james](https://github.com/function61/james)
