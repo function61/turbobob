@@ -319,11 +319,9 @@ func buildEntry() *cobra.Command {
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			buildCtx, err := constructBuildContext(publishArtefacts, !uncommitted, builderName, !norequireEnvs, fastbuild)
-			reactToError(err)
-			if err := build(buildCtx); err != nil {
-				fmt.Println(err.Error())
-				os.Exit(1)
-			}
+			exitIfError(err)
+
+			exitIfError(build(buildCtx))
 		},
 	}
 

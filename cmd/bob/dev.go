@@ -145,10 +145,10 @@ func devEntry() *cobra.Command {
 			}
 
 			if !dry {
-				reactToError(dev(builderName, !norequireEnvs))
+				exitIfError(dev(builderName, !norequireEnvs))
 			} else {
 				dockerCommand, err := devCommand(builderName, !norequireEnvs)
-				reactToError(err)
+				exitIfError(err)
 
 				fmt.Println(strings.Join(dockerCommand, " "))
 			}

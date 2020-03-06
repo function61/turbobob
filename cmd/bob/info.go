@@ -89,7 +89,7 @@ func infoEntry() *cobra.Command {
 		Short: "Displays info about the project",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			reactToError(info())
+			exitIfError(info())
 		},
 	}
 }

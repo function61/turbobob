@@ -47,12 +47,6 @@ func main() {
 	exitIfError(app.Execute())
 }
 
-func reactToError(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
 func exitIfError(err error) {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
