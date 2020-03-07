@@ -1,6 +1,6 @@
 ![](misc/mascot/mascot.png)
 
-[![Build Status](https://img.shields.io/travis/function61/turbobob.svg?style=for-the-badge)](https://travis-ci.org/function61/turbobob)
+![Build status](https://github.com/function61/turbobob/workflows/Build/badge.svg)
 [![Download](https://img.shields.io/bintray/v/function61/dl/turbobob.svg?style=for-the-badge&label=Download)](https://bintray.com/function61/dl/turbobob/_latestVersion#files)
 
 Modern, minimal container-based build/development tool to make any project´s dev easy and
