@@ -20,7 +20,7 @@ docker run --rm --interactive --tty --name tbdev-ubackup-default --volume /vagra
 
 Now you can copy the command, add your customizations and run it directly without Bob. The
 end result is the same if it would be run by `$ bob dev`. You still get all the goodies
-like when you run `$ bob dev` and a container already exists, Bob gives you an additional
+like when you run `$ bob dev` and the container already exists, Bob gives you an additional
 shell inside the same container (equivalent to running `$ docker exec -it <container_id> bash`).
 
 
