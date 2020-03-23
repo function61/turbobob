@@ -78,6 +78,7 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 			"--interactive",
 			"--tty",
 			"--name", containerName,
+			"--entrypoint=", // turn off possible "arg mode" in base image (our cmd would just be args to entrypoint)
 			"--volume", wd + "/" + builder.MountSource + ":" + builder.MountDestination,
 			"--volume", "/tmp/build:/tmp/build", // cannot map to /tmp because at least apt won't work (permission issues?)
 		}
