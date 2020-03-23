@@ -80,6 +80,7 @@ type BuilderSpec struct {
 	Workdir          string            `json:"workdir"`
 	Commands         BuilderCommands   `json:"commands"`
 	DevPorts         []string          `json:"dev_ports"`
+	DevHttpIngress   string            `json:"dev_http_ingress"`
 	DevProTips       []string          `json:"dev_pro_tips"`
 	Envs             map[string]string `json:"env"`
 	PassEnvs         []string          `json:"pass_envs"`

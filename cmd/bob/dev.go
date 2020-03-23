@@ -16,6 +16,11 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 		return nil, errBobfile
 	}
 
+	userConfig, err := loadUserconfigFile()
+	if err != nil {
+		return nil, err
+	}
+
 	wd, errWd := os.Getwd()
 	if errWd != nil {
 		return nil, errWd
@@ -33,6 +38,10 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 	}
 
 	containerName := devContainerName(bobfile, builder.Name)
+
+	printProTip := func(proTip string) {
+		fmt.Printf("Pro-tip: %s\n", proTip)
+	}
 
 	var dockerCmd []string
 	if isDevContainerRunning(containerName) {
@@ -81,6 +90,16 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 			dockerCmd = append(dockerCmd, "--publish", port)
 		}
 
+		devHttpIngress, ingressHostname := setupDevIngress(
+			builder,
+			userConfig.DevIngressSettings,
+			bobfile)
+		if len(devHttpIngress) > 0 {
+			dockerCmd = append(dockerCmd, devHttpIngress...)
+
+			printProTip(fmt.Sprintf("Dev ingress: https://%s/", ingressHostname))
+		}
+
 		archesToBuildFor := buildArchOnlyForCurrentlyRunningArch(*bobfile.OsArches)
 
 		// inserts ["--env", "FOO"] pairs for each PassEnvs
@@ -102,11 +121,13 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 	}
 
 	if len(builder.DevPorts) > 0 {
-		fmt.Printf("Pro-tip: mapped dev ports: %s\n", strings.Join(builder.DevPorts, ", "))
+		printProTip(fmt.Sprintf(
+			"mapped dev ports: %s",
+			strings.Join(builder.DevPorts, ", ")))
 	}
 
 	for _, proTip := range builder.DevProTips {
-		fmt.Printf("Pro-tip: %s\n", proTip)
+		printProTip(proTip)
 	}
 
 	return dockerCmd, nil

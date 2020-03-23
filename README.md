@@ -17,6 +17,7 @@ Contents:
     making your own builder images - "buildkits")
   * [ENV vars passed to build containers](docs/env-vars-passed-to-build-containers/README.md)
   * [Displaying pro-tips on entering the dev environment](docs/dev-pro-tips/README.md) (also covers mapping network ports)
+  * [Development-time HTTP ingresses](docs/development-time-http-ingresses/README.md) (routing HTTP requests)
   * [Customizing dev container startup](docs/customizing-dev-container-startup/README.md)
 - [Philosophy](#philosophy)
 - [Install](#install)
