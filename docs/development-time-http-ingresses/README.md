@@ -52,7 +52,7 @@ How do I use it
 ---------------
 
 Now that you decided on the wildcard DNS entry, you need to configure that in Turbobob
-user config (this file applies to the projects that you develop).
+user config (this file applies to all the projects that you develop).
 
 In our example case the wildcard entry is `*.dev.example.com`.
 
