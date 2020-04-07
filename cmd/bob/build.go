@@ -35,6 +35,7 @@ func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdT
 		"run",
 		"--rm",
 		"--tty",
+		"--entrypoint=", // turn off possible "arg mode" in base image (our cmd would just be args to entrypoint)
 		"--volume", wd + "/" + builder.MountSource + ":" + builder.MountDestination,
 		"--volume", "/tmp/build:/tmp/build", // cannot map to /tmp because at least apt won't work (permission issues?)
 	}
