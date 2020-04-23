@@ -2,8 +2,9 @@ package dockertag
 
 import (
 	"fmt"
-	"github.com/function61/gokit/assert"
 	"testing"
+
+	"github.com/function61/gokit/assert"
 )
 
 func TestParseDockerTag(t *testing.T) {

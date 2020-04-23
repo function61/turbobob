@@ -3,13 +3,14 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/function61/gokit/dynversion"
-	"github.com/function61/gokit/fileexists"
-	"github.com/spf13/cobra"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/function61/gokit/dynversion"
+	"github.com/function61/gokit/fileexists"
+	"github.com/spf13/cobra"
 )
 
 const (

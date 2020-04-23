@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/function61/turbobob/pkg/versioncontrol"
-	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
 	"runtime"
 	"strings"
+
+	"github.com/function61/turbobob/pkg/versioncontrol"
+	"github.com/spf13/cobra"
 )
 
 func devCommand(builderName string, envsAreRequired bool) ([]string, error) {

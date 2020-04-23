@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/scylladb/termtables"
 	"github.com/spf13/cobra"
-	"strings"
 )
 
 func info() error {

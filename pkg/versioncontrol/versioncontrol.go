@@ -2,9 +2,10 @@ package versioncontrol
 
 import (
 	"fmt"
-	"github.com/function61/gokit/fileexists"
 	"path/filepath"
 	"time"
+
+	"github.com/function61/gokit/fileexists"
 )
 
 func CurrentRevisionId(vc Interface, onlyCommitted bool) (*RevisionId, error) {

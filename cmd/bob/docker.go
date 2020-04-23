@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/function61/turbobob/pkg/dockertag"
-	"github.com/function61/turbobob/pkg/versioncontrol"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/function61/turbobob/pkg/dockertag"
+	"github.com/function61/turbobob/pkg/versioncontrol"
 )
 
 func isDevContainerRunning(containerName string) bool {

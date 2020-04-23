@@ -2,14 +2,15 @@ package main
 
 import (
 	"errors"
+	"net/http"
+	"os"
+	"regexp"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ecr"
-	"net/http"
-	"os"
-	"regexp"
 )
 
 type DockerCredentialsObtainer struct {

@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/function61/gokit/jsonfile"
 	"github.com/function61/turbobob/pkg/versioncontrol"
-	"os"
 )
 
 const (

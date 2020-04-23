@@ -3,10 +3,11 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/function61/gokit/fileexists"
-	"github.com/function61/gokit/jsonfile"
 	"os"
 	"path/filepath"
+
+	"github.com/function61/gokit/fileexists"
+	"github.com/function61/gokit/jsonfile"
 )
 
 type UserconfigFile struct {

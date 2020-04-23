@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
+
 	"github.com/function61/gokit/fileexists"
 	"github.com/function61/turbobob/pkg/versioncontrol"
 	"github.com/spf13/cobra"
-	"os"
-	"os/exec"
 )
 
 type BuildContext struct {

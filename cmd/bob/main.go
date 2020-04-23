@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/function61/gokit/dynversion"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 /*	Process
