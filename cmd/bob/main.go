@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/function61/gokit/dynversion"
+	"github.com/function61/gokit/osutil"
 	"github.com/spf13/cobra"
 )
 
@@ -45,12 +46,5 @@ func main() {
 	app.AddCommand(devEntry())
 	app.AddCommand(infoEntry())
 
-	exitIfError(app.Execute())
-}
-
-func exitIfError(err error) {
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	osutil.ExitIfError(app.Execute())
 }

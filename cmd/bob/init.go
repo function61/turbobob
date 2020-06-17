@@ -10,6 +10,7 @@ import (
 
 	"github.com/function61/gokit/dynversion"
 	"github.com/function61/gokit/fileexists"
+	"github.com/function61/gokit/osutil"
 	"github.com/spf13/cobra"
 )
 
@@ -145,18 +146,18 @@ func initEntry() *cobra.Command {
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			if dynversion.IsDevVersion() && !ignoreDevWarning {
-				exitIfError(ErrInitingWithBobDevVersion)
+				osutil.ExitIfError(ErrInitingWithBobDevVersion)
 			}
 
 			if travis {
-				exitIfError(writeTravisBoilerplate())
+				osutil.ExitIfError(writeTravisBoilerplate())
 			}
 
 			if gitLab {
-				exitIfError(writeGitLabBoilerplate())
+				osutil.ExitIfError(writeGitLabBoilerplate())
 			}
 
-			exitIfError(writeDefaultBobfile(docker))
+			osutil.ExitIfError(writeDefaultBobfile(docker))
 		},
 	}
 

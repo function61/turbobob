@@ -6,6 +6,7 @@ import (
 	"os/exec"
 
 	"github.com/function61/gokit/fileexists"
+	"github.com/function61/gokit/osutil"
 	"github.com/function61/turbobob/pkg/versioncontrol"
 	"github.com/spf13/cobra"
 )
@@ -325,9 +326,9 @@ func buildEntry() *cobra.Command {
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			buildCtx, err := constructBuildContext(publishArtefacts, !uncommitted, builderName, !norequireEnvs, fastbuild)
-			exitIfError(err)
+			osutil.ExitIfError(err)
 
-			exitIfError(build(buildCtx))
+			osutil.ExitIfError(build(buildCtx))
 		},
 	}
 

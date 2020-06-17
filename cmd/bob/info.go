@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/function61/gokit/osutil"
 	"github.com/scylladb/termtables"
 	"github.com/spf13/cobra"
 )
@@ -90,7 +91,7 @@ func infoEntry() *cobra.Command {
 		Short: "Displays info about the project",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			exitIfError(info())
+			osutil.ExitIfError(info())
 		},
 	}
 }

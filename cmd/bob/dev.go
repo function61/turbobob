@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/function61/gokit/osutil"
 	"github.com/function61/turbobob/pkg/versioncontrol"
 	"github.com/spf13/cobra"
 )
@@ -168,10 +169,10 @@ func devEntry() *cobra.Command {
 			}
 
 			if !dry {
-				exitIfError(dev(builderName, !norequireEnvs))
+				osutil.ExitIfError(dev(builderName, !norequireEnvs))
 			} else {
 				dockerCommand, err := devCommand(builderName, !norequireEnvs)
-				exitIfError(err)
+				osutil.ExitIfError(err)
 
 				fmt.Println(strings.Join(dockerCommand, " "))
 			}
