@@ -97,7 +97,7 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 		args := []string{
 			"buildx",
 			"build",
-			"--platforms", strings.Join(dockerImage.Platforms, ","),
+			"--platform", strings.Join(dockerImage.Platforms, ","),
 			"--file", dockerfilePath,
 			"--tag", tag,
 			".",
