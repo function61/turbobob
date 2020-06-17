@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/function61/gokit/fileexists"
 	"github.com/function61/gokit/osutil"
@@ -88,6 +89,27 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 
 	printHeading(fmt.Sprintf("Building %s", tag))
 
+	// use buildx when platforms set. it's almost same as "$ docker build" but it almost transparently
+	// supports cross-architecture builds via binftm_misc + QEMU userspace emulation
+	if len(dockerImage.Platforms) > 0 {
+		// TODO: if in CI, install buildx automatically if needed?
+
+		args := []string{
+			"buildx",
+			"build",
+			"--platforms", strings.Join(dockerImage.Platforms, ","),
+			"--file", dockerfilePath,
+			"--tag", tag,
+			".",
+		}
+
+		if buildCtx.PublishArtefacts {
+			args = append(args, "--push")
+		}
+
+		return passthroughStdoutAndStderr(exec.Command("docker", args...)).Run()
+	}
+
 	buildCmd := passthroughStdoutAndStderr(exec.Command(
 		"docker",
 		"build",
@@ -110,6 +132,8 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 		if err := pushCmd.Run(); err != nil {
 			return err
 		}
+
+		return nil
 	}
 
 	return nil

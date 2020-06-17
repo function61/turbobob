@@ -89,9 +89,10 @@ type BuilderSpec struct {
 }
 
 type DockerImageSpec struct {
-	Image          string `json:"image"`
-	DockerfilePath string `json:"dockerfile_path"`
-	AuthType       string `json:"auth_type"` // creds_from_env | aws_ecr
+	Image          string   `json:"image"`
+	DockerfilePath string   `json:"dockerfile_path"`
+	AuthType       string   `json:"auth_type"` // creds_from_env | aws_ecr
+	Platforms      []string `json:"platforms"` // if set, uses buildx
 }
 
 // FIXME: Bobfile should actually be read only after correct
