@@ -243,6 +243,10 @@ func build(buildCtx *BuildContext) error {
 			continue
 		}
 
+		if len(builder.Commands.Build) == 0 {
+			continue
+		}
+
 		if err := runBuilder(builder, buildCtx, "build", builder.Commands.Build); err != nil {
 			return err
 		}
