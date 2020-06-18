@@ -104,6 +104,9 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 		}
 
 		if buildCtx.PublishArtefacts {
+			// the build command has integrated push support. we'd actually prefer to separate
+			// these stages, but multi-arch manifests aren't supported storing locally so we've
+			// to push immediately
 			args = append(args, "--push")
 		}
 
