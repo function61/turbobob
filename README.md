@@ -1,7 +1,7 @@
 ![](misc/mascot/mascot.png)
 
 ![Build status](https://github.com/function61/turbobob/workflows/Build/badge.svg)
-[![Download](https://img.shields.io/bintray/v/function61/dl/turbobob.svg?style=for-the-badge&label=Download)](https://bintray.com/function61/dl/turbobob/_latestVersion#files)
+[![Download](https://img.shields.io/github/downloads/function61/turbobob/total.svg?style=for-the-badge)](https://github.com/function61/turbobob/releases)
 
 Modern, minimal container-based build/development tool to make any project´s dev easy and
 frictionless. Note: while Bob uses containers for builds (and dev), your programs don't need
@@ -101,8 +101,8 @@ Requires Docker for use, so currently only Linux is supported. Native Windows su
 come later as Windows' Linux subsystem keeps maturing.
 
 ```console
-$ VERSION_TO_DOWNLOAD="..." # find this from Bintray. Looks like: 20180828_1449_b9d7759cf80f0b4a
-$ sudo curl --location --fail --output /usr/local/bin/bob "https://dl.bintray.com/function61/dl/turbobob/$VERSION_TO_DOWNLOAD/bob_linux-amd64" && sudo chmod +x /usr/local/bin/bob
+$ DOWNLOAD_URL="..." # find this from GitHub releases
+$ sudo curl --location --fail --output /usr/local/bin/bob "$DOWNLOAD_URL" && sudo chmod +x /usr/local/bin/bob
 ```
 
 ### Windows
