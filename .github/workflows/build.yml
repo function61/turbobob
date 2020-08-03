@@ -14,5 +14,5 @@ jobs:
       # unfortunately there doesn't seem to be a way to "expose all secrets", so you must
       # list here each secret to pass on to the build
       env:
-        GITHUB_TOKEN: ${{ secrets.EVENTHORIZON }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         EVENTHORIZON: ${{ secrets.EVENTHORIZON }}
