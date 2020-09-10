@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/function61/gokit/assert"
+	"github.com/function61/gokit/testing/assert"
 )
 
 func TestAssertUniqueBuilderNames(t *testing.T) {
