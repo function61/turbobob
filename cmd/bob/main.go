@@ -5,7 +5,9 @@ import (
 	"os"
 
 	"github.com/function61/gokit/dynversion"
+	"github.com/function61/gokit/fileexists"
 	"github.com/function61/gokit/osutil"
+	"github.com/function61/turbobob/pkg/powerline"
 	"github.com/spf13/cobra"
 )
 
@@ -41,10 +43,27 @@ func main() {
 		Version: dynversion.Version,
 	}
 
-	app.AddCommand(initEntry())
-	app.AddCommand(buildEntry())
-	app.AddCommand(devEntry())
-	app.AddCommand(infoEntry())
+	inside, err := insideDevContainer()
+	osutil.ExitIfError(err)
+
+	if !inside {
+		app.AddCommand(initEntry())
+		app.AddCommand(buildEntry())
+		app.AddCommand(devEntry())
+		app.AddCommand(infoEntry())
+
+	} else {
+		app.AddCommand(buildInsideEntry())
+		app.AddCommand(tipsEntry())
+
+		// below are never visible, internal-use only commands
+		app.AddCommand(powerline.Entrypoint())
+		app.AddCommand(devShimEntry())
+	}
 
 	osutil.ExitIfError(app.Execute())
+}
+
+func insideDevContainer() (bool, error) {
+	return fileexists.Exists(shimDataDirContainer)
 }

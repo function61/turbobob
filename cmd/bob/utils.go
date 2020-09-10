@@ -15,3 +15,12 @@ func passthroughStdoutAndStderr(cmd *exec.Cmd) *exec.Cmd {
 func isEnvVarPresent(key string) bool {
 	return os.Getenv(key) != ""
 }
+
+func allDevShellCommands(devShellCommands []DevShellCommand) []string {
+	commands := []string{}
+	for _, command := range devShellCommands {
+		commands = append(commands, command.Command)
+	}
+
+	return commands
+}

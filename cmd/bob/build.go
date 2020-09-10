@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/function61/gokit/envvar"
 	"github.com/function61/gokit/fileexists"
 	"github.com/function61/gokit/osutil"
 	"github.com/function61/turbobob/pkg/versioncontrol"
@@ -294,9 +295,9 @@ func constructBuildContext(
 	envsAreRequired bool,
 	fastBuild bool,
 ) (*BuildContext, error) {
-	bobfile, errBobfile := readBobfile()
-	if errBobfile != nil {
-		return nil, errBobfile
+	bobfile, err := readBobfile()
+	if err != nil {
+		return nil, err
 	}
 
 	repoOriginDir, errGetwd := os.Getwd()
@@ -370,4 +371,61 @@ func buildEntry() *cobra.Command {
 	cmd.Flags().StringVarP(&builderName, "builder", "b", builderName, "If specified, runs only one builder instead of all")
 
 	return cmd
+}
+
+// same as build, but for running inside the container. only focuses on building artefacts -
+// cannot publish, use version control etc.
+func buildInsideEntry() *cobra.Command {
+	fastBuild := false
+
+	cmd := &cobra.Command{
+		Use:   "build",
+		Short: "Builds the artefacts",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			osutil.ExitIfError(buildInside(fastBuild))
+		},
+	}
+
+	cmd.Flags().BoolVarP(&fastBuild, "fast", "f", fastBuild, "Skip non-essential steps (linting, testing etc.)")
+
+	return cmd
+}
+
+func buildInside(fastBuild bool) error {
+	bobfile, err := readBobfile()
+	if err != nil {
+		return err
+	}
+
+	shimCfg, err := readShimConfig()
+	if err != nil {
+		return err
+	}
+
+	builder, err := findBuilder(bobfile, shimCfg.BuilderName)
+	if err != nil {
+		return err
+	}
+
+	buildArgs := builder.Commands.Build
+
+	buildCmd := passthroughStdoutAndStderr(exec.Command(buildArgs[0], buildArgs[1:]...))
+
+	// pass almost all of our environment variables
+	for _, envSerialized := range os.Environ() {
+		if key, _ := envvar.Parse(envSerialized); key == "FASTBUILD" {
+			// since we have explicit interface from here on, ignore setting any previous
+			// value so we can control whether we set this or not
+			continue
+		}
+
+		buildCmd.Env = append(buildCmd.Env, envSerialized)
+	}
+
+	if fastBuild {
+		buildCmd.Env = append(buildCmd.Env, "FASTBUILD=true")
+	}
+
+	return buildCmd.Run()
 }

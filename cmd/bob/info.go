@@ -26,6 +26,8 @@ func info() error {
 
 	fmt.Printf("BASIC DETAILS\n%s\n", basicDetails.Render())
 
+	checkMarkSetNotSet := boolToStringTheme{"✓ (set)", "✗ (not set)"}
+
 	for _, builder := range buildCtx.Bobfile.Builders {
 		ports := "(none)"
 
@@ -44,12 +46,7 @@ func info() error {
 		builderTable.AddRow("Dev ports", ports)
 
 		for _, envKey := range builder.PassEnvs {
-			setOrNot := "✗ (not set)"
-			if isEnvVarPresent(envKey) {
-				setOrNot = "✓ (set)"
-			}
-
-			builderTable.AddRow(fmt.Sprintf("ENV(%s)", envKey), setOrNot)
+			builderTable.AddRow(fmt.Sprintf("ENV(%s)", envKey), checkMarkSetNotSet.String(isEnvVarPresent(envKey)))
 		}
 
 		fmt.Printf("BUILDER\n%s\n", builderTable.Render())
@@ -72,12 +69,7 @@ func info() error {
 	}
 
 	for _, check := range checksResults {
-		okChar := "✓"
-		if !check.Ok {
-			okChar = "✗"
-		}
-
-		checksTable.AddRow(check.Name, okChar, check.Reason)
+		checksTable.AddRow(check.Name, checkMark.String(check.Ok), check.Reason)
 	}
 
 	fmt.Printf("%s\n", checksTable.Render())
@@ -102,4 +94,19 @@ func builderCommandToHumanReadable(cmd []string) string {
 		cmdHumanReadable = "(default command of Docker image)"
 	}
 	return cmdHumanReadable
+}
+
+var checkMark = boolToStringTheme{"✓", "✗"}
+
+type boolToStringTheme struct {
+	positive string
+	negative string
+}
+
+func (c boolToStringTheme) String(positive bool) string {
+	if positive {
+		return c.positive
+	} else {
+		return c.negative
+	}
 }

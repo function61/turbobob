@@ -11,7 +11,8 @@ import (
 )
 
 type UserconfigFile struct {
-	DevIngressSettings devIngressSettings `json:"dev_ingress_settings"`
+	DevIngressSettings        devIngressSettings `json:"dev_ingress_settings"`
+	EnablePromptCustomization *bool              `json:"enable_prompt_customization"`
 }
 
 type devIngressSettings struct {

@@ -83,9 +83,15 @@ type BuilderSpec struct {
 	DevPorts         []string          `json:"dev_ports"`
 	DevHttpIngress   string            `json:"dev_http_ingress"`
 	DevProTips       []string          `json:"dev_pro_tips"`
+	DevShellCommands []DevShellCommand `json:"dev_shell_commands"` // injected as history for quick recall (ctrl + r)
 	Envs             map[string]string `json:"env"`
 	PassEnvs         []string          `json:"pass_envs"`
 	ContextlessBuild bool              `json:"contextless_build"`
+}
+
+type DevShellCommand struct {
+	Command   string `json:"command"`
+	Important bool   `json:"important"` // important commands are shown as pro-tips on "$ bob dev"
 }
 
 type DockerImageSpec struct {
@@ -156,12 +162,12 @@ func assertUniqueBuilderNames(bobfile *Bobfile) error {
 	return nil
 }
 
-func findBuilder(bobfile *Bobfile, builderName string) *BuilderSpec {
+func findBuilder(bobfile *Bobfile, builderName string) (*BuilderSpec, error) {
 	for _, builder := range bobfile.Builders {
 		if builder.Name == builderName {
-			return &builder
+			return &builder, nil
 		}
 	}
 
-	return nil
+	return nil, ErrBuilderNotFound
 }

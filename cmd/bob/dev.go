@@ -2,20 +2,23 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 
+	"github.com/function61/gokit/jsonfile"
 	"github.com/function61/gokit/osutil"
 	"github.com/function61/turbobob/pkg/versioncontrol"
 	"github.com/spf13/cobra"
 )
 
 func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
-	bobfile, errBobfile := readBobfile()
-	if errBobfile != nil {
-		return nil, errBobfile
+	bobfile, err := readBobfile()
+	if err != nil {
+		return nil, err
 	}
 
 	userConfig, err := loadUserconfigFile()
@@ -28,9 +31,9 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 		return nil, errWd
 	}
 
-	builder := findBuilder(bobfile, builderName)
-	if builder == nil {
-		return nil, ErrBuilderNotFound
+	builder, err := findBuilder(bobfile, builderName)
+	if err != nil {
+		return nil, err
 	}
 
 	for _, subrepo := range bobfile.Subrepos {
@@ -39,11 +42,24 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 		}
 	}
 
+	// defaults to false now because it's still a bit buggy
+	enablePromptCustomization := userConfig.EnablePromptCustomization != nil && *userConfig.EnablePromptCustomization
+
+	shimCfg := shimConfig{
+		BuilderName:               builder.Name,
+		EnablePromptCustomization: enablePromptCustomization,
+		DynamicProTipsFromHost:    []string{},
+	}
+
+	if len(builder.DevPorts) > 0 {
+		shimCfg.DynamicProTipsFromHost = append(shimCfg.DynamicProTipsFromHost, fmt.Sprintf(
+			"mapped dev ports: %s",
+			strings.Join(builder.DevPorts, ", ")))
+	}
+
 	containerName := devContainerName(bobfile, builder.Name)
 
-	printProTip := func(proTip string) {
-		fmt.Printf("Pro-tip: %s\n", proTip)
-	}
+	useShim := true // TODO: always use?
 
 	var dockerCmd []string
 	if isDevContainerRunning(containerName) {
@@ -58,6 +74,11 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 		}
 
 		dockerCmd = append(dockerCmd, containerName)
+
+		if useShim {
+			dockerCmd = append(dockerCmd, "bob", "dev-shim", "--")
+		}
+
 		dockerCmd = append(dockerCmd, builder.Commands.Dev...)
 	} else {
 		builderType, _, err := parseBuilderUsesType(builder.Uses)
@@ -85,6 +106,12 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 			"--volume", "/tmp/build:/tmp/build", // cannot map to /tmp because at least apt won't work (permission issues?)
 		}
 
+		fixInputRc := true
+		if fixInputRc {
+			// https://superuser.com/a/589629
+			dockerCmd = append(dockerCmd, "--volume", "/etc/inputrc:/etc/inputrc:ro")
+		}
+
 		if builder.Workdir != "" {
 			dockerCmd = append(dockerCmd, "--workdir", builder.Workdir)
 		}
@@ -100,7 +127,7 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 		if len(devHttpIngress) > 0 {
 			dockerCmd = append(dockerCmd, devHttpIngress...)
 
-			printProTip(fmt.Sprintf("Dev ingress: https://%s/", ingressHostname))
+			shimCfg.DynamicProTipsFromHost = append(shimCfg.DynamicProTipsFromHost, fmt.Sprintf("dev ingress: https://%s/", ingressHostname))
 		}
 
 		archesToBuildFor := buildArchOnlyForCurrentlyRunningArch(*bobfile.OsArches)
@@ -119,18 +146,40 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 			return nil, errEnv
 		}
 
+		if useShim {
+			ourPath, err := os.Executable()
+			if err != nil {
+				return nil, err
+			}
+
+			// this needs to be dynamic, because on the host side there must be a unique dir
+			// per dev container
+			shimDataDirHost, err := ioutil.TempDir("", "bob-shim-")
+			if err != nil {
+				return nil, err
+			}
+
+			if err := jsonfile.Write(filepath.Join(shimDataDirHost, shimConfigFile), &shimCfg); err != nil {
+				return nil, err
+			}
+
+			dockerCmd = append(dockerCmd, "--volume", shimDataDirHost+":"+shimDataDirContainer+":ro")
+
+			// mount this executable inside the container, so we'll be able to use the shim
+			dockerCmd = append(dockerCmd, "--volume", ourPath+":/bin/bob:ro")
+		}
+
 		dockerCmd = append(dockerCmd, builderImageName(bobfile, *builder))
+
+		if useShim {
+			// inject a shim to start the shell indirectly, so we can do preparations like:
+			// - inject commands into history
+			// - set up build cache paths
+			// - show pro-tips
+			dockerCmd = append(dockerCmd, "bob", "dev-shim", "--")
+		}
+
 		dockerCmd = append(dockerCmd, builder.Commands.Dev...)
-	}
-
-	if len(builder.DevPorts) > 0 {
-		printProTip(fmt.Sprintf(
-			"mapped dev ports: %s",
-			strings.Join(builder.DevPorts, ", ")))
-	}
-
-	for _, proTip := range builder.DevProTips {
-		printProTip(proTip)
 	}
 
 	return dockerCmd, nil
