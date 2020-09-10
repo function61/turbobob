@@ -9,8 +9,7 @@ import (
 	"strings"
 
 	"github.com/function61/gokit/dynversion"
-	"github.com/function61/gokit/fileexists"
-	"github.com/function61/gokit/osutil"
+	"github.com/function61/gokit/os/osutil"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +19,7 @@ const (
 )
 
 func writeTravisBoilerplate() error {
-	exists, errExistsCheck := fileexists.Exists(travisFilePath)
+	exists, errExistsCheck := osutil.Exists(travisFilePath)
 	if errExistsCheck != nil {
 		return errExistsCheck
 	}
@@ -46,7 +45,7 @@ script:
 }
 
 func writeGitLabBoilerplate() error {
-	exists, errExistsCheck := fileexists.Exists(gitlabFilePath)
+	exists, errExistsCheck := osutil.Exists(gitlabFilePath)
 	if errExistsCheck != nil {
 		return errExistsCheck
 	}
@@ -76,7 +75,7 @@ build:
 }
 
 func writeDefaultBobfile(producesDockerImage bool) error {
-	exists, errExistsCheck := fileexists.Exists(bobfileName)
+	exists, errExistsCheck := osutil.Exists(bobfileName)
 	if errExistsCheck != nil {
 		return errExistsCheck
 	}

@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/function61/gokit/fileexists"
+	"github.com/function61/gokit/os/osutil"
 )
 
 func CurrentRevisionId(vc Interface, onlyCommitted bool) (*RevisionId, error) {
@@ -44,7 +44,7 @@ func ForDir(dir string, kind Kind) (Interface, error) {
 }
 
 func DetectForDirectory(dir string) (Interface, error) {
-	isHg, err := fileexists.Exists(filepath.Join(dir, ".hg"))
+	isHg, err := osutil.Exists(filepath.Join(dir, ".hg"))
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func DetectForDirectory(dir string) (Interface, error) {
 		return NewMercurial(dir), nil
 	}
 
-	isGit, err := fileexists.Exists(filepath.Join(dir, ".git"))
+	isGit, err := osutil.Exists(filepath.Join(dir, ".git"))
 	if err != nil {
 		return nil, err
 	}

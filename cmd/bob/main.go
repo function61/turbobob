@@ -5,8 +5,7 @@ import (
 	"os"
 
 	"github.com/function61/gokit/dynversion"
-	"github.com/function61/gokit/fileexists"
-	"github.com/function61/gokit/osutil"
+	"github.com/function61/gokit/os/osutil"
 	"github.com/function61/turbobob/pkg/powerline"
 	"github.com/spf13/cobra"
 )
@@ -65,5 +64,5 @@ func main() {
 }
 
 func insideDevContainer() (bool, error) {
-	return fileexists.Exists(shimDataDirContainer)
+	return osutil.Exists(shimDataDirContainer)
 }

@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/function61/gokit/fileexists"
+	"github.com/function61/gokit/os/osutil"
 )
 
 func RunChecks(buildCtx *BuildContext) ([]CheckResult, error) {
@@ -31,7 +31,7 @@ func RunChecks(buildCtx *BuildContext) ([]CheckResult, error) {
 func licensePresent(ctx *CheckContext) error {
 	licenseCheck := ctx.NewCheck("License present")
 
-	exists, errChecking := fileexists.Exists("LICENSE")
+	exists, errChecking := osutil.Exists("LICENSE")
 	if errChecking != nil {
 		return errChecking
 	}
@@ -48,7 +48,7 @@ func licensePresent(ctx *CheckContext) error {
 func readmePresent(ctx *CheckContext) error {
 	readmeCheck := ctx.NewCheck("Readme present")
 
-	exists, errChecking := fileexists.Exists("README.md")
+	exists, errChecking := osutil.Exists("README.md")
 	if errChecking != nil {
 		return errChecking
 	}

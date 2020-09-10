@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/function61/gokit/fileexists"
-	"github.com/function61/gokit/jsonfile"
+	"github.com/function61/gokit/encoding/jsonfile"
+	"github.com/function61/gokit/os/osutil"
 )
 
 const (
@@ -22,7 +22,7 @@ type BaseImageConfig struct {
 // base image conf is optional. if it doesn't exist, an empty (but valid) conf will be
 // returned without error
 func loadBaseImageConf() (*BaseImageConfig, error) {
-	exists, err := fileexists.Exists(baseImageJsonLocation)
+	exists, err := osutil.Exists(baseImageJsonLocation)
 	if err != nil {
 		return nil, fmt.Errorf("loadBaseImageConf: %w", err)
 	}

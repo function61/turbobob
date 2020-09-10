@@ -9,8 +9,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/function61/gokit/jsonfile"
-	"github.com/function61/gokit/osutil"
+	"github.com/function61/gokit/encoding/jsonfile"
+	"github.com/function61/gokit/os/osutil"
 	"github.com/function61/turbobob/pkg/versioncontrol"
 	"github.com/spf13/cobra"
 )

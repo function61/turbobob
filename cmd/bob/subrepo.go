@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 
-	"github.com/function61/gokit/fileexists"
+	"github.com/function61/gokit/os/osutil"
 	"github.com/function61/turbobob/pkg/versioncontrol"
 )
 
 func ensureSubrepoCloned(destination string, subrepo SubrepoSpec) error {
-	exists, err := fileexists.Exists(destination)
+	exists, err := osutil.Exists(destination)
 	if err != nil {
 		return err
 	}

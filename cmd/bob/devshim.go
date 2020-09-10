@@ -10,8 +10,8 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/function61/gokit/fileexists"
-	"github.com/function61/gokit/jsonfile"
+	"github.com/function61/gokit/encoding/jsonfile"
+	"github.com/function61/gokit/os/osutil"
 	"github.com/spf13/cobra"
 )
 
@@ -67,7 +67,7 @@ func devShimEntry() *cobra.Command {
 
 func shimSetup() error {
 	// some things must not be done again
-	alreadyDone, err := fileexists.Exists(shimSetupDoneFlagPath())
+	alreadyDone, err := osutil.Exists(shimSetupDoneFlagPath())
 	if err != nil {
 		return err
 	}
@@ -204,7 +204,7 @@ func shimExitIfErr(prefix string, err error) {
 // make various dirs symlinks to a bind mount from host, so cache can be shared between
 // multiple container instances
 func makeCacheDir(dir string) error {
-	exists, err := fileexists.Exists(dir)
+	exists, err := osutil.Exists(dir)
 	if err != nil {
 		return err
 	}

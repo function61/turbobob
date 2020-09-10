@@ -6,9 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/function61/gokit/envvar"
-	"github.com/function61/gokit/fileexists"
-	"github.com/function61/gokit/osutil"
+	"github.com/function61/gokit/os/osutil"
 	"github.com/function61/turbobob/pkg/versioncontrol"
 	"github.com/spf13/cobra"
 )
@@ -145,7 +143,7 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 
 func cloneToWorkdir(buildCtx *BuildContext) error {
 	rootForProject := projectSpecificDir(buildCtx.Bobfile.ProjectName, "")
-	rootForProjectExists, rootForProjectExistsErr := fileexists.Exists(rootForProject)
+	rootForProjectExists, rootForProjectExistsErr := osutil.Exists(rootForProject)
 	if rootForProjectExistsErr != nil {
 		return rootForProjectExistsErr
 	}
@@ -158,7 +156,7 @@ func cloneToWorkdir(buildCtx *BuildContext) error {
 		}
 	}
 
-	workspaceDirExists, workspaceDirExistsErr := fileexists.Exists(buildCtx.WorkspaceDir)
+	workspaceDirExists, workspaceDirExistsErr := osutil.Exists(buildCtx.WorkspaceDir)
 	if workspaceDirExistsErr != nil {
 		return workspaceDirExistsErr
 	}
@@ -414,7 +412,7 @@ func buildInside(fastBuild bool) error {
 
 	// pass almost all of our environment variables
 	for _, envSerialized := range os.Environ() {
-		if key, _ := envvar.Parse(envSerialized); key == "FASTBUILD" {
+		if key, _ := osutil.Parse(envSerialized); key == "FASTBUILD" {
 			// since we have explicit interface from here on, ignore setting any previous
 			// value so we can control whether we set this or not
 			continue

@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/function61/gokit/fileexists"
-	"github.com/function61/gokit/jsonfile"
+	"github.com/function61/gokit/encoding/jsonfile"
+	"github.com/function61/gokit/os/osutil"
 )
 
 type UserconfigFile struct {
@@ -37,7 +37,7 @@ func loadUserconfigFile() (*UserconfigFile, error) {
 
 	confFilePath := filepath.Join(userHomedir, "turbobob-userconfig.json")
 
-	exists, err := fileexists.Exists(confFilePath)
+	exists, err := osutil.Exists(confFilePath)
 	if err != nil {
 		return nil, fmt.Errorf("loadUserconfigFile: %w", err)
 	}

@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/function61/gokit/osutil"
+	"github.com/function61/gokit/os/osutil"
 	"github.com/scylladb/termtables"
 	"github.com/spf13/cobra"
 )
