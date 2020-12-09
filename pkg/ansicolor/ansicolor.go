@@ -2,14 +2,17 @@
 package ansicolor
 
 var (
-	Black   = &Color{"30", "40"}
-	Red     = &Color{"31", "41"}
-	Green   = &Color{"32", "42"}
-	Yellow  = &Color{"33", "43"}
-	Blue    = &Color{"34", "44"}
-	Magenta = &Color{"35", "45"}
-	Cyan    = &Color{"36", "46"}
-	White   = &Color{"37", "47"}
+	// structure: 3x = foreground code, 4x = background code, i.e. red is 31 for fg, 41 for bg
+
+	Black       = &Color{"30", "40"}
+	Red         = &Color{"31", "41"}
+	Green       = &Color{"32", "42"}
+	Yellow      = &Color{"33", "43"}
+	Blue        = &Color{"34", "44"}
+	Magenta     = &Color{"35", "45"}
+	Cyan        = &Color{"36", "46"}
+	White       = &Color{"37", "47"}
+	Transparent = &Color{"39", "49"}
 
 	BrightBlack   = &Color{"90", "100"}
 	BrightRed     = &Color{"91", "101"}

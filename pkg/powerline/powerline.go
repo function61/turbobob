@@ -99,7 +99,7 @@ func Generate(segments ...Segment) string {
 
 		nextSegBg := func() Color {
 			if idx == lastIdx {
-				return ansicolor.Black
+				return ansicolor.Transparent
 			} else {
 				return next.Colors.Background
 			}
