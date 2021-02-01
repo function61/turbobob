@@ -100,6 +100,7 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 			"--rm",
 			"--interactive",
 			"--tty",
+			"--user", fmt.Sprintf("0:%d", os.Getgid()), // root user for now, but use user's group so we have a chance at having sane group permissions
 			"--name", containerName,
 			"--entrypoint=", // turn off possible "arg mode" in base image (our cmd would just be args to entrypoint)
 			"--volume", wd + "/" + builder.MountSource + ":" + builder.MountDestination,
