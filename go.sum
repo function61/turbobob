@@ -24,6 +24,8 @@ github.com/function61/gokit v0.0.0-20200608105953-12235c68c38b h1:oSy6OCp5pk+hOb
 github.com/function61/gokit v0.0.0-20200608105953-12235c68c38b/go.mod h1:qkZftFp+nvc6BitjWRb9GXS4A1tQ2BuASctzscHa9Io=
 github.com/function61/gokit v0.0.0-20200909085654-5a779b46e59c h1:w81rrtgyE+kseDH9o1eBnAOiwhTz0lsTVgqaAQHXeew=
 github.com/function61/gokit v0.0.0-20200909085654-5a779b46e59c/go.mod h1:9nT4wyoyrlvYOlvTovXSmUGIx6klsr+cgqkGTw7XNgs=
+github.com/function61/gokit v0.0.0-20210201103907-05c55abc7043 h1:M319McM5DBC0J1znRsfFOQWIQYp8x66IPljsW4dqW8U=
+github.com/function61/gokit v0.0.0-20210201103907-05c55abc7043/go.mod h1:zoPwlTF/LeWbdcLYJbaZdHiXAbhhQnaDP336tJ4uG3o=
 github.com/go-ini/ini v1.25.4/go.mod h1:ByCAeIL28uOIIG0E3PJtZPDL8WnHpFKFOtgjp+3Ies8=
 github.com/go-ini/ini v1.38.2 h1:6Hl/z3p3iFkA0dlDfzYxuFuUGD+kaweypF6btsR2/Q4=
 github.com/go-ini/ini v1.38.2/go.mod h1:ByCAeIL28uOIIG0E3PJtZPDL8WnHpFKFOtgjp+3Ies8=
