@@ -56,7 +56,8 @@ user config (this file applies to all the projects that you develop).
 
 In our example case the wildcard entry is `*.dev.example.com`.
 
-Write file `turbobob-userconfig.json` in your homedir (`/home/foo` on Linux, `C:\Users\foo` on Windows etc.):
+Write file `config.json` in your [config dir](https://pkg.go.dev/os#UserConfigDir)
+(`~/.config/turbobob` on Linux etc).
 
 ```json
 {

@@ -30,12 +30,12 @@ func (d devIngressSettings) Validate() error {
 
 // if not found, returns default
 func loadUserconfigFile() (*UserconfigFile, error) {
-	userHomedir, err := os.UserHomeDir()
+	userConfigDir, err := os.UserConfigDir()
 	if err != nil {
 		return nil, fmt.Errorf("loadUserconfigFile: %w", err)
 	}
 
-	confFilePath := filepath.Join(userHomedir, "turbobob-userconfig.json")
+	confFilePath := filepath.Join(userConfigDir, "turbobob", "config.json")
 
 	exists, err := osutil.Exists(confFilePath)
 	if err != nil {
