@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/aws/aws-sdk-go v1.16.15
-	github.com/function61/gokit v0.0.0-20210205110925-fc270cb20de6
+	github.com/function61/gokit v0.0.0-20210205122212-a95b3602ad1a
 	github.com/go-ini/ini v1.38.2 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/mattn/go-runewidth v0.0.3 // indirect

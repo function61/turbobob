@@ -148,7 +148,7 @@ func trigger(ctx context.Context, cmd string, logger *log.Logger) error {
 func triggerServerDeliverIncomingTriggerFires(ctx context.Context, triggerFireReq chan<- void) error {
 	defer close(triggerFireReq)
 
-	return netutil.ListenUnix(ctx, triggerSockPath, &netutil.UnixAllowOwnerAndGroup, func(listener net.Listener) error {
+	return netutil.ListenUnixAllowOwnerAndGroup(ctx, triggerSockPath, func(listener net.Listener) error {
 		for {
 			client, err := listener.Accept()
 			if err != nil {
