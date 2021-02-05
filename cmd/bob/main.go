@@ -51,6 +51,7 @@ func main() {
 		app.AddCommand(devEntry())
 		app.AddCommand(infoEntry())
 
+		app.AddCommand(workspaceEntry())
 	} else {
 		app.AddCommand(buildInsideEntry())
 		app.AddCommand(tipsEntry())
