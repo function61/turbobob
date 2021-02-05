@@ -412,7 +412,7 @@ func buildInside(fastBuild bool) error {
 
 	// pass almost all of our environment variables
 	for _, envSerialized := range os.Environ() {
-		if key, _ := osutil.ParseEnvs(envSerialized); key == "FASTBUILD" {
+		if key, _ := osutil.ParseEnv(envSerialized); key == "FASTBUILD" {
 			// since we have explicit interface from here on, ignore setting any previous
 			// value so we can control whether we set this or not
 			continue

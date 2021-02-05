@@ -60,6 +60,9 @@ func main() {
 		app.AddCommand(devShimEntry())
 	}
 
+	// these commands are visible from both inside and outside
+	app.AddCommand(triggerEntry())
+
 	osutil.ExitIfError(app.Execute())
 }
 
