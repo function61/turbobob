@@ -34,6 +34,7 @@ Contents:
   * [Examples](#examples)
   * [How does turbobob.json work?](#how-does-turbobobjson-work)
   * [Why multiple buildkits?](#why-multiple-buildkits)
+- [Alternative software](#alternative-software)
 
 
 What is this?
@@ -237,3 +238,13 @@ keep the build tools separate so:
 
 p.s. "buildkit" is not a Turbo bob concept per se. It just means "a container image with
 tooling". You can probably use images with Turbo Bob that aren't designed with Turbo Bob in mind.
+
+
+Alternative software
+--------------------
+
+These technologies have some overlap with Turbo Bob:
+
+- [Visual Studio Code Dev Container](https://code.visualstudio.com/docs/remote/containers) - tools inside container
+- [GitHub codespaces](https://github.com/features/codespaces) - Code editor in cloud + tools inside container?
+- [nektos/act](https://github.com/nektos/act) - Run your GitHub Actions locally
