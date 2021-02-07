@@ -19,6 +19,7 @@ Contents:
   * [Displaying pro-tips on entering the dev environment](docs/dev-pro-tips/README.md) (also covers mapping network ports)
   * [Development-time HTTP ingresses](docs/development-time-http-ingresses/README.md) (routing HTTP requests)
   * [Customizing dev container startup](docs/customizing-dev-container-startup/README.md)
+  * [Language server support](docs/language-server-support/README.md) (code completion, analysis, refactoring support etc. for code editors)
 - [Philosophy](#philosophy)
 - [Install](#install)
   * [Linux](#linux)
