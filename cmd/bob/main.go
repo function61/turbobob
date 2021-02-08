@@ -71,8 +71,8 @@ func main() {
 // everyday commands) with tens of less often used commands.
 func toolsEntry() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "tools",
-		Short:  "Less often needed tools",
+		Use:   "tools",
+		Short: "Less often needed tools",
 	}
 
 	// TODO: move powerline here?
