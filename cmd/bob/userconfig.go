@@ -28,6 +28,7 @@ type UserconfigFile struct {
 
 func (u *UserconfigFile) CodeEditorCmd(projectRoot string) ([]string, error) {
 	if u.CodeEditor == nil {
+		// TODO: we could use some (standards-compliant) method to guess user's preferred editor?
 		return nil, errors.New("code editor not specified in user config file")
 	}
 
