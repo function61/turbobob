@@ -57,7 +57,7 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 			strings.Join(builder.DevPorts, ", ")))
 	}
 
-	containerName := devContainerName(bobfile, builder.Name)
+	containerName := devContainerName(bobfile, *builder)
 
 	useShim := true // TODO: always use?
 

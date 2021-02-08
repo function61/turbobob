@@ -23,8 +23,18 @@ func isDevContainerRunning(containerName string) bool {
 	return strings.TrimRight(string(result), "\n") == "true"
 }
 
-func devContainerName(bobfile *Bobfile, builderName string) string {
-	return "tbdev-" + bobfile.ProjectName + "-" + builderName
+func devContainerName(bobfile *Bobfile, builder BuilderSpec) string {
+	return containerNameInternal("dev", bobfile, builder)
+}
+
+func langServerContainerName(bobfile *Bobfile, builder BuilderSpec) string {
+	return containerNameInternal("langserver", bobfile, builder)
+}
+
+// do not use directly
+func containerNameInternal(kind string, bobfile *Bobfile, builder BuilderSpec) string {
+	return fmt.Sprintf("tb%s-%s-%s", kind, bobfile.ProjectName, builder.Name)
+
 }
 
 func builderImageName(bobfile *Bobfile, builder BuilderSpec) string {

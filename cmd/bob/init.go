@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/function61/gokit/dynversion"
+	"github.com/function61/gokit/app/dynversion"
 	"github.com/function61/gokit/os/osutil"
 	"github.com/spf13/cobra"
 )

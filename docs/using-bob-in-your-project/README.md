@@ -184,7 +184,7 @@ Bob has a neat trick of writing config file boilerplates for the most common CI 
 you can run:
 
 ```console
-$ bob init --travis
+$ bob tools init --travis
 cannot init; Bobfile already exists
 ```
 

@@ -6,7 +6,7 @@ import (
 
 var (
 	ErrBuilderNotFound             = errors.New("builder not found")
-	ErrBobfileNotFound             = errors.New("turbobob.json does not exist. Run $ bob init")
+	ErrBobfileNotFound             = errors.New("turbobob.json does not exist. Run $ bob tools init")
 	ErrInitBobfileExists           = errors.New("cannot init; Bobfile already exists")
 	ErrUnsupportedBobfileVersion   = errors.New("Unsupported Bobfile version")
 	ErrDockerCredsEnvNotSet        = errors.New("DOCKER_CREDS not set")

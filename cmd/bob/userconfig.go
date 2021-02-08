@@ -1,5 +1,9 @@
 package main
 
+// User's configuration file for preferred settings. It's strictly not necessary, but may be very useful.
+//
+// The location is ~/.config/turbobob/config.json
+
 import (
 	"errors"
 	"fmt"
@@ -18,7 +22,7 @@ type programConfig struct {
 type UserconfigFile struct {
 	DevIngressSettings        devIngressSettings `json:"dev_ingress_settings"`
 	EnablePromptCustomization *bool              `json:"enable_prompt_customization"`
-	CodeEditor                *programConfig     `json:"code_editor"`  // .cmd can contain "$PROJECT_ROOT" if you need to path to project as arg
+	CodeEditor                *programConfig     `json:"code_editor"`  // .cmd can contain "$PROJECT_ROOT" if you need path to project as arg
 	FileBrowser               *programConfig     `json:"file_browser"` // .cmd can contain "$DIRECTORY" if your file browser doesn't use its workdir
 }
 
@@ -78,7 +82,7 @@ func loadUserconfigFile() (*UserconfigFile, error) {
 	conf := &UserconfigFile{}
 
 	if exists {
-		return conf, maybeWrapErr("loadUserconfigFile: %w", jsonfile.Read(confFilePath, conf, true))
+		return conf, maybeWrapErr("loadUserconfigFile: %w", jsonfile.ReadDisallowUnknownFields(confFilePath, conf))
 	} else {
 		// return empty struct, because it's fully valid to use Turbo Bob without
 		// user-specific config

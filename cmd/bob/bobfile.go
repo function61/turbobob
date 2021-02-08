@@ -115,7 +115,7 @@ func readBobfile() (*Bobfile, error) {
 	defer bobfileFile.Close()
 
 	bobfile := &Bobfile{}
-	if err := jsonfile.Unmarshal(bobfileFile, bobfile, true); err != nil {
+	if err := jsonfile.UnmarshalDisallowUnknownFields(bobfileFile, bobfile); err != nil {
 		return nil, err
 	}
 

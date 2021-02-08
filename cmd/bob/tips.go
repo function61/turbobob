@@ -35,7 +35,7 @@ func tips() error {
 		return err
 	}
 
-	baseImgConf, err := loadBaseImageConf()
+	baseImgConf, err := loadBaseImageConfWhenInsideContainer()
 	if err != nil {
 		return err
 	}

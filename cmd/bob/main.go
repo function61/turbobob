@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/function61/gokit/dynversion"
+	"github.com/function61/gokit/app/dynversion"
 	"github.com/function61/gokit/os/osutil"
 	"github.com/function61/turbobob/pkg/powerline"
 	"github.com/spf13/cobra"
@@ -46,12 +46,12 @@ func main() {
 	osutil.ExitIfError(err)
 
 	if !inside {
-		app.AddCommand(initEntry())
 		app.AddCommand(buildEntry())
 		app.AddCommand(devEntry())
 		app.AddCommand(infoEntry())
-
 		app.AddCommand(workspaceEntry())
+
+		app.AddCommand(toolsEntry()) // namespace for less often needed tools
 	} else {
 		app.AddCommand(buildInsideEntry())
 		app.AddCommand(tipsEntry())
@@ -65,6 +65,21 @@ func main() {
 	app.AddCommand(triggerEntry())
 
 	osutil.ExitIfError(app.Execute())
+}
+
+// tools namespace because we don't want to pollute the root namespace (meant for fast discovery of
+// everyday commands) with tens of less often used commands.
+func toolsEntry() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:    "tools",
+		Short:  "Less often needed tools",
+	}
+
+	// TODO: move powerline here?
+	cmd.AddCommand(initEntry())
+	cmd.AddCommand(langserverEntry())
+
+	return cmd
 }
 
 func insideDevContainer() (bool, error) {

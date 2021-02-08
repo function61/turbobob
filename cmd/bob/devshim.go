@@ -87,7 +87,7 @@ func shimSetup() error {
 		return fmt.Errorf("findBuilder: %w", err)
 	}
 
-	baseImgConf, err := loadBaseImageConf()
+	baseImgConf, err := loadBaseImageConfWhenInsideContainer()
 	if err != nil {
 		return err
 	}
@@ -230,7 +230,7 @@ func makeCacheDir(dir string) error {
 
 func readShimConfig() (*shimConfig, error) {
 	shimConf := &shimConfig{}
-	return shimConf, jsonfile.Read(filepath.Join(shimDataDirContainer, shimConfigFile), shimConf, true)
+	return shimConf, jsonfile.ReadDisallowUnknownFields(filepath.Join(shimDataDirContainer, shimConfigFile), shimConf)
 }
 
 func shimSetupDoneFlagPath() string {
