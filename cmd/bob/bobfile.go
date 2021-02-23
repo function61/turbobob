@@ -17,6 +17,7 @@ type Bobfile struct {
 	FileDescriptionBoilerplate string            `json:"for_description_of_this_file_see"`
 	VersionMajor               int               `json:"version_major"`
 	ProjectName                string            `json:"project_name"`
+	ProjectEmojiIcon           string            `json:"project_emoji_icon,omitempty"` // to quickly differentiate projects in e.g. workspace switcher
 	Builders                   []BuilderSpec     `json:"builders"`
 	DockerImages               []DockerImageSpec `json:"docker_images"`
 	Subrepos                   []SubrepoSpec     `json:"subrepos"`

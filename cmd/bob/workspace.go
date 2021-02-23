@@ -8,6 +8,7 @@ package main
 // Currently assumes you're using i3
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/function61/gokit/os/osutil"
@@ -101,5 +102,18 @@ func workspaceRenameToSelectedProject() error {
 		return err
 	}
 
-	return resolveWindowManager().RenameCurrentWorkspace(bobfile.ProjectName)
+	userConfig, err := loadUserconfigFile()
+	if err != nil {
+		return err
+	}
+
+	nameWithMaybeIcon := func() string {
+		if bobfile.ProjectEmojiIcon != "" && userConfig.WindowManagerShowProjectEmojiIcons {
+			return fmt.Sprintf("%s %s", bobfile.ProjectEmojiIcon, bobfile.ProjectName)
+		} else {
+			return bobfile.ProjectName
+		}
+	}()
+
+	return resolveWindowManager().RenameCurrentWorkspace(nameWithMaybeIcon)
 }
