@@ -56,26 +56,30 @@ Because traditionally the code editor and the language server is expected to be 
 computer (or to be more exact with containers: the same namespace), there usually is a difference
 in the expectations of default usage behaviour and how you want to use it with Bob. Specifically:
 
-| issue | Traditional approach | Containerized way |
+|  | Traditional approach | Containerized way |
 |-------------------------|---|---|
-| Start a language server | An editor starts `gopls` a as child process | We want to start `gopls` inside a container |
-| Multiple LS instances? | An editor expects one `gopls` instance can access any Go-based project | Each project (also the language server) is in own container, so it can only access the chosen project's files |
+| Start a language server | An editor starts `gopls` as a child process | We want to start `gopls` inside a container |
+| Multiple LS instances? | An editor expects one `gopls` instance to be able to access any Go-based project | Each project (also the LS) is in own container, so it can only access the chosen project's files |
 | File access | Filesystem from editor's & LS's perspective are the same | Host and container filesystems are separated. We can map host paths (like a given project's files) into a container, but paths can be different from host and container perspectives. |
 
 More about file access: e.g. `/home/joonas/work/turbobob` could get mounted in `/workspace` inside a
 dev container (the one you get a shell in with `$ bob dev`). Therefore instead of reusing the same
 dev container, a language server gets its own container (still based on the same builder image!) for
-the purpose of trying to make the paths look the same. This is also a better approach because you
+the purpose of trying to make the paths look the same. This is also a good approach because you
 don't want your language server stopping if you exit the dev shell.
 
 To help bridge these differences, Bob has a small shim (`$ bob tools langserver`) that handles
 starting an LS in a container with the right parameters. The shim isn't strictly necessary, as you
 could just rig the `$ docker run ... some/docker-image gopls` command directly into your editor's
 LSP config, but it contains so many project-specific parameters (Docker image & its version to use,
-project directory path) that it's easier to use the shim because editors expect one `gopls` langserver
-instance to be able to deal with all of your projects. We're swimming a bit against the current here
-by making a langserver project-specific. Some could say it's a good feature, because now we can't
-get version conflicts if a new langserver doesn't work with an old project anymore. :)
+project directory path) that it's easier to use the shim.
+
+Editors expect each LS to be without much config (let alone project-specific config) because
+traditionally each LS isn't project-specific - one LS instance deals with all of your Go-based projects.
+
+We're swimming a bit against the current here. I'd still say it's a good tradeoff, because Bob enables
+ones host system to contain minimal state, and now we can't get version conflicts if a new langserver
+doesn't work with an old project anymore. Now a project specifies its langserver it's compatible with. :)
 
 
 ### Beta quality warning
@@ -83,7 +87,7 @@ get version conflicts if a new langserver doesn't work with an old project anymo
 The LSP support is in beta stage. It is working at least in my test setup and there isn't major hacks
 preventing wider use - but I haven't tested it more languages and editors yet.
 
-The following has been tested to work: Bob + Sublime Text + gopls.
+The following has been tested to work with Go code: Bob + Sublime Text + gopls.
 
 
 ### Known issues
@@ -92,7 +96,7 @@ Here be dragons - Bob's LSP shim isn't perfect yet:
 
 - Depending on your editor you might be able to only access one project at a time for each given
   language (unless you create different "langserver instance" configs for each project in your editor).
-  At least Sublime Text expects that if one `gopls` instance running, it can use that instance to
+  At least Sublime Text expects that if one `gopls` instance is running, it can use that instance to
   access projects A and B, but the `gopls` is in A's container (assuming that project was opened
   first and as a result the langserver was launched) and thus can't access B's files.
 
@@ -109,7 +113,7 @@ Here be dragons - Bob's LSP shim isn't perfect yet:
 
 We're assuming you're using Sublime Text and Go language, but the overall process is the same for every editor:
 
-- Make sure the editor supports LSP, if not, it might have a plugin
+- Make sure the editor supports LSP. If not directly, it might have a plugin
 
 - There usually is per-language configuration to enable LSP by specifying a command the editor runs
   to start the LS

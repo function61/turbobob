@@ -1,6 +1,6 @@
 package main
 
-// Bob support for making langserver (https://langserver.org/) integration easier and better with containers.
+// Support for making langserver (https://langserver.org/) integration easier and better with containers.
 
 import (
 	"context"
@@ -34,7 +34,8 @@ func langserverRunShim(ctx context.Context) error {
 		return err
 	}
 
-	// workdir is not always the same as process's initial workdir
+	// workdir is not always the same as process's initial workdir.
+	// after this, we can resolve the chosen project's details.
 	if err := os.Chdir(workdir); err != nil {
 		return err
 	}
@@ -44,8 +45,7 @@ func langserverRunShim(ctx context.Context) error {
 	// must use the same path in containers (unless we want to do tricks with symlinks etc.)
 	mountDir := workdir
 
-	// assuming LSP client invoked our "LSP server" (we are just a proxy) with our workdir set
-	// to the project's root, so we can still resolve which project this LSP is about
+	// access chosen project's details (so we know which programming language's langserver to start)
 	bobfile, err := readBobfile()
 	if err != nil {
 		return err
@@ -55,7 +55,8 @@ func langserverRunShim(ctx context.Context) error {
 		return errors.New("need at least one builder")
 	}
 
-	builder := bobfile.Builders[0] // FIXME: this is not correct
+	// FIXME: this is not correct. could use builder.MountSource to resolve specific one
+	builder := bobfile.Builders[0]
 
 	langserverCmd, err := func() ([]string, error) {
 		baseImageConf, err := loadNonOptionalBaseImageConf(*bobfile, builder)
@@ -106,11 +107,11 @@ func resolveWorkdirFromLSInvocation() (string, error) {
 	}
 
 	// TODO: read this from Bob's userconfig
-	wrongWorkdirs := map[string]string{
+	wrongAndCorrectWds := map[string]string{
 		"/persist/work": "/home/joonas/work",
 	}
 
-	for wdWrong, wdCorrect := range wrongWorkdirs {
+	for wdWrong, wdCorrect := range wrongAndCorrectWds {
 		if strings.HasPrefix(workdirDefault, wdWrong) {
 			/*	given:
 				wdWrong=/wrong/work
@@ -126,6 +127,6 @@ func resolveWorkdirFromLSInvocation() (string, error) {
 		}
 	}
 
-	// no corrections had to be made, so workdir was already correct
+	// no correction had to be made, so workdir was already correct
 	return workdirDefault, nil
 }
