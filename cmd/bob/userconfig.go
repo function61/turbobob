@@ -25,6 +25,9 @@ type UserconfigFile struct {
 	WindowManagerShowProjectEmojiIcons bool               `json:"windowmanager_show_project_emoji_icons"` // needs to be opt-in, because emojis can show up as garbage
 	CodeEditor                         *programConfig     `json:"code_editor"`                            // .cmd can contain "$PROJECT_ROOT" if you need path to project as arg
 	FileBrowser                        *programConfig     `json:"file_browser"`                           // .cmd can contain "$DIRECTORY" if your file browser doesn't use its workdir
+	ProjectQuality                     struct {
+		FilesThatShouldExist []string `json:"files_that_should_exist"`
+	} `json:"project_quality"`
 }
 
 func (u *UserconfigFile) CodeEditorCmd(projectRoot string) ([]string, error) {

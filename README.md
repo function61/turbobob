@@ -20,6 +20,7 @@ Contents:
   * [Development-time HTTP ingresses](docs/development-time-http-ingresses/README.md) (routing HTTP requests)
   * [Customizing dev container startup](docs/customizing-dev-container-startup/README.md)
   * [Language server support](docs/language-server-support/README.md) (code completion, analysis, refactoring support etc. for code editors)
+  * [Quality helpers](docs/quality-helpers/README.md) (multi-project quality scalability by automatically checking standards-compliance like having README, LICENSE, security policy etc.)
 - [Philosophy](#philosophy)
 - [Install](#install)
   * [Linux](#linux)

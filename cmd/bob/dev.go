@@ -26,6 +26,12 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 		return nil, err
 	}
 
+	// this is a natural point to check for repository's quality warnings. these are not issues
+	// that should break the build, but are severe enough to bug a maintainer
+	if err := qualityCheckFilesThatShouldExist(userConfig.ProjectQuality.FilesThatShouldExist); err != nil {
+		return nil, err
+	}
+
 	wd, errWd := os.Getwd()
 	if errWd != nil {
 		return nil, errWd
