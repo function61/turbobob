@@ -266,14 +266,15 @@ func build(buildCtx *BuildContext) error {
 		}
 	}
 
+	dockerLoginCache := newDockerRegistryLoginCache()
+
 	for _, dockerImage := range buildCtx.Bobfile.DockerImages {
 		if buildCtx.BuilderNameFilter != "" {
 			continue // when building a specifified builder => skip everything else
 		}
 
 		if buildCtx.PublishArtefacts {
-			// FIXME: login to each different registry only once
-			if err := loginToDockerRegistry(dockerImage); err != nil {
+			if err := loginToDockerRegistry(dockerImage, dockerLoginCache); err != nil {
 				return err
 			}
 		}

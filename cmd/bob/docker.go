@@ -145,7 +145,7 @@ func dockerRelayEnvVars(
 	return dockerArgs, nil
 }
 
-func loginToDockerRegistry(dockerImage DockerImageSpec) error {
+func loginToDockerRegistry(dockerImage DockerImageSpec, cache *dockerRegistryLoginCache) error {
 	credentialsObtainer := getDockerCredentialsObtainer(dockerImage)
 	creds, err := credentialsObtainer.Obtain()
 	if err != nil {
@@ -162,6 +162,12 @@ func loginToDockerRegistry(dockerImage DockerImageSpec) error {
 		registryDefaulted = dockertag.DockerHubHostname // docker.io
 	}
 
+	cacheKey := newDockerRegistryLoginCacheKey(registryDefaulted, *creds)
+
+	if cache.Cached(cacheKey) {
+		return nil
+	}
+
 	printHeading(fmt.Sprintf("Logging in as %s to %s", creds.Username, registryDefaulted))
 
 	loginCmd := passthroughStdoutAndStderr(exec.Command(
@@ -175,5 +181,32 @@ func loginToDockerRegistry(dockerImage DockerImageSpec) error {
 		return err
 	}
 
+	cache.Cache(cacheKey)
+
 	return nil
+}
+
+type dockerRegistryLoginCacheKey string
+
+func newDockerRegistryLoginCacheKey(registry string, creds DockerCredentials) dockerRegistryLoginCacheKey {
+	return dockerRegistryLoginCacheKey(fmt.Sprintf("%s:%s:%s", registry, creds.Username, creds.Password))
+}
+
+type dockerRegistryLoginCache struct {
+	items map[dockerRegistryLoginCacheKey]bool
+}
+
+func newDockerRegistryLoginCache() *dockerRegistryLoginCache {
+	return &dockerRegistryLoginCache{
+		items: map[dockerRegistryLoginCacheKey]bool{},
+	}
+}
+
+func (d *dockerRegistryLoginCache) Cached(key dockerRegistryLoginCacheKey) bool {
+	_, cached := d.items[key]
+	return cached
+}
+
+func (d *dockerRegistryLoginCache) Cache(key dockerRegistryLoginCacheKey) {
+	d.items[key] = true
 }
