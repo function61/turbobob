@@ -11,10 +11,8 @@ var (
 	ErrUnsupportedBobfileVersion   = errors.New("Unsupported Bobfile version")
 	ErrDockerCredsEnvNotSet        = errors.New("DOCKER_CREDS not set")
 	ErrInvalidDockerCredsEnvFormat = errors.New("Invalid format for DOCKER_CREDS")
-	ErrCiFileAlreadyExists         = errors.New("CI file already exists")
 	ErrUnableToParseDockerTag      = errors.New("Unable to parse Docker tag")
 	ErrIncorrectFileDescriptionBp  = errors.New("you are not supposed to change FileDescriptionBoilerplate")
-	ErrInitingWithBobDevVersion    = errors.New("using dev version of Bob. Bob download URL will be wrong")
 )
 
 func envVarMissingErr(envKey string) error {
