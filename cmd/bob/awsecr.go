@@ -107,13 +107,17 @@ func fromSerializedDockerCredsEnv() (string, string, error) {
 }
 
 func getDockerCredentialsObtainer(dockerImage DockerImageSpec) DockerCredentialObtainer {
-	switch dockerImage.AuthType {
+	if dockerImage.AuthType == nil {
+		return &DockerCredentialsObtainer{}
+	}
+
+	switch *dockerImage.AuthType {
 	case "creds_from_env":
 		return &DockerCredentialsObtainer{}
 	case "aws_ecr":
 		return &AwsEcrCredentialsObtainer{}
 	default:
-		panic(errors.New("invalid AuthType: " + dockerImage.AuthType))
+		panic(errors.New("invalid AuthType: " + *dockerImage.AuthType))
 	}
 }
 

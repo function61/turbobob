@@ -113,7 +113,6 @@ func writeDefaultBobfile(producesDockerImage bool) error {
 		defaults.DockerImages = append(defaults.DockerImages, DockerImageSpec{
 			Image:          "yourcompany/" + projectName,
 			DockerfilePath: "Dockerfile",
-			AuthType:       "creds_from_env",
 		})
 	}
 
