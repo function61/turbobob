@@ -104,8 +104,7 @@ Requires Docker for use, so currently only Linux is supported. Native Windows su
 come later as Windows' Linux subsystem keeps maturing.
 
 ```console
-$ DOWNLOAD_URL="..." # find this from GitHub releases
-$ sudo curl --location --fail --output /usr/local/bin/bob "$DOWNLOAD_URL" && sudo chmod +x /usr/local/bin/bob
+$ sudo curl --location --fail --output /usr/local/bin/bob https://function61.com/go/turbobob-latest-linux-amd64 && sudo chmod +x /usr/local/bin/bob
 ```
 
 ### Windows
