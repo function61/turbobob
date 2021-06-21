@@ -100,6 +100,7 @@ type DockerImageSpec struct {
 	DockerfilePath string   `json:"dockerfile_path"`
 	AuthType       *string  `json:"auth_type"`           // creds_from_env | aws_ecr
 	Platforms      []string `json:"platforms,omitempty"` // if set, uses buildx
+	TagLatest      bool     `json:"tag_latest"`
 }
 
 // FIXME: Bobfile should actually be read only after correct

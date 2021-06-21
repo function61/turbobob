@@ -84,6 +84,7 @@ func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdT
 func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildContext) error {
 	tagWithoutVersion := dockerImage.Image
 	tag := tagWithoutVersion + ":" + buildCtx.RevisionId.FriendlyRevisionId
+	tagLatest := tagWithoutVersion + ":latest"
 	dockerfilePath := dockerImage.DockerfilePath
 
 	printHeading(fmt.Sprintf("Building %s", tag))
@@ -124,15 +125,33 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 	}
 
 	if buildCtx.PublishArtefacts {
-		printHeading(fmt.Sprintf("Pushing %s", tag))
+		pushTag := func(tag string) error {
+			printHeading(fmt.Sprintf("Pushing %s", tag))
 
-		pushCmd := passthroughStdoutAndStderr(exec.Command(
-			"docker",
-			"push",
-			tag))
+			pushCmd := passthroughStdoutAndStderr(exec.Command(
+				"docker",
+				"push",
+				tag))
 
-		if err := pushCmd.Run(); err != nil {
+			if err := pushCmd.Run(); err != nil {
+				return err
+			}
+
+			return nil
+		}
+
+		if err := pushTag(tag); err != nil {
 			return err
+		}
+
+		if dockerImage.TagLatest {
+			if err := exec.Command("docker", "tag", tag, tagLatest).Run(); err != nil {
+				return fmt.Errorf("tagging failed %s -> %s failed: %v", tag, tagLatest, err)
+			}
+
+			if err := pushTag(tagLatest); err != nil {
+				return err
+			}
 		}
 
 		return nil
