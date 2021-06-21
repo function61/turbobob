@@ -20,7 +20,7 @@ type Bobfile struct {
 	ProjectEmojiIcon           string            `json:"project_emoji_icon,omitempty"` // to quickly differentiate projects in e.g. workspace switcher
 	Builders                   []BuilderSpec     `json:"builders"`
 	DockerImages               []DockerImageSpec `json:"docker_images"`
-	Subrepos                   []SubrepoSpec     `json:"subrepos"`
+	Subrepos                   []SubrepoSpec     `json:"subrepos,omitempty"`
 	OsArches                   *OsArchesSpec     `json:"os_arches"`
 }
 
@@ -81,11 +81,11 @@ type BuilderSpec struct {
 	MountDestination string            `json:"mount_destination"`
 	Workdir          string            `json:"workdir"`
 	Commands         BuilderCommands   `json:"commands"`
-	DevPorts         []string          `json:"dev_ports"`
-	DevHttpIngress   string            `json:"dev_http_ingress"`
-	DevProTips       []string          `json:"dev_pro_tips"`
+	DevPorts         []string          `json:"dev_ports,omitempty"`
+	DevHttpIngress   string            `json:"dev_http_ingress,omitempty"`
+	DevProTips       []string          `json:"dev_pro_tips,omitempty"`
 	DevShellCommands []DevShellCommand `json:"dev_shell_commands"` // injected as history for quick recall (ctrl + r)
-	Envs             map[string]string `json:"env"`
+	Envs             map[string]string `json:"env,omitempty"`
 	PassEnvs         []string          `json:"pass_envs"`
 	ContextlessBuild bool              `json:"contextless_build"`
 }
@@ -98,8 +98,8 @@ type DevShellCommand struct {
 type DockerImageSpec struct {
 	Image          string   `json:"image"`
 	DockerfilePath string   `json:"dockerfile_path"`
-	AuthType       string   `json:"auth_type"` // creds_from_env | aws_ecr
-	Platforms      []string `json:"platforms"` // if set, uses buildx
+	AuthType       string   `json:"auth_type"`           // creds_from_env | aws_ecr
+	Platforms      []string `json:"platforms,omitempty"` // if set, uses buildx
 }
 
 // FIXME: Bobfile should actually be read only after correct
