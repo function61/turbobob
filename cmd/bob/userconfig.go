@@ -26,10 +26,16 @@ type UserconfigFile struct {
 	CodeEditor                         *programConfig     `json:"code_editor"`                            // .cmd can contain "$PROJECT_ROOT" if you need path to project as arg
 	FileBrowser                        *programConfig     `json:"file_browser"`                           // .cmd can contain "$DIRECTORY" if your file browser doesn't use its workdir
 	ProjectQuality                     struct {
-		FilesThatShouldExist    []string          `json:"files_that_should_exist"`
-		FilesThatShouldNotExist []string          `json:"files_that_should_not_exist"`
-		BuilderUsesExpect       map[string]string `json:"builder_uses_expect"` // substring => full string mappings
+		BuilderUsesExpect map[string]string `json:"builder_uses_expect"` // substring => full string mappings
+		FileRules         []FileQualityRule `json:"file_rules"`
 	} `json:"project_quality"`
+}
+
+type FileQualityRule struct {
+	Path           string   `json:"path"`             // file path relative to repo root, e.g. "docs/security.md"
+	MustExist      *bool    `json:"must_exist"`       // true => must exist, false => must not exist, nil => ok if not exists
+	MustContain    []string `json:"must_contain"`     // strings the file must contain
+	MustNotContain []string `json:"must_not_contain"` // strings the file must not contain
 }
 
 func (u *UserconfigFile) CodeEditorCmd(projectRoot string) ([]string, error) {

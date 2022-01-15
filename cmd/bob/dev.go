@@ -29,15 +29,11 @@ func devCommand(builderName string, envsAreRequired bool, ignoreNag bool) ([]str
 	// this is a natural point to check for repository's quality warnings. these are not issues
 	// that should break the build, but are severe enough to bug a maintainer
 	if !ignoreNag {
-		if err := qualityCheckFilesThatShouldExist(userConfig.ProjectQuality.FilesThatShouldExist); err != nil {
-			return nil, err
-		}
-
-		if err := qualityCheckFilesThatShouldNotExist(userConfig.ProjectQuality.FilesThatShouldNotExist); err != nil {
-			return nil, err
-		}
-
 		if err := qualityCheckBuilderUsesExpect(userConfig.ProjectQuality.BuilderUsesExpect, bobfile); err != nil {
+			return nil, err
+		}
+
+		if err := qualityCheckFiles(userConfig.ProjectQuality.FileRules); err != nil {
 			return nil, err
 		}
 	}

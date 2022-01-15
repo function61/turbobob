@@ -1,41 +1,11 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"os"
 	"strings"
-
-	"github.com/function61/gokit/os/osutil"
 )
-
-func qualityCheckFilesThatShouldExist(filesThatShouldExist []string) error {
-	for _, fileThatShouldExist := range filesThatShouldExist {
-		exists, err := osutil.Exists(fileThatShouldExist)
-		if err != nil {
-			return err
-		}
-
-		if !exists {
-			return fmt.Errorf("quality: file that should, does not exist: %s", fileThatShouldExist)
-		}
-	}
-
-	return nil
-}
-
-func qualityCheckFilesThatShouldNotExist(filesThatShouldNotExist []string) error {
-	for _, fileThatShouldNotExist := range filesThatShouldNotExist {
-		exists, err := osutil.Exists(fileThatShouldNotExist)
-		if err != nil {
-			return err
-		}
-
-		if exists {
-			return fmt.Errorf("quality: file should not exist: %s", fileThatShouldNotExist)
-		}
-	}
-
-	return nil
-}
 
 func qualityCheckBuilderUsesExpect(rules map[string]string, bobfile *Bobfile) error {
 	for _, builder := range bobfile.Builders {
@@ -46,6 +16,48 @@ func qualityCheckBuilderUsesExpect(rules map[string]string, bobfile *Bobfile) er
 					builder.Uses,
 					expectFull)
 			}
+		}
+	}
+
+	return nil
+}
+
+func qualityCheckFiles(rules []FileQualityRule) error {
+	for _, rule := range rules {
+		if err := qualityCheckFile(rule); err != nil {
+			return fmt.Errorf("quality: file %s: %w", rule.Path, err)
+		}
+	}
+
+	return nil
+}
+
+func qualityCheckFile(rule FileQualityRule) error {
+	fileContent, err := os.ReadFile(rule.Path)
+	switch {
+	case err == nil:
+		if rule.MustExist != nil && !*rule.MustExist {
+			return errors.New("must not exist (but does)")
+		}
+	case os.IsNotExist(err):
+		if rule.MustExist != nil && *rule.MustExist {
+			return errors.New("must exist (but does not)")
+		}
+
+		return nil // does not exist and wasn't required to exist => OK
+	default: // unexpected error
+		return err
+	}
+
+	for _, mustContain := range rule.MustContain {
+		if !strings.Contains(string(fileContent), mustContain) {
+			return fmt.Errorf("must contain '%s' (but does not)", mustContain)
+		}
+	}
+
+	for _, mustNotContain := range rule.MustNotContain {
+		if strings.Contains(string(fileContent), mustNotContain) {
+			return fmt.Errorf("must not contain '%s' (but does)", mustNotContain)
 		}
 	}
 

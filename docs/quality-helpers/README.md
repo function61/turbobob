@@ -13,7 +13,7 @@ These are checked when you enter the dev shell (`$ bob dev`) - it's a natural po
 while not breaking build process.
 
 
-### Missing files check
+### File must exist -check
 
 If you're missing "important ingredients", like:
 
@@ -29,10 +29,19 @@ user-specific configuration file:
 ```json
 {
 	"project_quality": {
-		"files_that_should_exist": [
-			"README.md",
-			"LICENSE",
-			"docs/security.md"
+		"file_rules": [
+			{
+				"path": "README.md",
+				"must_exist": true
+			},
+			{
+				"path": "LICENSE",
+				"must_exist": true
+			},
+			{
+				"path": "docs/security.md",
+				"must_exist": true
+			}
 		]
 	}
 }
@@ -48,6 +57,75 @@ This will cause unnecessary nags for a small fraction of Bob users - the ones th
 We could fix this by opting in to nags from only projects that you're a maintainer of.
 This could be done with a pattern like `repos from github.com/function61/*`, but we'll leave that for
 later if this becomes an issue.
+
+
+### File must not exist -check
+
+Now let's say that you learned that GitHub can
+[specify security policy organisation-wide](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file),
+and now you're left with deleting repository-specific security policies because you want for the
+organization-wide policy to be inherited to GitHub's UI.
+
+You can model this as a file must not exist check:
+
+```json
+{
+	"project_quality": {
+		"file_rules": [
+			{
+				"path": "docs/security.md",
+				"must_exist": false
+			}
+		]
+	}
+}
+```
+
+
+### File content contains -check
+
+Let's say you want to guarantee that each of your project README has installation instructions header:
+
+```json
+{
+	"project_quality": {
+		"file_rules": [
+			{
+				"path": "README.md",
+				"must_contain": [
+					"## Installation"
+				]
+			}
+		]
+	}
+}
+```
+
+Note: the check is only done if `README.md` exists. If you want to ensure that the file exists, combine it with `"must_exist": true` rule:
+
+```json
+{
+	"project_quality": {
+		"file_rules": [
+			{
+				"path": "README.md",
+				"must_exist": true,
+				"must_contain": [
+					"## Installation"
+				]
+			}
+		]
+	}
+}
+```
+
+
+### File content does not contain -check
+
+Same as contains, but use `must_not_contain`.
+
+Use case: you've copy-pasted content into many projects and now you've to remember to remove that
+from each project.
 
 
 ### Ensure you update to latest version of a builder
