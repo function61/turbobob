@@ -152,6 +152,10 @@ func loginToDockerRegistry(dockerImage DockerImageSpec, cache *dockerRegistryLog
 		return err
 	}
 
+	if creds == nil {
+		return nil
+	}
+
 	tagParsed := dockertag.Parse(dockerImage.Image)
 	if tagParsed == nil {
 		return ErrUnableToParseDockerTag

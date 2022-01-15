@@ -13,7 +13,6 @@ func RunChecks(buildCtx *BuildContext) ([]CheckResult, error) {
 	}
 
 	checks := []func(*CheckContext) error{
-		dockerRegistryCredentialsPresent,
 		passableEnvVarsPresent,
 		licensePresent,
 		readmePresent,
@@ -59,27 +58,6 @@ func readmePresent(ctx *CheckContext) error {
 		readmeCheck.Fail("Project must have a README.md file")
 	}
 
-	return nil
-}
-
-func dockerRegistryCredentialsPresent(ctx *CheckContext) error {
-	registryCredentials := ctx.NewCheck("Docker registry credentials")
-
-	if len(ctx.BuildContext.Bobfile.DockerImages) == 0 {
-		registryCredentials.OkWithReason("n/a")
-		return nil
-	}
-
-	for _, image := range ctx.BuildContext.Bobfile.DockerImages {
-		obtainableErr := getDockerCredentialsObtainer(image).IsObtainable()
-
-		if obtainableErr != nil {
-			registryCredentials.Fail(obtainableErr.Error())
-			return nil
-		}
-	}
-
-	registryCredentials.Ok()
 	return nil
 }
 
