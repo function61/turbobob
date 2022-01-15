@@ -21,12 +21,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+
     - name: Build
       run: |
         curl --fail --location --silent --output bob https://function61.com/go/turbobob-latest-linux-amd64 && chmod +x bob
         CI_REVISION_ID="$GITHUB_SHA" ./bob build --publish-artefacts
-      # unfortunately there doesn't seem to be a way to "expose all secrets", so you must
-      # list here each secret to pass on to the build
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 `)
