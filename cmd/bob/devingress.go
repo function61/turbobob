@@ -34,6 +34,8 @@ func setupDevIngress(
 	ingressHostname := ingressAppId + "." + ingressSettings.Domain
 
 	labels := []string{
+		// Edgerouter needs explicit opt-in for "no auth" to not accidentally expose private services
+		"edgerouter.auth=public",
 		"traefik.frontend.rule=Host:" + ingressHostname,
 		"traefik.port=" + containerPort,
 	}
