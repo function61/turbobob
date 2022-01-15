@@ -127,11 +127,13 @@ Edit LSP (user-specific) settings to contain:
 	"clients": {
 		"gopls": {
 			"command": ["bob", "tools", "langserver"],
-			"enabled": true
+			"enabled": false
 		}
 	}
 }
 ```
+
+Use `"enabled": false` to not globally enable the language server client. (read the known issues)
 
 This example is for Go (= gopls), but you can replace any language's langserver config to point
 to Bob's langserver shim. Bob internally knows which concrete langserver to start based on your
