@@ -100,6 +100,7 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 			"--platform", strings.Join(dockerImage.Platforms, ","),
 			"--file", dockerfilePath,
 			"--tag", tag,
+			"--label=org.opencontainers.image.revision=" + buildCtx.RevisionId.RevisionId,
 			".",
 		}
 
@@ -118,6 +119,7 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 		"build",
 		"--file", dockerfilePath,
 		"--tag", tag,
+		"--label=org.opencontainers.image.revision="+buildCtx.RevisionId.RevisionId,
 		"."))
 
 	if err := buildCmd.Run(); err != nil {
