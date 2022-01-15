@@ -25,13 +25,15 @@ jobs:
     - name: Build
       run: |
         curl --fail --location --silent --output bob https://function61.com/go/turbobob-latest-linux-amd64 && chmod +x bob
-        CI_REVISION_ID="$GITHUB_SHA" ./bob build --publish-artefacts
+        ./bob build in-ci-autodetect-settings
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 `)
 }
 
 func writeGitLabBoilerplate() error {
+	fmt.Fprintln(os.Stderr, "WARN: in-ci-autodetect-settings not updated to support GitLab")
+
 	return writeBoilerplate(".gitlab-ci.yml", `# Minimal Gitlab CI conf for Turbo Bob handoff
 # For help with problems: https://github.com/function61/turbobob/blob/master/docs/ci_gitlab.md
 
@@ -39,7 +41,7 @@ build:
   script:
     - apk add --no-cache curl git
     - curl --fail --location --output bob https://function61.com/go/turbobob-latest-linux-amd64 && chmod +x bob
-    - CI_REVISION_ID="$CI_COMMIT_SHA" DOCKER_HOST="tcp://docker:2375" ./bob build --publish-artefacts
+    - DOCKER_HOST="tcp://docker:2375" ./bob build in-ci-autodetect-settings
   image: docker:18.06-dind
   services:
     - docker:dind

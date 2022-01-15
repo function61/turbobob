@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -314,6 +315,7 @@ func constructBuildContext(
 	builderNameFilter string,
 	envsAreRequired bool,
 	fastBuild bool,
+	areWeInCi bool,
 ) (*BuildContext, error) {
 	bobfile, err := readBobfile()
 	if err != nil {
@@ -334,8 +336,6 @@ func constructBuildContext(
 	if err != nil {
 		return nil, err
 	}
-
-	areWeInCi := os.Getenv("CI_REVISION_ID") != ""
 
 	workspaceDir := projectSpecificDir(bobfile.ProjectName, "workspace")
 
@@ -377,13 +377,55 @@ func buildEntry() *cobra.Command {
 		Short: "Builds the project",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			buildCtx, err := constructBuildContext(publishArtefacts, !uncommitted, builderName, !norequireEnvs, fastbuild)
+			areWeInCi := os.Getenv("CI_REVISION_ID") != ""
+
+			buildCtx, err := constructBuildContext(
+				publishArtefacts,
+				!uncommitted,
+				builderName,
+				!norequireEnvs,
+				fastbuild,
+				areWeInCi)
 			osutil.ExitIfError(err)
 
 			osutil.ExitIfError(build(buildCtx))
 		},
 	}
 
+	cmd.AddCommand(&cobra.Command{
+		Use:   "in-ci-autodetect-settings",
+		Short: "Run build in CI, autodetect build info (like if building for a pull request) from its ENV variables",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			osutil.ExitIfError(func() error {
+				if os.Getenv("GITHUB_ACTIONS") != "true" {
+					return errors.New("expecting GITHUB_ACTIONS=true")
+				}
+
+				publishArtefacts, err := func() (bool, error) {
+					event := os.Getenv("GITHUB_EVENT_NAME")
+					switch event {
+					case "push":
+						return true, nil
+					case "pull_request": // PRs don't publish artefacts
+						return false, nil
+					default:
+						return false, fmt.Errorf("unsupported event: %s", event)
+					}
+				}()
+				if err != nil {
+					return err
+				}
+
+				buildCtx, err := constructBuildContext(publishArtefacts, true, "", false, false, true)
+				if err != nil {
+					return err
+				}
+
+				return build(buildCtx)
+			}())
+		},
+	})
 	cmd.Flags().BoolVarP(&norequireEnvs, "norequire-envs", "n", norequireEnvs, "Don´t error out if not all ENV vars are set")
 	cmd.Flags().BoolVarP(&publishArtefacts, "publish-artefacts", "p", publishArtefacts, "Whether to publish the artefacts")
 	cmd.Flags().BoolVarP(&uncommitted, "uncommitted", "u", uncommitted, "Include uncommitted changes")

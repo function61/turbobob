@@ -11,7 +11,7 @@ import (
 
 func info() error {
 	// FIXME: too many assumptions
-	buildCtx, err := constructBuildContext(true, true, "", true, false)
+	buildCtx, err := constructBuildContext(true, true, "", true, false, false)
 	if err != nil {
 		return err
 	}
