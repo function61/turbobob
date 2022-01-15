@@ -26,7 +26,9 @@ type UserconfigFile struct {
 	CodeEditor                         *programConfig     `json:"code_editor"`                            // .cmd can contain "$PROJECT_ROOT" if you need path to project as arg
 	FileBrowser                        *programConfig     `json:"file_browser"`                           // .cmd can contain "$DIRECTORY" if your file browser doesn't use its workdir
 	ProjectQuality                     struct {
-		FilesThatShouldExist []string `json:"files_that_should_exist"`
+		FilesThatShouldExist    []string          `json:"files_that_should_exist"`
+		FilesThatShouldNotExist []string          `json:"files_that_should_not_exist"`
+		BuilderUsesExpect       map[string]string `json:"builder_uses_expect"` // substring => full string mappings
 	} `json:"project_quality"`
 }
 

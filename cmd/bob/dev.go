@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
+func devCommand(builderName string, envsAreRequired bool, ignoreNag bool) ([]string, error) {
 	bobfile, err := readBobfile()
 	if err != nil {
 		return nil, err
@@ -28,8 +28,18 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 
 	// this is a natural point to check for repository's quality warnings. these are not issues
 	// that should break the build, but are severe enough to bug a maintainer
-	if err := qualityCheckFilesThatShouldExist(userConfig.ProjectQuality.FilesThatShouldExist); err != nil {
-		return nil, err
+	if !ignoreNag {
+		if err := qualityCheckFilesThatShouldExist(userConfig.ProjectQuality.FilesThatShouldExist); err != nil {
+			return nil, err
+		}
+
+		if err := qualityCheckFilesThatShouldNotExist(userConfig.ProjectQuality.FilesThatShouldNotExist); err != nil {
+			return nil, err
+		}
+
+		if err := qualityCheckBuilderUsesExpect(userConfig.ProjectQuality.BuilderUsesExpect, bobfile); err != nil {
+			return nil, err
+		}
 	}
 
 	wd, errWd := os.Getwd()
@@ -192,12 +202,7 @@ func devCommand(builderName string, envsAreRequired bool) ([]string, error) {
 	return dockerCmd, nil
 }
 
-func dev(builderName string, envsAreRequired bool) error {
-	dockerCmd, err := devCommand(builderName, envsAreRequired)
-	if err != nil {
-		return err
-	}
-
+func enterInteractiveDevContainer(dockerCmd []string) error {
 	cmd := exec.Command(dockerCmd[0], dockerCmd[1:]...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -213,6 +218,7 @@ func dev(builderName string, envsAreRequired bool) error {
 func devEntry() *cobra.Command {
 	norequireEnvs := false
 	dry := false
+	ignoreNag := false
 
 	cmd := &cobra.Command{
 		Use:   "dev [builderName]",
@@ -224,19 +230,25 @@ func devEntry() *cobra.Command {
 				builderName = args[0]
 			}
 
-			if !dry {
-				osutil.ExitIfError(dev(builderName, !norequireEnvs))
-			} else {
-				dockerCommand, err := devCommand(builderName, !norequireEnvs)
-				osutil.ExitIfError(err)
+			osutil.ExitIfError(func() error {
+				dockerCommand, err := devCommand(builderName, !norequireEnvs, ignoreNag)
+				if err != nil {
+					return err
+				}
 
-				fmt.Println(strings.Join(dockerCommand, " "))
-			}
+				if !dry {
+					return enterInteractiveDevContainer(dockerCommand)
+				} else {
+					_, err = fmt.Println(strings.Join(dockerCommand, " "))
+					return err
+				}
+			}())
 		},
 	}
 
 	cmd.Flags().BoolVarP(&norequireEnvs, "norequire-envs", "n", norequireEnvs, "Don´t error out if not all ENV vars are set")
 	cmd.Flags().BoolVarP(&dry, "dry", "", dry, "Just print out the dev command (you may need to do something exotic)")
+	cmd.Flags().BoolVarP(&ignoreNag, "ignore-nag", "", ignoreNag, "Ignore project quality warning nags")
 
 	return cmd
 }
