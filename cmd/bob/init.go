@@ -31,19 +31,6 @@ jobs:
 `)
 }
 
-func writeTravisBoilerplate() error {
-	return writeBoilerplate(".travis.yml", `# Minimal Travis conf for Turbo Bob handoff
-# For help with problems: https://github.com/function61/turbobob/blob/master/docs/ci_travis.md
-
-sudo: required
-services: docker
-language: minimal
-script:
-  - curl --fail --location --output bob https://function61.com/go/turbobob-latest-linux-amd64 && chmod +x bob
-  - CI_REVISION_ID="$TRAVIS_COMMIT" ./bob build --publish-artefacts
-`)
-}
-
 func writeGitLabBoilerplate() error {
 	return writeBoilerplate(".gitlab-ci.yml", `# Minimal Gitlab CI conf for Turbo Bob handoff
 # For help with problems: https://github.com/function61/turbobob/blob/master/docs/ci_gitlab.md
@@ -143,7 +130,6 @@ func writeDefaultBobfile(producesDockerImage bool) error {
 
 func initEntry() *cobra.Command {
 	github := false
-	travis := false
 	gitLab := false
 	docker := false
 
@@ -156,10 +142,6 @@ func initEntry() *cobra.Command {
 				osutil.ExitIfError(writeGitHubActionsBoilerplate())
 			}
 
-			if travis {
-				osutil.ExitIfError(writeTravisBoilerplate())
-			}
-
 			if gitLab {
 				osutil.ExitIfError(writeGitLabBoilerplate())
 			}
@@ -169,7 +151,6 @@ func initEntry() *cobra.Command {
 	}
 
 	cmd.Flags().BoolVarP(&github, "github", "", github, "Write GitHub Actions boilerplate")
-	cmd.Flags().BoolVarP(&travis, "travis", "", travis, "Write Travis CI boilerplate")
 	cmd.Flags().BoolVarP(&gitLab, "gitlab", "", gitLab, "Write GitLab CI boilerplate")
 	cmd.Flags().BoolVarP(&docker, "docker", "", docker, "This project should produce a Docker image?")
 

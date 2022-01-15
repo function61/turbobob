@@ -153,12 +153,6 @@ into actions' concepts (perhaps you could just generate actions' workflow file f
 turbobob.json).
 
 
-### Travis CI
-
-Turbo Bob is being built on Travis CI. See our [Travis configuration](.travis.yml).
-(also deeper dive on "[How does it work?](#how-does-turbobobjson-work)" -section).
-
-
 ### GitLab
 
 I've built projects on GitLab's public runners with Bob. See
