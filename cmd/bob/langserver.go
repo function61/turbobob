@@ -12,23 +12,35 @@ import (
 	"strings"
 
 	"github.com/function61/gokit/os/osutil"
+	"github.com/function61/gokit/sliceutil"
 	"github.com/spf13/cobra"
 )
 
 func langserverEntry() *cobra.Command {
-	return &cobra.Command{
+	lang := ""
+
+	cmd := &cobra.Command{
 		Use:   "langserver",
 		Short: "Launch a langserver process. Must be run in project's root dir. Intended to be run by your editor.",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			osutil.ExitIfError(langserverRunShim(
-				osutil.CancelOnInterruptOrTerminate(nil)))
+				osutil.CancelOnInterruptOrTerminate(nil),
+				strings.Split(lang, ",")))
 		},
 	}
+
+	cmd.Flags().StringVarP(&lang, "lang", "", lang, "Language")
+
+	return cmd
 }
 
 // automatically detects which project this invocation concerns
-func langserverRunShim(ctx context.Context) error {
+func langserverRunShim(ctx context.Context, langs []string) error {
+	if len(langs) == 0 || langs[0] == "" {
+		return errors.New("--lang not specified")
+	}
+
 	workdir, err := resolveWorkdirFromLSInvocation()
 	if err != nil {
 		return err
@@ -51,24 +63,27 @@ func langserverRunShim(ctx context.Context) error {
 		return err
 	}
 
-	if len(bobfile.Builders) < 1 {
-		return errors.New("need at least one builder")
-	}
+	langserverCmd, builder, err := func() ([]string, *BuilderSpec, error) {
+		for _, builder := range bobfile.Builders {
+			// FIXME: this assumes
+			baseImageConf, err := loadNonOptionalBaseImageConf(builder)
+			if err != nil {
+				return nil, nil, fmt.Errorf("loadNonOptionalBaseImageConf: %w", err)
+			}
 
-	// FIXME: this is not correct. could use builder.MountSource to resolve specific one
-	builder := bobfile.Builders[0]
+			if baseImageConf.Langserver == nil {
+				continue
+			}
 
-	langserverCmd, err := func() ([]string, error) {
-		baseImageConf, err := loadNonOptionalBaseImageConf(*bobfile, builder)
-		if err != nil {
-			return nil, err
+			if anyOfLanguagesMatch(langs, baseImageConf.Langserver.Languages) {
+				return baseImageConf.Langserver.Command, &builder, nil
+			}
 		}
 
-		if len(baseImageConf.LangserverCmd) == 0 {
-			return nil, fmt.Errorf("%s doesn't define a language server", builder.Uses)
-		}
-
-		return baseImageConf.LangserverCmd, nil
+		return nil, nil, fmt.Errorf(
+			"%s doesn't define a compatible language server for %v",
+			bobfile.ProjectName,
+			langs)
 	}()
 	if err != nil {
 		return err
@@ -81,9 +96,10 @@ func langserverRunShim(ctx context.Context) error {
 
 	// not using "--tty" because with it we got "gopls: the input device is not a TTY"
 	dockerized := append([]string{"docker", "run",
-		"--rm",          // so resources get released. (this process is ephemeral in nature)
+		"--rm", // so resources get released. (this process is ephemeral in nature)
+		"--shm-size=512M",
 		"--interactive", // use stdin (it is the transport for one direction in LSP)
-		"--name=" + langServerContainerName(bobfile, builder),
+		"--name=" + langServerContainerName(bobfile, *builder),
 		"--volume", fmt.Sprintf("%s:%s", workdir, mountDir),
 		dockerImage,
 	}, langserverCmd...)
@@ -130,4 +146,14 @@ func resolveWorkdirFromLSInvocation() (string, error) {
 
 	// no correction had to be made, so workdir was already correct
 	return workdirDefault, nil
+}
+
+func anyOfLanguagesMatch(want []string, got []string) bool {
+	for _, wantItem := range want {
+		if sliceutil.ContainsString(got, wantItem) {
+			return true
+		}
+	}
+
+	return false
 }

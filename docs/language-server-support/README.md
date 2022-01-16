@@ -126,7 +126,7 @@ Edit LSP (user-specific) settings to contain:
 {
 	"clients": {
 		"gopls": {
-			"command": ["bob", "tools", "langserver"],
+			"command": ["bob", "tools", "langserver", "--lang=go"],
 			"enabled": false
 		}
 	}

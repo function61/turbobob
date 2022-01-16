@@ -18,9 +18,16 @@ const (
 type BaseImageConfig struct {
 	DevShellCommands []DevShellCommand `json:"dev_shell_commands"`
 	PathsToCache     []string          `json:"paths_to_cache"` // will be set up as symlinks to a persistent mountpoint, so that subsequent containers benefit from cache
-	LangserverCmd    []string          `json:"langserver_cmd"` // a command run inside the container to launch a language server
+	Langserver       *LangserverSpec   `json:"langserver"`
 
 	FileDescriptionBoilerplate string `json:"for_description_of_this_file_see"` // URL to Bob homepage
+
+	Deprecated1 []string `json:"langserver_cmd"` // DEPRECATED
+}
+
+type LangserverSpec struct {
+	Command   []string `json:"command"`   // a command run inside the container to launch the language server
+	Languages []string `json:"languages"` // e.g. "go". any of "source.<language>" ("source.go" => use "go") from https://github.com/github/linguist/blob/master/grammars.yml
 }
 
 // base image conf is optional. if it doesn't exist, an empty (but valid) conf will be
@@ -39,6 +46,8 @@ func loadBaseImageConfWhenInsideContainer() (*BaseImageConfig, error) {
 	if err := jsonfile.ReadDisallowUnknownFields(baseImageJsonLocation, conf); err != nil {
 		return nil, fmt.Errorf("loadBaseImageConfWhenInsideContainer: %w", err)
 	}
+
+	baseImageConfMigrate(conf) // mutates
 
 	return conf, nil
 }
@@ -72,5 +81,23 @@ func loadNonOptionalBaseImageConf(builder BuilderSpec) (*BaseImageConfig, error)
 	}
 
 	conf := &BaseImageConfig{}
-	return conf, jsonfile.UnmarshalDisallowUnknownFields(bytes.NewReader(content), conf)
+	if err := jsonfile.UnmarshalDisallowUnknownFields(bytes.NewReader(content), conf); err != nil {
+		return nil, err
+	}
+
+	baseImageConfMigrate(conf) // mutates
+
+	return conf, nil
+}
+
+func baseImageConfMigrate(conf *BaseImageConfig) {
+	// upgrade Deprecated1 to LangserverSpec
+	if len(conf.Deprecated1) > 0 {
+		conf.Langserver = &LangserverSpec{
+			Command:   conf.Deprecated1,
+			Languages: []string{"go"}, // AFAIK the only user was buildkit-golang
+		}
+
+		conf.Deprecated1 = nil
+	}
 }
