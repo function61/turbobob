@@ -150,7 +150,6 @@ func devCommand(builderName string, envsAreRequired bool, ignoreNag bool) ([]str
 		dockerCmd, errEnv = dockerRelayEnvVars(
 			dockerCmd,
 			revisionIdForDev(),
-			false,
 			*builder,
 			envsAreRequired,
 			archesToBuildFor,
@@ -199,6 +198,7 @@ func devCommand(builderName string, envsAreRequired bool, ignoreNag bool) ([]str
 }
 
 func enterInteractiveDevContainer(dockerCmd []string) error {
+	//nolint:gosec // ok
 	cmd := exec.Command(dockerCmd[0], dockerCmd[1:]...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout

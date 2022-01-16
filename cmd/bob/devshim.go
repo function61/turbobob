@@ -188,6 +188,8 @@ func injectHistory(builder BuilderSpec, alreadyDone bool, baseImgConf BaseImageC
 func customizePrompt() error {
 	// instructs Bash to ask bob to generate the prompt string on each time the prompt is needed.
 	// Bob makes a pretty Powerline-inspired prompt (https://github.com/powerline/powerline)
+
+	//nolint:gosec // ok
 	return ioutil.WriteFile("/root/.bashrc", []byte(`
 # customization written by Turbo Bob
 export PS1="\$(bob powerline \$?)"

@@ -67,33 +67,40 @@ func buildBuilder(bobfile *Bobfile, builder *BuilderSpec) error {
 
 	printHeading(fmt.Sprintf("Building builder %s (as %s)", builder.Name, imageName))
 
-	var imageBuildCmd *exec.Cmd = nil
+	imageBuildCmd, err := func() (*exec.Cmd, error) {
+		// provide Dockerfile from stdin for contextless build
+		if builder.ContextlessBuild {
+			dockerfileContent, err := ioutil.ReadFile(dockerfilePath)
+			if err != nil {
+				return nil, err
+			}
 
-	// provide Dockerfile from stdin for contextless build
-	if builder.ContextlessBuild {
-		dockerfileContent, err := ioutil.ReadFile(dockerfilePath)
-		if err != nil {
-			return err
+			// FIXME: would "--file -" be more semantic?
+			cmd := exec.Command(
+				"docker",
+				"build",
+				"--tag", imageName,
+				"-")
+			cmd.Stdin = bytes.NewBuffer(dockerfileContent)
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+
+			return cmd, nil
+		} else {
+			cmd := exec.Command(
+				"docker",
+				"build",
+				"--tag", imageName,
+				"--file", dockerfilePath,
+				".")
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+
+			return cmd, nil
 		}
-
-		// FIXME: would "--file -" be more semantic?
-		imageBuildCmd = exec.Command(
-			"docker",
-			"build",
-			"--tag", imageName,
-			"-")
-		imageBuildCmd.Stdin = bytes.NewBuffer(dockerfileContent)
-		imageBuildCmd.Stdout = os.Stdout
-		imageBuildCmd.Stderr = os.Stderr
-	} else {
-		imageBuildCmd = exec.Command(
-			"docker",
-			"build",
-			"--tag", imageName,
-			"--file", dockerfilePath,
-			".")
-		imageBuildCmd.Stdout = os.Stdout
-		imageBuildCmd.Stderr = os.Stderr
+	}()
+	if err != nil {
+		return err
 	}
 
 	if err := imageBuildCmd.Run(); err != nil {
@@ -106,7 +113,6 @@ func buildBuilder(bobfile *Bobfile, builder *BuilderSpec) error {
 func dockerRelayEnvVars(
 	dockerArgs []string,
 	revisionId *versioncontrol.RevisionId,
-	publishArtefacts bool,
 	builder BuilderSpec,
 	envsAreRequired bool,
 	osArches OsArchesSpec,
@@ -174,6 +180,7 @@ func loginToDockerRegistry(dockerImage DockerImageSpec, cache *dockerRegistryLog
 
 	printHeading(fmt.Sprintf("Logging in as %s to %s", creds.Username, registryDefaulted))
 
+	//nolint:gosec // ok
 	loginCmd := passthroughStdoutAndStderr(exec.Command(
 		"docker",
 		"login",

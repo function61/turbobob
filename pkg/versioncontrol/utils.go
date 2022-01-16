@@ -9,6 +9,7 @@ import (
 var zeroTime = time.Time{}
 
 func execWithDir(dir string, args ...string) (string, error) {
+	//nolint:gosec // call sites audited
 	cmd := exec.Command(args[0], args[1:]...)
 	cmd.Dir = dir
 

@@ -65,7 +65,7 @@ func triggerFire(ctx context.Context) error {
 	// we could use something sophisticated, even a HTTP server, but we use a cheap man's version
 	// where each connection open is the trigger fire. no real data is transmitted in either direction
 
-	client, err := net.Dial("unix", triggerSockPath)
+	client, err := (&net.Dialer{}).DialContext(ctx, "unix", triggerSockPath)
 	if err != nil {
 		return err
 	}

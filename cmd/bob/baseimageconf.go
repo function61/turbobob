@@ -45,13 +45,14 @@ func loadBaseImageConfWhenInsideContainer() (*BaseImageConfig, error) {
 
 // non-optional because the implementation makes it a bit hard to check if the file exists
 // (vs. Docker run error), and our current callsite needs non-optional anyway
-func loadNonOptionalBaseImageConf(bobfile Bobfile, builder BuilderSpec) (*BaseImageConfig, error) {
+func loadNonOptionalBaseImageConf(builder BuilderSpec) (*BaseImageConfig, error) {
 	dockerImage, err := func() (string, error) {
 		kind, data, err := parseBuilderUsesType(builder.Uses)
 		if err != nil {
 			return "", err
 		}
 
+		//nolint:exhaustive
 		switch kind {
 		case builderUsesTypeImage:
 			return data, nil

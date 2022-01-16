@@ -58,7 +58,6 @@ func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdT
 	buildArgs, errEnv := dockerRelayEnvVars(
 		buildArgs,
 		buildCtx.RevisionId,
-		buildCtx.PublishArtefacts,
 		builder,
 		buildCtx.ENVsAreRequired,
 		archesToBuildFor,
@@ -73,6 +72,7 @@ func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdT
 		buildArgs = append(buildArgs, cmdToRun...)
 	}
 
+	//nolint:gosec // ok
 	buildCmd := passthroughStdoutAndStderr(exec.Command(buildArgs[0], buildArgs[1:]...))
 
 	if err := buildCmd.Run(); err != nil {
@@ -472,6 +472,7 @@ func buildInside(fastBuild bool) error {
 
 	buildArgs := builder.Commands.Build
 
+	//nolint:gosec // ok
 	buildCmd := passthroughStdoutAndStderr(exec.Command(buildArgs[0], buildArgs[1:]...))
 
 	// pass almost all of our environment variables

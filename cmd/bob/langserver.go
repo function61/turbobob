@@ -88,7 +88,8 @@ func langserverRunShim(ctx context.Context) error {
 		dockerImage,
 	}, langserverCmd...)
 
-	langserver := exec.Command(dockerized[0], dockerized[1:]...)
+	//nolint:gosec // ok
+	langserver := exec.CommandContext(ctx, dockerized[0], dockerized[1:]...)
 	langserver.Stdin = os.Stdin
 	langserver.Stdout = os.Stdout
 	langserver.Stderr = os.Stderr
