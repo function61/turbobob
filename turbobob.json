@@ -8,7 +8,7 @@
 			"name": "default",
 			"uses": "docker://fn61/buildkit-golang:20220115_1318_71191646",
 			"commands": {
-				"build": ["bin/build.sh"],
+				"build": ["build-go-project.sh", "--directory=cmd/bob/", "--binary-basename=bob"],
 				"dev": ["bash"]
 			},
 			"mount_destination": "/workspace",
