@@ -98,7 +98,7 @@ type DevShellCommand struct {
 type DockerImageSpec struct {
 	Image          string   `json:"image"`
 	DockerfilePath string   `json:"dockerfile_path"`
-	AuthType       *string  `json:"auth_type"`           // creds_from_env | aws_ecr
+	AuthType       *string  `json:"auth_type"`           // creds_from_env
 	Platforms      []string `json:"platforms,omitempty"` // if set, uses buildx
 	TagLatest      bool     `json:"tag_latest"`
 }
