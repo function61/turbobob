@@ -1,42 +1,29 @@
+⬆️ For table of contents, click the above icon
+
 ![](misc/mascot/mascot.png)
 
 ![Build status](https://github.com/function61/turbobob/workflows/Build/badge.svg)
 [![Download](https://img.shields.io/github/downloads/function61/turbobob/total.svg?style=for-the-badge)](https://github.com/function61/turbobob/releases)
 
 Modern, minimal container-based build/development tool to make any project´s dev easy and
-frictionless. Note: while Bob uses containers for builds (and dev), your programs don't need
-to use containers!
+frictionless.
+
+Note: while Bob uses containers for builds (and dev), your programs themselves don't need to use containers!
 
 ![](docs/demo-screencast.gif)
 
-Contents:
 
-- [What is this?](#what-is-this)
-- Documentation (as separate documents)
-  * [Using Bob in your project](docs/using-bob-in-your-project/README.md) (also covers
-    making your own builder images - "buildkits")
-  * [ENV vars passed to build containers](docs/env-vars-passed-to-build-containers/README.md)
-  * [Displaying pro-tips on entering the dev environment](docs/dev-pro-tips/README.md) (also covers mapping network ports)
-  * [Development-time HTTP ingresses](docs/development-time-http-ingresses/README.md) (routing HTTP requests)
-  * [Customizing dev container startup](docs/customizing-dev-container-startup/README.md)
-  * [Language server support](docs/language-server-support/README.md) (code completion, analysis, refactoring support etc. for code editors)
-  * [Quality helpers](docs/quality-helpers/README.md) (multi-project quality scalability by automatically checking standards-compliance like having README, LICENSE, security policy etc.)
-- [Philosophy](#philosophy)
-- [Install](#install)
-  * [Linux](#linux)
-  * [Windows](#windows)
-  * [Mac](#mac)
-- [Supported build/CI platforms](#supported-build-ci-platforms)
-  * [Your own computer](#your-own-computer)
-  * [GitHub actions](#github-actions)
-  * [Travis CI](#travis-ci)
-  * [GitLab](#gitlab)
-  * [Other CI systems](#other-ci-systems)
-- [Examples / how does it work?](#examples--how-does-it-work)
-  * [Examples](#examples)
-  * [How does turbobob.json work?](#how-does-turbobobjson-work)
-  * [Why multiple buildkits?](#why-multiple-buildkits)
-- [Alternative software](#alternative-software)
+Additional documentation
+------------------------
+
+- [Using Bob in your project](docs/using-bob-in-your-project/README.md) (also covers
+  making your own builder images - "buildkits")
+- [ENV vars passed to build containers](docs/env-vars-passed-to-build-containers/README.md)
+- [Displaying pro-tips on entering the dev environment](docs/dev-pro-tips/README.md) (also covers mapping network ports)
+- [Development-time HTTP ingresses](docs/development-time-http-ingresses/README.md) (routing HTTP requests)
+- [Customizing dev container startup](docs/customizing-dev-container-startup/README.md)
+- [Language server support](docs/language-server-support/README.md) (code completion, analysis, refactoring support etc. for code editors)
+- [Quality helpers](docs/quality-helpers/README.md) (multi-project quality scalability by automatically checking standards-compliance like having README, LICENSE, security policy etc.)
 
 
 What is this?
@@ -89,8 +76,8 @@ Philosophy
   build & CI environment. What's built on dev (`$ bob build`) is exactly the same or as
   close as possible (`$ bob build --uncommitted`) as to what will end up running in production.
 
-- No vendor lock-in for a CI system. Bob can seamlessly build projects on your laptop, Jenkins,
-  Travis, GitLab etc. CI needs to only provide the working directory and Docker - everything
+- No vendor lock-in for a CI system. Bob can seamlessly build projects on your laptop, GitHub actions,
+  Jenkins, GitLab etc. CI needs to only provide the working directory and Docker - everything
   else like uploading artefacts to S3, Bintray etc. should be a build container concern to
   provide full independence.
 
@@ -104,7 +91,7 @@ Requires Docker for use, so currently only Linux is supported. Native Windows su
 come later as Windows' Linux subsystem keeps maturing.
 
 ```console
-$ sudo curl --location --fail --output /usr/local/bin/bob https://function61.com/go/turbobob-latest-linux-amd64 && sudo chmod +x /usr/local/bin/bob
+$ sudo curl --location --fail --output /usr/bin/bob https://function61.com/go/turbobob-latest-stable-linux-amd64 && sudo chmod +x /usr/bin/bob
 ```
 
 ### Windows
@@ -132,7 +119,7 @@ Basic approach anywhere:
 
 1. Have Docker installed
 2. If you don't have Turbo Bob installed, download it
-3. Run `$ bob build`
+3. Run `$ bob build` (i.e. hand off build to it)
 
 
 ### Your own computer
@@ -142,9 +129,7 @@ If your system can run Docker locally, you can build projects on your own comput
 
 ### GitHub actions
 
-See [example actions workflow file](https://github.com/function61/buildkit-publisher/commit/62f1b71ed6a17489394ccd431763ee36c958fb92).
-That commit also demonstrates how portable Bob is by moving from Travis CI -> GitHub
-actions - how it's just from small boilerplate to small boilerplate.
+See [example actions workflow file](.github/workflows/build.yml).
 
 GitHub actions' design is pretty similar to Turbo Bob's design ("run stuff inside containers").
 I started this project before actions was announced, so unfortunately there's currently no
@@ -159,13 +144,16 @@ I've built projects on GitLab's public runners with Bob. See
 [example configuration](https://github.com/function61/turbobob/blob/8156ab2bc400181cb74b8ea324fa98a3fb9e82d2/cmd/bob/init.go#L56).
 
 
-### Other CI systems
+### Other CI systems, vendor lock-in
 
-Bob's approach is pretty generic. You can see from Travis or GitLab configuration files
-that they just download Bob's binary first and hand off build to it.
+Bob's approach is pretty generic (as documented under the above larger heading).
 
-Bob internally pretty much just calls `$ docker` commands, so you should be able to port
-Bob anywhere where you've got Docker. If you've done so, please add details here to help others.
+Here's a commit demonstrating how portable Bob is by
+[moving from Travis CI -> GitHub actions](https://github.com/function61/buildkit-publisher/commit/62f1b71ed6a17489394ccd431763ee36c958fb92) -
+how it's just from small boilerplate to small boilerplate. This prevents vendor lock-in.
+(NOTE: GitHub actions boilerplate has since been [updated](.github/workflows/build.yml)).
+
+If you've added support to other public CI systems, please add links to here for instructions!
 
 
 Examples / how does it work?
@@ -198,23 +186,21 @@ container images ("buildkits") for builds:
 The process is exactly the same whether you use a different CI system. You can even run
 builds exactly the same way on your laptop by just running `$ bob build`.
 
-This very project is built with Bob on Travis. Its [Travis configuration](.travis.yml) is
+This very project is built with Bob on GitHub actions. The [workflow configuration](.github/workflows/build.yml) is
 minimal. Here's what happens when a new commit lands in this repo:
 
-- GitHub notifies Travis of a new commit
-- Travis clones repo, reads [.travis.yml](.travis.yml) which:
-  * Requires Docker
+- GitHub actions start processing the build workflow file which:
   * Downloads Turbo Bob
-  * Copies `TRAVIS_COMMIT` ENV variable to `CI_REVISION_ID`
   * Hands off build process to Bob
 - Bob reads [turbobob.json](turbobob.json), which instructs to:
   * Run container off of image `fn61/buildkit-golang`
     ([repo](https://github.com/function61/buildkit-golang)) and run
-    [bin/build.sh](bin/build.sh) inside it.
+    [build-go-project.sh](https://github.com/function61/buildkit-golang/blob/a687e81c0c7e4ca76e759d2f521a696732d2d98e/build-go-project.sh)
+    (defined by the buildkit) inside it. We could of course store the build script in our own repo,
+    but it's advantageous to have it defined by the buildkit, so improvements can "automatically" ship to multiple projects.
   * For publishing step, run container off of image `fn61/buildkit-publisher`
     ([repo](https://github.com/function61/buildkit-publisher)) and run `publish.sh rel/`
-    inside it (that shell script is from the image itself, while the build container's
-    `build.sh` was from our repo)
+    inside it (again defined by the buildkit)
 
 
 ### Why multiple buildkits?
