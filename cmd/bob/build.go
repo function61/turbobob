@@ -100,10 +100,15 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 			"build",
 			"--platform", strings.Join(dockerImage.Platforms, ","),
 			"--file", dockerfilePath,
-			"--tag", tag,
 			"--label=org.opencontainers.image.revision=" + buildCtx.RevisionId.RevisionId,
-			".",
+			"--tag=" + tag,
 		}
+
+		if dockerImage.TagLatest {
+			args = append(args, "--tag="+tagLatest)
+		}
+
+		args = append(args, ".") // build context
 
 		if buildCtx.PublishArtefacts {
 			// the build command has integrated push support. we'd actually prefer to separate
