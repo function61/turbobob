@@ -118,6 +118,8 @@ github.com/function61/gokit v0.0.0-20220107130649-3c68dc3e0bcf h1:NvDS8sd9wgvFOu
 github.com/function61/gokit v0.0.0-20220107130649-3c68dc3e0bcf/go.mod h1:xXf3guLmxHiZ4iVcmo3rfeMHIotBUNAge+zswrzQoqI=
 github.com/function61/gokit v0.0.0-20220129120223-5bc364fcaea9 h1:YI696ONlr72WJ1x/ijvv9Z2XOJ3rpXFoupvg8Pg31ig=
 github.com/function61/gokit v0.0.0-20220129120223-5bc364fcaea9/go.mod h1:xXf3guLmxHiZ4iVcmo3rfeMHIotBUNAge+zswrzQoqI=
+github.com/function61/gokit v0.0.0-20220129122644-a8596b4bad8c h1:WRA9Im/mJZa2MGF0qDgLHzmyDtByEAGp38rP6bIt6nU=
+github.com/function61/gokit v0.0.0-20220129122644-a8596b4bad8c/go.mod h1:xXf3guLmxHiZ4iVcmo3rfeMHIotBUNAge+zswrzQoqI=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1/go.mod h1:vR7hzQXu2zJy9AVAgeJqvqgH9Q5CA+iKCZ2gyEVpxRU=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20191125211704-12ad95a8df72/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
