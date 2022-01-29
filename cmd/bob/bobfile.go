@@ -23,6 +23,11 @@ type Bobfile struct {
 	DockerImages               []DockerImageSpec `json:"docker_images"`
 	Subrepos                   []SubrepoSpec     `json:"subrepos,omitempty"`
 	OsArches                   *OsArchesSpec     `json:"os_arches"`
+	Experiments                experiments       `json:"experiments_i_consent_to_breakage,omitempty"`
+}
+
+type experiments struct {
+	PrepareStep bool `json:"prepare_step"`
 }
 
 type SubrepoSpec struct {
@@ -69,7 +74,38 @@ func (o *OsArchesSpec) AsBuildEnvVariables() []string {
 	return ret
 }
 
+/*	Suppose you have three builders: 1) backend, 2) frontend and 3) documentation.
+	Here's the order in which the commands are executed:
+
+
+   Start ────────────────┐     ┌───────────────┐     ┌───────────────┐
+                         │     ▲               │     ▲               │
+              ┌──────────▼┐    │    ┌──────────▼┐    │    ┌──────────▼┐
+      Backend │  Prepare ││    │    │  Build   ││    │    │  Publish ││
+              └──────────┼┘    │    └──────────┼┘    │    └──────────┼┘
+                         │     │               │     │               │
+                         │     │               │     │               │
+              ┌──────────▼┐    │    ┌──────────▼┐    │    ┌──────────▼┐
+     Frontend │  Prepare ││    │    │  Build   ││    │    │  Publish ││
+              └──────────┼┘    │    └──────────┼┘    │    └──────────┼┘
+                         │     │               │     │               │
+                         │     │               │     │               │
+              ┌──────────▼┐    │    ┌──────────▼┐    │    ┌──────────▼┐
+Documentation │  Prepare ││    │    │  Build   ││    │    │  Publish ││
+              └──────────┼┘    │    └──────────┼┘    │    └──────────┼┘
+                         │     │               │     │               │
+                         │     │               │     │               │
+                         └─────┘               └─────┘               ▼
+
+	Rationale:
+
+	- backend needs some codegenerated stuff from documentation, like URLs so backend can link to documentation,
+	  so backend build can use stuff from documentation.prepare step.
+	- you'll want to publish artefacts only if all builders succeeded (*.build before *.publish),
+	  so there's no unnecessary uploads.
+*/
 type BuilderCommands struct {
+	Prepare []string `json:"prepare"`
 	Build   []string `json:"build"`
 	Publish []string `json:"publish"`
 	Dev     []string `json:"dev"`
@@ -160,6 +196,10 @@ func validateBuilders(bobfile *Bobfile) error {
 		}
 
 		alreadySeenNames[builder.Name] = Void{}
+
+		if len(builder.Commands.Prepare) > 0 && !bobfile.Experiments.PrepareStep {
+			return fmt.Errorf("%s: you need to opt-in to prepare_step experiment", builder.Name)
+		}
 	}
 
 	return nil

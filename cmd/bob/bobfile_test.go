@@ -29,9 +29,39 @@ func TestAssertUniqueBuilderNames(t *testing.T) {
 		},
 	}
 
-	assert.Assert(t, validateBuilders(bobfileEmpty) == nil)
-	assert.Assert(t, validateBuilders(bobfileUniques) == nil)
+	assert.Ok(t, validateBuilders(bobfileEmpty))
+	assert.Ok(t, validateBuilders(bobfileUniques))
 	assert.EqualString(t,
 		validateBuilders(bobfileNonUniques).Error(),
 		"duplicate builder name: foobar")
+}
+
+func TestConsentToBreakage(t *testing.T) {
+	properConsent := &Bobfile{
+		Builders: []BuilderSpec{
+			{
+				Name: "foobar",
+				Commands: BuilderCommands{
+					Prepare: []string{"foo"},
+				},
+			},
+		},
+		Experiments: experiments{
+			PrepareStep: true,
+		},
+	}
+
+	missingConsent := &Bobfile{
+		Builders: []BuilderSpec{
+			{
+				Name: "foobar",
+				Commands: BuilderCommands{
+					Prepare: []string{"foo"},
+				},
+			},
+		},
+	}
+
+	assert.Ok(t, validateBuilders(properConsent))
+	assert.EqualString(t, validateBuilders(missingConsent).Error(), "foobar: you need to opt-in to prepare_step experiment")
 }

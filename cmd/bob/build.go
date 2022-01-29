@@ -236,7 +236,11 @@ func build(buildCtx *BuildContext) error {
 		}
 	}
 
-	// build builders (TODO: check cache so this is not done unless necessary?)
+	// build builders.
+	//
+	// it would be cool to not invoke Docker if this is cached anyway, but the analysis would have
+	// to include modification check for the Dockerfile and all of its build context, so we're just
+	// best off calling Docker build because it is the best at detecting cache invalidation.
 	for _, builder := range buildCtx.Bobfile.Builders {
 		builder := builder // pin
 
@@ -259,38 +263,40 @@ func build(buildCtx *BuildContext) error {
 		}
 	}
 
-	// two passes:
-	//   1) run all builds with all phases except publish
-	//   2) run all builds with only publish phase (but only if publish requested)
+	// three-pass process. the flow is well documented in *BuilderCommands* type
+	pass := func(opDesc string, getCommand func(cmds BuilderCommands) []string) error {
+		for _, builder := range buildCtx.Bobfile.Builders {
+			if buildCtx.BuilderNameFilter != "" && builder.Name != buildCtx.BuilderNameFilter {
+				continue
+			}
 
-	// 1)
-	for _, builder := range buildCtx.Bobfile.Builders {
-		if buildCtx.BuilderNameFilter != "" && builder.Name != buildCtx.BuilderNameFilter {
-			continue
+			cmd := getCommand(builder.Commands)
+			if len(cmd) == 0 { // no command for this step specified
+				continue
+			}
+
+			if err := runBuilder(builder, buildCtx, opDesc, cmd); err != nil {
+				return fmt.Errorf("%s.%s: %w", builder.Name, opDesc, err)
+			}
 		}
 
-		if len(builder.Commands.Build) == 0 {
-			continue
-		}
-
-		if err := runBuilder(builder, buildCtx, "build", builder.Commands.Build); err != nil {
-			return err
-		}
+		return nil
 	}
 
-	// 2)
-	for _, builder := range buildCtx.Bobfile.Builders {
-		if buildCtx.BuilderNameFilter != "" && builder.Name != buildCtx.BuilderNameFilter {
-			continue
-		}
+	preparePass := func(cmds BuilderCommands) []string { return cmds.Prepare }
+	buildPass := func(cmds BuilderCommands) []string { return cmds.Build }
+	publishPass := func(cmds BuilderCommands) []string { return cmds.Publish }
 
-		if !buildCtx.PublishArtefacts || len(builder.Commands.Publish) == 0 {
-			continue
-		}
+	if err := pass("prepare", preparePass); err != nil {
+		return err // err context ok
+	}
 
-		if err := runBuilder(builder, buildCtx, "publish", builder.Commands.Publish); err != nil {
-			return err
-		}
+	if err := pass("build", buildPass); err != nil {
+		return err // err context ok
+	}
+
+	if err := pass("publish", publishPass); err != nil {
+		return err // err context ok
 	}
 
 	dockerLoginCache := newDockerRegistryLoginCache()
