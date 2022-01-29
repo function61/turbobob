@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	. "github.com/function61/gokit/builtin"
 	"github.com/function61/gokit/os/osutil"
 )
 
@@ -62,7 +63,7 @@ func readmePresent(ctx *CheckContext) error {
 }
 
 func passableEnvVarsPresent(ctx *CheckContext) error {
-	keyVisitedChecker := map[string]bool{}
+	keyVisitedChecker := map[string]Void{}
 
 	for _, builder := range ctx.BuildContext.Bobfile.Builders {
 		for _, envKey := range builder.PassEnvs {
@@ -70,7 +71,7 @@ func passableEnvVarsPresent(ctx *CheckContext) error {
 				continue // ENV already visited
 			}
 
-			keyVisitedChecker[envKey] = true
+			keyVisitedChecker[envKey] = Void{}
 
 			check := ctx.NewCheck(fmt.Sprintf("ENV(%s)", envKey))
 

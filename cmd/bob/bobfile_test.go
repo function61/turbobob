@@ -29,9 +29,9 @@ func TestAssertUniqueBuilderNames(t *testing.T) {
 		},
 	}
 
-	assert.Assert(t, assertUniqueBuilderNames(bobfileEmpty) == nil)
-	assert.Assert(t, assertUniqueBuilderNames(bobfileUniques) == nil)
+	assert.Assert(t, validateBuilders(bobfileEmpty) == nil)
+	assert.Assert(t, validateBuilders(bobfileUniques) == nil)
 	assert.EqualString(t,
-		assertUniqueBuilderNames(bobfileNonUniques).Error(),
+		validateBuilders(bobfileNonUniques).Error(),
 		"duplicate builder name: foobar")
 }

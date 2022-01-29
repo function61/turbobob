@@ -116,6 +116,8 @@ github.com/fatih/color v1.13.0/go.mod h1:kLAiJbzzSOZDVNGyDpeOxJ47H46qBXwg5ILebYF
 github.com/fsnotify/fsnotify v1.5.1/go.mod h1:T3375wBYaZdLLcVNkcVbzGHY7f1l/uK5T5Ai1i3InKU=
 github.com/function61/gokit v0.0.0-20220107130649-3c68dc3e0bcf h1:NvDS8sd9wgvFOuJl13nZ5b1g8DUoeBtV0Rg9gp3s5Jk=
 github.com/function61/gokit v0.0.0-20220107130649-3c68dc3e0bcf/go.mod h1:xXf3guLmxHiZ4iVcmo3rfeMHIotBUNAge+zswrzQoqI=
+github.com/function61/gokit v0.0.0-20220129120223-5bc364fcaea9 h1:YI696ONlr72WJ1x/ijvv9Z2XOJ3rpXFoupvg8Pg31ig=
+github.com/function61/gokit v0.0.0-20220129120223-5bc364fcaea9/go.mod h1:xXf3guLmxHiZ4iVcmo3rfeMHIotBUNAge+zswrzQoqI=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1/go.mod h1:vR7hzQXu2zJy9AVAgeJqvqgH9Q5CA+iKCZ2gyEVpxRU=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20191125211704-12ad95a8df72/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=

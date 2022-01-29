@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"strings"
 
+	. "github.com/function61/gokit/builtin"
 	"github.com/function61/turbobob/pkg/dockertag"
 	"github.com/function61/turbobob/pkg/versioncontrol"
 )
@@ -204,12 +205,12 @@ func newDockerRegistryLoginCacheKey(registry string, creds DockerCredentials) do
 }
 
 type dockerRegistryLoginCache struct {
-	items map[dockerRegistryLoginCacheKey]bool
+	items map[dockerRegistryLoginCacheKey]Void
 }
 
 func newDockerRegistryLoginCache() *dockerRegistryLoginCache {
 	return &dockerRegistryLoginCache{
-		items: map[dockerRegistryLoginCacheKey]bool{},
+		items: map[dockerRegistryLoginCacheKey]Void{},
 	}
 }
 
@@ -219,5 +220,5 @@ func (d *dockerRegistryLoginCache) Cached(key dockerRegistryLoginCacheKey) bool 
 }
 
 func (d *dockerRegistryLoginCache) Cache(key dockerRegistryLoginCacheKey) {
-	d.items[key] = true
+	d.items[key] = Void{}
 }

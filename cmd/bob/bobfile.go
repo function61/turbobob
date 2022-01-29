@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	. "github.com/function61/gokit/builtin"
 	"github.com/function61/gokit/encoding/jsonfile"
 	"github.com/function61/turbobob/pkg/versioncontrol"
 )
@@ -129,8 +130,8 @@ func readBobfile() (*Bobfile, error) {
 		return nil, ErrIncorrectFileDescriptionBp
 	}
 
-	if err := assertUniqueBuilderNames(bobfile); err != nil {
-		return nil, err
+	if err := validateBuilders(bobfile); err != nil {
+		return nil, ErrorWrap("validateBuilders", err)
 	}
 
 	for _, subrepo := range bobfile.Subrepos {
@@ -138,8 +139,8 @@ func readBobfile() (*Bobfile, error) {
 		// we cannot even check for empty value in custom type's UnmarshalJSON() because if
 		// the value is missing, the func does not get called. IOW unmarshaling can still
 		// end up in broken data, so we must check it manually..
-		if subrepo.Kind == "" {
-			return nil, fmt.Errorf("Subrepo Kind cannot be empty")
+		if err := ErrorIfUnset(subrepo.Kind == "", "subrepo.Kind"); err != nil {
+			return nil, err
 		}
 	}
 
@@ -150,15 +151,15 @@ func readBobfile() (*Bobfile, error) {
 	return bobfile, nil
 }
 
-func assertUniqueBuilderNames(bobfile *Bobfile) error {
-	alreadySeenNames := map[string]bool{}
+func validateBuilders(bobfile *Bobfile) error {
+	alreadySeenNames := map[string]Void{}
 
 	for _, builder := range bobfile.Builders {
 		if _, alreadyExists := alreadySeenNames[builder.Name]; alreadyExists {
 			return fmt.Errorf("duplicate builder name: %s", builder.Name)
 		}
 
-		alreadySeenNames[builder.Name] = true
+		alreadySeenNames[builder.Name] = Void{}
 	}
 
 	return nil
