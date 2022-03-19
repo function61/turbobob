@@ -51,6 +51,8 @@ func main() {
 		app.AddCommand(infoEntry())
 		app.AddCommand(workspaceEntry())
 
+		app.AddCommand(openProjectHomepageEntrypoint())
+
 		app.AddCommand(toolsEntry()) // namespace for less often needed tools
 	} else {
 		app.AddCommand(buildInsideEntry())
