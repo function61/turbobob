@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/function61/gokit/os/osutil"
@@ -88,6 +89,11 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 	tagLatest := tagWithoutVersion + ":latest"
 	dockerfilePath := dockerImage.DockerfilePath
 
+	// "" => "."
+	// "Dockerfile" => "."
+	// "subdir/Dockerfile" => "subdir"
+	buildContextDir := filepath.Dir(dockerfilePath)
+
 	printHeading(fmt.Sprintf("Building %s", tag))
 
 	// use buildx when platforms set. it's almost same as "$ docker build" but it almost transparently
@@ -108,7 +114,7 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 			args = append(args, "--tag="+tagLatest)
 		}
 
-		args = append(args, ".") // build context
+		args = append(args, buildContextDir)
 
 		if buildCtx.PublishArtefacts {
 			// the build command has integrated push support. we'd actually prefer to separate
@@ -126,7 +132,7 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 		"--file", dockerfilePath,
 		"--tag", tag,
 		"--label=org.opencontainers.image.revision="+buildCtx.RevisionId.RevisionId,
-		"."))
+		buildContextDir))
 
 	if err := buildCmd.Run(); err != nil {
 		return err
