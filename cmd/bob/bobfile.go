@@ -26,6 +26,8 @@ type Bobfile struct {
 	Experiments                experiments       `json:"experiments_i_consent_to_breakage,omitempty"`
 }
 
+// when experiments are removed or graduated to production, they will be removed from here
+// (yielding unknown field error) and breaking the build. the price of opting in to unstable stuff.
 type experiments struct {
 	PrepareStep bool `json:"prepare_step"`
 }
