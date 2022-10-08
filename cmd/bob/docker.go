@@ -157,6 +157,12 @@ func dockerRelayEnvVars(
 		env("DEBUG", "true")
 	}
 
+	// "Always set to true when GitHub Actions is running the workflow. You can use this variable to
+	// differentiate when tests are being run locally or by GitHub Actions."
+	if os.Getenv("GITHUB_ACTIONS") == "true" { // relay as-is
+		env("GITHUB_ACTIONS", "true")
+	}
+
 	return dockerArgs, nil
 }
 
