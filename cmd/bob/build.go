@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/function61/gokit/os/osutil"
 	"github.com/function61/turbobob/pkg/versioncontrol"
@@ -23,7 +24,8 @@ type BuildContext struct {
 	ENVsAreRequired   bool
 	VersionControl    versioncontrol.Interface
 	RevisionId        *versioncontrol.RevisionId
-	FastBuild         bool // skip all non-essential steps (linting, testing etc.) to build faster
+	FastBuild         bool   // skip all non-essential steps (linting, testing etc.) to build faster
+	RepositoryURL     string // human-visitable URL, like "https://github.com/function61/turbobob"
 }
 
 func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdToRun []string) error {
@@ -89,6 +91,19 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 	tagLatest := tagWithoutVersion + ":latest"
 	dockerfilePath := dockerImage.DockerfilePath
 
+	labelArgs := []string{
+		"--label=org.opencontainers.image.created=" + time.Now().UTC().Format(time.RFC3339),
+		"--label=org.opencontainers.image.revision=" + buildCtx.RevisionId.RevisionId,
+		"--label=org.opencontainers.image.version=" + buildCtx.RevisionId.FriendlyRevisionId,
+	}
+
+	if buildCtx.RepositoryURL != "" {
+		// "URL to get source code for building the image"
+		labelArgs = append(labelArgs, "--label=org.opencontainers.image.source="+buildCtx.RepositoryURL)
+		// "URL to find more information on the image"
+		labelArgs = append(labelArgs, "--label=org.opencontainers.image.url="+buildCtx.RepositoryURL)
+	}
+
 	// "" => "."
 	// "Dockerfile" => "."
 	// "subdir/Dockerfile" => "subdir"
@@ -106,9 +121,10 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 			"build",
 			"--platform", strings.Join(dockerImage.Platforms, ","),
 			"--file", dockerfilePath,
-			"--label=org.opencontainers.image.revision=" + buildCtx.RevisionId.RevisionId,
 			"--tag=" + tag,
 		}
+
+		args = append(args, labelArgs...)
 
 		if dockerImage.TagLatest {
 			args = append(args, "--tag="+tagLatest)
@@ -126,13 +142,15 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 		return passthroughStdoutAndStderr(exec.Command("docker", args...)).Run()
 	}
 
-	buildCmd := passthroughStdoutAndStderr(exec.Command(
-		"docker",
+	dockerBuildArgs := []string{"docker",
 		"build",
 		"--file", dockerfilePath,
-		"--tag", tag,
-		"--label=org.opencontainers.image.revision="+buildCtx.RevisionId.RevisionId,
-		buildContextDir))
+		"--tag", tag}
+	dockerBuildArgs = append(dockerBuildArgs, labelArgs...)
+	dockerBuildArgs = append(dockerBuildArgs, buildContextDir)
+
+	//nolint:gosec // ok
+	buildCmd := passthroughStdoutAndStderr(exec.Command(dockerBuildArgs[0], dockerBuildArgs[1:]...))
 
 	if err := buildCmd.Run(); err != nil {
 		return err
@@ -437,6 +455,11 @@ func buildEntry() *cobra.Command {
 				buildCtx, err := constructBuildContext(publishArtefacts, true, "", false, false, true)
 				if err != nil {
 					return err
+				}
+
+				if ownerAndRepo := os.Getenv("GITHUB_REPOSITORY"); ownerAndRepo != "" {
+					// "function61/turbobob" => "https://github.com/function61/turbobob"
+					buildCtx.RepositoryURL = fmt.Sprintf("%s/%s", os.Getenv("GITHUB_SERVER_URL"), ownerAndRepo)
 				}
 
 				return build(buildCtx)
