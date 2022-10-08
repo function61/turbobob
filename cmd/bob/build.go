@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -35,7 +36,27 @@ func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdT
 		return errWd
 	}
 
-	printHeading(fmt.Sprintf("%s/%s (%s)", builder.Name, opDesc, builderCommandToHumanReadable(cmdToRun)))
+	builderNameOpDesc := fmt.Sprintf("%s/%s", builder.Name, opDesc)
+
+	switch must(parseBuilderUsesType(builder.Uses)) {
+	case builderUsesTypeImage:
+		// the "$ docker run ..." later would do an implicit pull, but let's do an explicit pull
+		// here in order to nicely put the download progress output in its own log line group
+		if err := withLogLineGroup(fmt.Sprintf("%s > pull", builderNameOpDesc), func() error {
+			return dockerPullIfRequired(builderImageName(buildCtx.Bobfile, builder))
+		}); err != nil {
+			return err
+		}
+	case builderUsesTypeDockerfile:
+		// no-op (doesn't need a pull)
+	default:
+		panic("unknown builderType")
+	}
+
+	// empty work just to emit a "starting" log group. this log group is important because if the
+	// command-to-run itself doesn't create log groups (to which we could insert script name), then
+	// script name won't be visible at all in none of the group names
+	_ = withLogLineGroup(fmt.Sprintf("%s > starting %s", builderNameOpDesc, builderCommandToHumanReadable(cmdToRun)), func() error { return nil })
 
 	buildArgs := []string{
 		"docker",
@@ -78,7 +99,23 @@ func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdT
 	}
 
 	//nolint:gosec // ok
-	buildCmd := passthroughStdoutAndStderr(exec.Command(buildArgs[0], buildArgs[1:]...))
+	buildCmd := exec.Command(buildArgs[0], buildArgs[1:]...)
+	buildCmd.Stdout = newLineSplitterTee(io.Discard, func(line string) {
+		lineMaybeModified := func() string {
+			// for each log line group, add "breadcrumb prefix" of builder / operation description.
+			// example group name: "staticAnalysis" => "default/build > staticAnalysis"
+			if strings.HasPrefix(line, "::group::") {
+				originalGroupName := line[len("::group::"):]
+
+				return fmt.Sprintf("::group::%s > %s", builderNameOpDesc, originalGroupName)
+			} else {
+				return line // as-is
+			}
+		}()
+
+		_, _ = os.Stdout.Write([]byte(lineMaybeModified + "\n")) // need to add newline back
+	})
+	buildCmd.Stderr = os.Stderr
 
 	if err := buildCmd.Run(); err != nil {
 		return err
@@ -435,7 +472,7 @@ func buildEntry() *cobra.Command {
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			osutil.ExitIfError(func() error {
-				if os.Getenv("GITHUB_ACTIONS") != "true" {
+				if !runningInGitHubActions() {
 					return errors.New("expecting GITHUB_ACTIONS=true")
 				}
 

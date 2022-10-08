@@ -159,7 +159,7 @@ func dockerRelayEnvVars(
 
 	// "Always set to true when GitHub Actions is running the workflow. You can use this variable to
 	// differentiate when tests are being run locally or by GitHub Actions."
-	if os.Getenv("GITHUB_ACTIONS") == "true" { // relay as-is
+	if runningInGitHubActions() { // relay as-is
 		env("GITHUB_ACTIONS", "true")
 	}
 
@@ -210,6 +210,20 @@ func loginToDockerRegistry(dockerImage DockerImageSpec, cache *dockerRegistryLog
 	cache.Cache(cacheKey)
 
 	return nil
+}
+
+func dockerPullIfRequired(imageRef string) error {
+	// there's no flag to "$ docker pull" that could allow us to say "please don't check the registry
+	// for newest version of that tag if we already have any version", so let's first query Docker
+	// if we already have the image, in order to not query the registry many times. use cases:
+	// - repeated "$ bob build" invocations
+	// - same builder used multiple times in the project
+	alreadyHave := exec.Command("docker", "image", "inspect", imageRef).Run()
+	if alreadyHave == nil { // this has error if we don't have the image yet
+		return nil
+	}
+
+	return passthroughStdoutAndStderr(exec.Command("docker", "pull", imageRef)).Run()
 }
 
 type dockerRegistryLoginCacheKey string
