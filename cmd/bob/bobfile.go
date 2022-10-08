@@ -76,35 +76,36 @@ func (o *OsArchesSpec) AsBuildEnvVariables() []string {
 	return ret
 }
 
-/*	Suppose you have three builders: 1) backend, 2) frontend and 3) documentation.
-	Here's the order in which the commands are executed:
+/*
+		Suppose you have three builders: 1) backend, 2) frontend and 3) documentation.
+		Here's the order in which the commands are executed:
 
 
-   Start ────────────────┐     ┌───────────────┐     ┌───────────────┐
-                         │     ▲               │     ▲               │
-              ┌──────────▼┐    │    ┌──────────▼┐    │    ┌──────────▼┐
-      Backend │  Prepare ││    │    │  Build   ││    │    │  Publish ││
-              └──────────┼┘    │    └──────────┼┘    │    └──────────┼┘
-                         │     │               │     │               │
-                         │     │               │     │               │
-              ┌──────────▼┐    │    ┌──────────▼┐    │    ┌──────────▼┐
-     Frontend │  Prepare ││    │    │  Build   ││    │    │  Publish ││
-              └──────────┼┘    │    └──────────┼┘    │    └──────────┼┘
-                         │     │               │     │               │
-                         │     │               │     │               │
-              ┌──────────▼┐    │    ┌──────────▼┐    │    ┌──────────▼┐
-Documentation │  Prepare ││    │    │  Build   ││    │    │  Publish ││
-              └──────────┼┘    │    └──────────┼┘    │    └──────────┼┘
-                         │     │               │     │               │
-                         │     │               │     │               │
-                         └─────┘               └─────┘               ▼
+	    Start ────────────────┐     ┌───────────────┐     ┌───────────────┐
+	                          │     ▲               │     ▲               │
+	               ┌──────────▼┐    │    ┌──────────▼┐    │    ┌──────────▼┐
+	       Backend │  Prepare ││    │    │  Build   ││    │    │  Publish ││
+	               └──────────┼┘    │    └──────────┼┘    │    └──────────┼┘
+	                          │     │               │     │               │
+	                          │     │               │     │               │
+	               ┌──────────▼┐    │    ┌──────────▼┐    │    ┌──────────▼┐
+	      Frontend │  Prepare ││    │    │  Build   ││    │    │  Publish ││
+	               └──────────┼┘    │    └──────────┼┘    │    └──────────┼┘
+	                          │     │               │     │               │
+	                          │     │               │     │               │
+	               ┌──────────▼┐    │    ┌──────────▼┐    │    ┌──────────▼┐
+	 Documentation │  Prepare ││    │    │  Build   ││    │    │  Publish ││
+	               └──────────┼┘    │    └──────────┼┘    │    └──────────┼┘
+	                          │     │               │     │               │
+	                          │     │               │     │               │
+	                          └─────┘               └─────┘               ▼
 
-	Rationale:
+		Rationale:
 
-	- backend needs some codegenerated stuff from documentation, like URLs so backend can link to documentation,
-	  so backend build can use stuff from documentation.prepare step.
-	- you'll want to publish artefacts only if all builders succeeded (*.build before *.publish),
-	  so there's no unnecessary uploads.
+		- backend needs some codegenerated stuff from documentation, like URLs so backend can link to documentation,
+		  so backend build can use stuff from documentation.prepare step.
+		- you'll want to publish artefacts only if all builders succeeded (*.build before *.publish),
+		  so there's no unnecessary uploads.
 */
 type BuilderCommands struct {
 	Prepare []string `json:"prepare"`

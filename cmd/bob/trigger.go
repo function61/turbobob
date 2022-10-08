@@ -74,7 +74,8 @@ func triggerFire(ctx context.Context) error {
 }
 
 // pro-tip: you need to inside the host:
-//   $ chgrp $(id -g) /tmp/build
+//
+//	$ chgrp $(id -g) /tmp/build
 func trigger(ctx context.Context, cmd string, logger *log.Logger) error {
 	// this channel gets a signal each time we should activate the trigger
 	triggerFireReq := make(chan void, 1)
