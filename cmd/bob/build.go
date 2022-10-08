@@ -24,6 +24,7 @@ type BuildContext struct {
 	ENVsAreRequired   bool
 	VersionControl    versioncontrol.Interface
 	RevisionId        *versioncontrol.RevisionId
+	Debug             bool   // enables additional debugging or verbose logging
 	FastBuild         bool   // skip all non-essential steps (linting, testing etc.) to build faster
 	RepositoryURL     string // human-visitable URL, like "https://github.com/function61/turbobob"
 }
@@ -64,7 +65,8 @@ func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdT
 		builder,
 		buildCtx.ENVsAreRequired,
 		archesToBuildFor,
-		buildCtx.FastBuild)
+		buildCtx.FastBuild,
+		buildCtx.Debug)
 	if errEnv != nil {
 		return errEnv
 	}
@@ -460,6 +462,10 @@ func buildEntry() *cobra.Command {
 				if ownerAndRepo := os.Getenv("GITHUB_REPOSITORY"); ownerAndRepo != "" {
 					// "function61/turbobob" => "https://github.com/function61/turbobob"
 					buildCtx.RepositoryURL = fmt.Sprintf("%s/%s", os.Getenv("GITHUB_SERVER_URL"), ownerAndRepo)
+				}
+
+				if os.Getenv("RUNNER_DEBUG") == "1" {
+					buildCtx.Debug = true
 				}
 
 				return build(buildCtx)

@@ -153,6 +153,7 @@ func devCommand(builderName string, envsAreRequired bool, ignoreNag bool) ([]str
 			*builder,
 			envsAreRequired,
 			archesToBuildFor,
+			false,
 			false)
 		if errEnv != nil {
 			return nil, errEnv

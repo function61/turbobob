@@ -118,6 +118,7 @@ func dockerRelayEnvVars(
 	envsAreRequired bool,
 	osArches OsArchesSpec,
 	fastbuild bool,
+	debug bool,
 ) ([]string, error) {
 	env := func(key, value string) {
 		dockerArgs = append(dockerArgs, "--env", key+"="+value)
@@ -147,6 +148,13 @@ func dockerRelayEnvVars(
 
 	if fastbuild {
 		env("FASTBUILD", "true")
+	}
+
+	if debug {
+		// enables additional debugging or verbose logging.
+		// this is purposefully different than in GitHub Actions RUNNER_DEBUG=1 due to this being more generic.
+		// TODO: also set RUNNER_DEBUG=1?
+		env("DEBUG", "true")
 	}
 
 	return dockerArgs, nil
