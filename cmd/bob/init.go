@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	. "github.com/function61/gokit/builtin"
 	"github.com/function61/gokit/os/osutil"
 	"github.com/spf13/cobra"
 )
@@ -160,6 +161,15 @@ func initEntry() *cobra.Command {
 	cmd.Flags().BoolVarP(&github, "github", "", github, "Write GitHub Actions boilerplate")
 	cmd.Flags().BoolVarP(&gitLab, "gitlab", "", gitLab, "Write GitLab CI boilerplate")
 	cmd.Flags().BoolVarP(&docker, "docker", "", docker, "This project should produce a Docker image?")
+
+	cmd.AddCommand(&cobra.Command{
+		Use:   "guess",
+		Short: "Initialize turbobob.json by guessing configuration from Dockerfile",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			osutil.ExitIfError(ErrorWrap("initGuessFromDockerfile", initGuessFromDockerfile()))
+		},
+	})
 
 	return cmd
 }
