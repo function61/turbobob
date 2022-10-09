@@ -20,16 +20,16 @@ type Bobfile struct {
 	ProjectName                string            `json:"project_name"`
 	ProjectEmojiIcon           string            `json:"project_emoji_icon,omitempty"` // to quickly differentiate projects in e.g. workspace switcher
 	Builders                   []BuilderSpec     `json:"builders"`
-	DockerImages               []DockerImageSpec `json:"docker_images"`
+	DockerImages               []DockerImageSpec `json:"docker_images,omitempty"`
 	Subrepos                   []SubrepoSpec     `json:"subrepos,omitempty"`
-	OsArches                   *OsArchesSpec     `json:"os_arches"`
+	OsArches                   *OsArchesSpec     `json:"os_arches,omitempty"`
 	Experiments                experiments       `json:"experiments_i_consent_to_breakage,omitempty"`
 }
 
 // when experiments are removed or graduated to production, they will be removed from here
 // (yielding unknown field error) and breaking the build. the price of opting in to unstable stuff.
 type experiments struct {
-	PrepareStep bool `json:"prepare_step"`
+	PrepareStep bool `json:"prepare_step,omitempty"`
 }
 
 type SubrepoSpec struct {
@@ -108,26 +108,26 @@ func (o *OsArchesSpec) AsBuildEnvVariables() []string {
 		  so there's no unnecessary uploads.
 */
 type BuilderCommands struct {
-	Prepare []string `json:"prepare"`
+	Prepare []string `json:"prepare,omitempty"`
 	Build   []string `json:"build"`
-	Publish []string `json:"publish"`
+	Publish []string `json:"publish,omitempty"`
 	Dev     []string `json:"dev"`
 }
 
 type BuilderSpec struct {
 	Name             string            `json:"name"`
 	Uses             string            `json:"uses"` // "docker://alpine:latest" | "dockerfile://build-default.Dockerfile"
-	MountSource      string            `json:"mount_source"`
+	MountSource      string            `json:"mount_source,omitempty"`
 	MountDestination string            `json:"mount_destination"`
-	Workdir          string            `json:"workdir"`
+	Workdir          string            `json:"workdir,omitempty"`
 	Commands         BuilderCommands   `json:"commands"`
 	DevPorts         []string          `json:"dev_ports,omitempty"`
 	DevHttpIngress   string            `json:"dev_http_ingress,omitempty"`
 	DevProTips       []string          `json:"dev_pro_tips,omitempty"`
-	DevShellCommands []DevShellCommand `json:"dev_shell_commands"` // injected as history for quick recall (ctrl + r)
+	DevShellCommands []DevShellCommand `json:"dev_shell_commands,omitempty"` // injected as history for quick recall (ctrl + r)
 	Envs             map[string]string `json:"env,omitempty"`
-	PassEnvs         []string          `json:"pass_envs"`
-	ContextlessBuild bool              `json:"contextless_build"`
+	PassEnvs         []string          `json:"pass_envs,omitempty"`
+	ContextlessBuild bool              `json:"contextless_build,omitempty"`
 }
 
 type DevShellCommand struct {
