@@ -53,6 +53,9 @@ func main() {
 
 		app.AddCommand(openProjectHomepageEntrypoint())
 
+		// hidden "$ bob init" for convenience (it exists as non-hidden under tools)
+		app.AddCommand(initEntryWithHidden(true))
+
 		app.AddCommand(toolsEntry()) // namespace for less often needed tools
 	} else {
 		app.AddCommand(buildInsideEntry())

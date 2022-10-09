@@ -137,14 +137,19 @@ func writeBobfileIfNotExists(content Bobfile) error {
 }
 
 func initEntry() *cobra.Command {
+	return initEntryWithHidden(false)
+}
+
+func initEntryWithHidden(hidden bool) *cobra.Command {
 	github := false
 	gitLab := false
 	docker := false
 
 	cmd := &cobra.Command{
-		Use:   "init",
-		Short: "Initializes this project with a default turbobob.json",
-		Args:  cobra.NoArgs,
+		Use:    "init",
+		Short:  "Initializes this project with a default turbobob.json",
+		Args:   cobra.NoArgs,
+		Hidden: hidden,
 		Run: func(cmd *cobra.Command, args []string) {
 			if github {
 				osutil.ExitIfError(writeGitHubActionsBoilerplate())
