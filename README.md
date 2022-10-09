@@ -8,9 +8,17 @@
 Modern, minimal container-based build/development tool to make any project´s dev easy and
 frictionless.
 
+Think like GitHub actions, but actually runnable locally (and also runnable from GitHub actions).
+
 Note: while Bob uses containers for builds (and dev), your programs themselves don't need to use containers!
 
 ![](docs/demo-screencast.gif)
+
+
+Features
+--------
+
+- [Log line grouping](https://user-images.githubusercontent.com/630151/194755923-d81df7cf-1e80-40b8-b1b3-886d973fdb4d.mp4) in GitHub actions
 
 
 Additional documentation
