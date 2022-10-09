@@ -73,15 +73,6 @@ func writeBoilerplate(filePath string, content string) error {
 }
 
 func writeDefaultBobfile(producesDockerImage bool) error {
-	exists, errExistsCheck := osutil.Exists(bobfileName)
-	if errExistsCheck != nil {
-		return errExistsCheck
-	}
-
-	if exists {
-		return ErrInitBobfileExists
-	}
-
 	cwd, err := os.Getwd()
 	if err != nil {
 		return err
@@ -90,9 +81,17 @@ func writeDefaultBobfile(producesDockerImage bool) error {
 	// guess project name from current workdir's basename
 	projectName := filepath.Base(cwd)
 
+	dockerImages := []DockerImageSpec{}
+	if producesDockerImage {
+		dockerImages = append(dockerImages, DockerImageSpec{
+			Image:          "yourcompany/" + projectName,
+			DockerfilePath: "Dockerfile",
+		})
+	}
+
 	defaults := Bobfile{
 		FileDescriptionBoilerplate: fileDescriptionBoilerplate,
-		VersionMajor:               1,
+		VersionMajor:               currentVersionMajor,
 		ProjectName:                projectName,
 		Builders: []BuilderSpec{
 			{
@@ -109,17 +108,23 @@ func writeDefaultBobfile(producesDockerImage bool) error {
 				ContextlessBuild: false,
 			},
 		},
-		DockerImages: []DockerImageSpec{},
+		DockerImages: dockerImages,
 	}
 
-	if producesDockerImage {
-		defaults.DockerImages = append(defaults.DockerImages, DockerImageSpec{
-			Image:          "yourcompany/" + projectName,
-			DockerfilePath: "Dockerfile",
-		})
+	return writeBobfileIfNotExists(defaults)
+}
+
+func writeBobfileIfNotExists(content Bobfile) error {
+	exists, errExistsCheck := osutil.Exists(bobfileName)
+	if errExistsCheck != nil {
+		return errExistsCheck
 	}
 
-	asJson, errJson := json.MarshalIndent(&defaults, "", "\t")
+	if exists {
+		return ErrInitBobfileExists
+	}
+
+	asJson, errJson := json.MarshalIndent(&content, "", "\t")
 	if errJson != nil {
 		return errJson
 	}

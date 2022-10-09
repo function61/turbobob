@@ -14,6 +14,10 @@ const (
 	fileDescriptionBoilerplate = "https://github.com/function61/turbobob"
 )
 
+const (
+	currentVersionMajor = 1
+)
+
 type Bobfile struct {
 	FileDescriptionBoilerplate string            `json:"for_description_of_this_file_see"`
 	VersionMajor               int               `json:"version_major"`
@@ -161,7 +165,7 @@ func readBobfile() (*Bobfile, error) {
 		return nil, err
 	}
 
-	if bobfile.VersionMajor != 1 {
+	if bobfile.VersionMajor != currentVersionMajor {
 		return nil, ErrUnsupportedBobfileVersion
 	}
 
