@@ -24,6 +24,10 @@ func qualityCheckBuilderUsesExpect(rules map[string]string, bobfile *Bobfile) er
 
 func qualityCheckFiles(rules []FileQualityRule) error {
 	for _, rule := range rules {
+		if !conditionsPass(rule.Conditions) { // rule not in use because didn't pass all conditions
+			continue
+		}
+
 		if err := qualityCheckFile(rule); err != nil {
 			return fmt.Errorf("quality: file %s: %w", rule.Path, err)
 		}
@@ -63,3 +67,48 @@ func qualityCheckFile(rule FileQualityRule) error {
 
 	return nil
 }
+
+func conditionsPass(conditions []QualityRuleCondition) bool {
+	for _, condition := range conditions {
+		conditionPasses := func(matches bool) bool {
+			if condition.Enable && !matches { // condition disqualifies if NOT match
+				return false
+			} else if !condition.Enable && matches { // condition disqualifies if DOES match
+				return false
+			}
+
+			return true
+		}
+
+		if origin := condition.RepoOrigin; origin != "" {
+			// "*foo*" => "foo"
+			originWildcard := strings.Trim(origin, "*")
+			if len(originWildcard) != len(origin)-2 { // stupidest way to check it had * at start AND end
+				panic("repo_origin needs to be in form '*foobar*'")
+			}
+
+			originMatches := strings.Contains(githubURL(getGithubRepoRef()), originWildcard)
+
+			if !conditionPasses(originMatches) {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+// lazily read gitHubRepoRefFromGit() just once
+func getGithubRepoRef() githubRepoRef {
+	if githubRepoRefSingleton == nil {
+		var err error
+		githubRepoRefSingleton, err = gitHubRepoRefFromGit()
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	return *githubRepoRefSingleton
+}
+
+var githubRepoRefSingleton *githubRepoRef

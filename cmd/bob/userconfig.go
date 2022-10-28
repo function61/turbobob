@@ -32,10 +32,16 @@ type UserconfigFile struct {
 }
 
 type FileQualityRule struct {
-	Path           string   `json:"path"`             // file path relative to repo root, e.g. "docs/security.md"
-	MustExist      *bool    `json:"must_exist"`       // true => must exist, false => must not exist, nil => ok if not exists
-	MustContain    []string `json:"must_contain"`     // strings the file must contain
-	MustNotContain []string `json:"must_not_contain"` // strings the file must not contain
+	Path           string                 `json:"path"`             // file path relative to repo root, e.g. "docs/security.md"
+	MustExist      *bool                  `json:"must_exist"`       // true => must exist, false => must not exist, nil => ok if not exists
+	MustContain    []string               `json:"must_contain"`     // strings the file must contain
+	MustNotContain []string               `json:"must_not_contain"` // strings the file must not contain
+	Conditions     []QualityRuleCondition `json:"conditions"`       // rule may be run conditionally
+}
+
+type QualityRuleCondition struct {
+	RepoOrigin string `json:"repo_origin"`
+	Enable     bool   `json:"enable"`
 }
 
 func (u *UserconfigFile) CodeEditorCmd(projectRoot string) ([]string, error) {
