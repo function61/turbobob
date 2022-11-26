@@ -87,7 +87,15 @@ func conditionsPass(conditions []QualityRuleCondition) bool {
 				panic("repo_origin needs to be in form '*foobar*'")
 			}
 
-			originMatches := strings.Contains(githubURL(getGithubRepoRef()), originWildcard)
+			ref := getGithubRepoRef()
+
+			originMatches := func() bool {
+				if ref != nil {
+					return strings.Contains(githubURL(*ref), originWildcard)
+				} else {
+					return false
+				}
+			}()
 
 			if !conditionPasses(originMatches) {
 				return false
@@ -99,7 +107,7 @@ func conditionsPass(conditions []QualityRuleCondition) bool {
 }
 
 // lazily read gitHubRepoRefFromGit() just once
-func getGithubRepoRef() githubRepoRef {
+func getGithubRepoRef() *githubRepoRef {
 	if githubRepoRefSingleton == nil {
 		var err error
 		githubRepoRefSingleton, err = gitHubRepoRefFromGit()
@@ -108,7 +116,7 @@ func getGithubRepoRef() githubRepoRef {
 		}
 	}
 
-	return *githubRepoRefSingleton
+	return githubRepoRefSingleton
 }
 
 var githubRepoRefSingleton *githubRepoRef

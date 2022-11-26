@@ -21,7 +21,7 @@ func openProjectHomepageEntrypoint() *cobra.Command {
 		Args:    cobra.NoArgs,
 		Run: func(_ *cobra.Command, _ []string) {
 			osutil.ExitIfError(func() error {
-				repo, err := gitHubRepoRefFromGit()
+				repo, err := gitHubRepoRefFromGitNonNil()
 				if err != nil {
 					return err
 				}
@@ -36,10 +36,28 @@ func openProjectHomepageEntrypoint() *cobra.Command {
 	}
 }
 
+func gitHubRepoRefFromGitNonNil() (*githubRepoRef, error) {
+	ref, err := gitHubRepoRefFromGit()
+	if err != nil {
+		return nil, err
+	}
+
+	if ref == nil {
+		return nil, errors.New("unable to resolve GitHub organization/repo name")
+	}
+
+	return ref, err
+}
+
+// NOTE: returns nil, nil if not a Git repo OR no origin specified OR not a GitHub origin
 func gitHubRepoRefFromGit() (*githubRepoRef, error) {
 	conf, err := os.ReadFile(".git/config")
 	if err != nil {
-		return nil, err
+		if os.IsNotExist(err) {
+			return nil, nil
+		} else { // some other error
+			return nil, err
+		}
 	}
 
 	// dirty
@@ -47,7 +65,7 @@ func gitHubRepoRefFromGit() (*githubRepoRef, error) {
 
 	matches := originParseRe.FindStringSubmatch(string(conf))
 	if matches == nil {
-		return nil, errors.New("unable to resolve GitHub organization/repo name")
+		return nil, nil
 	}
 
 	org, repo := matches[1], matches[2]
