@@ -51,6 +51,7 @@ type OsArchesSpec struct {
 	LinuxAmd64     bool `json:"linux-amd64"`
 	LinuxArm       bool `json:"linux-arm"`
 	LinuxArm64     bool `json:"linux-arm64"`
+	LinuxRiscv64   bool `json:"linux-riscv64"`
 	WindowsNeutral bool `json:"windows-neutral"` // works on Windows, arch doesn't matter
 	WindowsAmd64   bool `json:"windows-amd64"`
 	DarwinAmd64    bool `json:"darwin-amd64"`
@@ -74,6 +75,7 @@ func (o *OsArchesSpec) AsBuildEnvVariables() []string {
 	maybeAppend(o.LinuxAmd64, "BUILD_LINUX_AMD64")
 	maybeAppend(o.LinuxArm, "BUILD_LINUX_ARM")
 	maybeAppend(o.LinuxArm64, "BUILD_LINUX_ARM64")
+	maybeAppend(o.LinuxRiscv64, "BUILD_LINUX_RISCV64")
 
 	maybeAppend(o.DarwinAmd64, "BUILD_DARWIN_AMD64")
 
