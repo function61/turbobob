@@ -12,6 +12,25 @@ Think like GitHub actions, but actually runnable locally (and also runnable from
 
 Note: while Bob uses containers for builds (and dev), your programs themselves don't need to use containers!
 
+
+In a nutshell
+-------------
+
+```mermaid
+flowchart TD
+    GitHub[GitHub actions] --> Build_from_ci[Build from CI]
+    GitLab[GitLab CI] --> Build_from_ci
+    Travis[Travis CI] --> Build_from_ci
+    OtherCI[... CI] -->|In each CI: small boilerplate\nCI-specific conf to ask\nBob to do the build| Build_from_ci
+    Build_from_ci -->|$ bob build in-ci-autodetect-settings| TurboBob
+    Build_locally[Build locally] -->|$ bob build| TurboBob
+    Develop_locally[Develop locally] -->|$ bob dev| TurboBob
+    TurboBob[Turbo Bob<small>\ncontainer-based\nbuild orchestration</small>] -->|$ docker run ...| Docker
+```
+
+Small demo screencast
+---------------------
+
 ![](docs/demo-screencast.gif)
 
 
