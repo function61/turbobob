@@ -28,6 +28,13 @@ flowchart TD
     TurboBob[Turbo Bob<small>\ncontainer-based\nbuild orchestration</small>] -->|$ docker run ...| Docker
 ```
 
+Notes:
+
+- Here's what the [GitHub actions boilerplate](https://github.com/function61/turbobob/blob/8ced488edb65fd99c718586a56ecdf5882307c70/.github/workflows/build.yml#L14) looks like for just passing the build to Bob
+    * You can think of these as CI-specific adapters for passing control to Turbo Bob
+- Then [here's the container image that gets run to do the build](https://github.com/function61/turbobob/blob/51e6c7f5c5b0e7b0c244d670410e6c1a383429a6/turbobob.json#L9)
+    * This is reusable container to build all our Go-based projects, i.e. the build environment can be shared across many projects. Ship one improvement to the build environment -> many projects benefit.
+
 Small demo screencast
 ---------------------
 
