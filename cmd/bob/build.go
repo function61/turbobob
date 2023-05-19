@@ -477,9 +477,18 @@ func buildEntry() *cobra.Command {
 				}
 
 				publishArtefacts, err := func() (bool, error) {
+					// https://docs.github.com/en/code-security/dependabot/working-with-dependabot/automating-dependabot-with-github-actions#responding-to-events
+					isDependabot := os.Getenv("GITHUB_ACTOR") == "dependabot[bot]"
+
 					event := os.Getenv("GITHUB_EVENT_NAME")
 					switch event {
 					case "push":
+						if isDependabot { // one would imagine these would be PR events, but dependabot can cause pushes too ..
+							// .. and as such shouldn't cause artefacts to be published (secrets aren't even accessible,
+							// and publishing often requires secrets)
+							return false, nil
+						}
+
 						return true, nil
 					case "pull_request": // PRs don't publish artefacts
 						return false, nil
