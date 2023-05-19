@@ -20,7 +20,6 @@ In a nutshell
 flowchart TD
     GitHub[GitHub actions] --> Build_from_ci[Build from CI]
     GitLab[GitLab CI] --> Build_from_ci
-    Travis[Travis CI] --> Build_from_ci
     OtherCI[... CI] -->|In each CI: small boilerplate\nCI-specific conf to ask\nBob to do the build| Build_from_ci
     Build_from_ci -->|$ bob build in-ci-autodetect-settings| TurboBob
     Build_locally[Build locally] -->|$ bob build| TurboBob
