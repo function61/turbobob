@@ -12,6 +12,31 @@ Think like GitHub actions, but actually runnable locally (and also runnable from
 
 Note: while Bob uses containers for builds (and dev), your programs themselves don't need to use containers!
 
+
+In a nutshell
+-------------
+
+```mermaid
+flowchart TD
+    GitHub[GitHub actions] --> Build_from_ci[Build from CI]
+    GitLab[GitLab CI] --> Build_from_ci
+    OtherCI[... CI] -->|In each CI: small boilerplate\nCI-specific conf to ask\nBob to do the build| Build_from_ci
+    Build_from_ci -->|$ bob build in-ci-autodetect-settings| TurboBob
+    Build_locally[Build locally] -->|$ bob build| TurboBob
+    Develop_locally[Develop locally] -->|$ bob dev| TurboBob
+    TurboBob[Turbo Bob<small>\ncontainer-based\nbuild orchestration</small>] -->|$ docker run ...| Docker
+```
+
+Notes:
+
+- Here's what the [GitHub actions boilerplate](https://github.com/function61/turbobob/blob/8ced488edb65fd99c718586a56ecdf5882307c70/.github/workflows/build.yml#L14) looks like for just passing the build to Bob
+    * You can think of these as CI-specific adapters for passing control to Turbo Bob
+- Then [here's the container image that gets run to do the build](https://github.com/function61/turbobob/blob/51e6c7f5c5b0e7b0c244d670410e6c1a383429a6/turbobob.json#L9)
+    * This is reusable container to build all our Go-based projects, i.e. the build environment can be shared across many projects. Ship one improvement to the build environment -> many projects benefit.
+
+Small demo screencast
+---------------------
+
 ![](docs/demo-screencast.gif)
 
 
