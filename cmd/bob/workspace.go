@@ -108,8 +108,8 @@ func workspaceRenameToSelectedProject() error {
 	}
 
 	nameWithMaybeIcon := func() string {
-		if bobfile.ProjectEmojiIcon != "" && userConfig.WindowManagerShowProjectEmojiIcons {
-			return fmt.Sprintf("%s %s", bobfile.ProjectEmojiIcon, bobfile.ProjectName)
+		if projectEmojiIcon := bobfile.ProjectEmojiIcon(); projectEmojiIcon != "" && userConfig.WindowManagerShowProjectEmojiIcons {
+			return fmt.Sprintf("%s %s", projectEmojiIcon, bobfile.ProjectName)
 		} else {
 			return bobfile.ProjectName
 		}
