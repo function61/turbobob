@@ -130,18 +130,28 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 	tagLatest := tagWithoutVersion + ":latest"
 	dockerfilePath := dockerImage.DockerfilePath
 
-	labelArgs := []string{
-		"--label=org.opencontainers.image.created=" + time.Now().UTC().Format(time.RFC3339),
-		"--label=org.opencontainers.image.revision=" + buildCtx.RevisionId.RevisionId,
-		"--label=org.opencontainers.image.version=" + buildCtx.RevisionId.FriendlyRevisionId,
+	labelArgs := []string{}
+
+	addLabel := func(key string, value string) {
+		if value == "" {
+			return
+		}
+
+		labelArgs = append(labelArgs, fmt.Sprintf("--label=%s=%s", key, value))
 	}
 
-	if buildCtx.RepositoryURL != "" {
-		// "URL to get source code for building the image"
-		labelArgs = append(labelArgs, "--label=org.opencontainers.image.source="+buildCtx.RepositoryURL)
-		// "URL to find more information on the image"
-		labelArgs = append(labelArgs, "--label=org.opencontainers.image.url="+buildCtx.RepositoryURL)
-	}
+	addLabel("org.opencontainers.image.title", buildCtx.Bobfile.ProjectName)
+	addLabel("org.opencontainers.image.created", time.Now().UTC().Format(time.RFC3339))
+	addLabel("org.opencontainers.image.revision", buildCtx.RevisionId.RevisionId)
+	addLabel("org.opencontainers.image.version", buildCtx.RevisionId.FriendlyRevisionId)
+	addLabel("org.opencontainers.image.description", buildCtx.Bobfile.Meta.Description)
+
+	// "URL to get source code for building the image"
+	addLabel("org.opencontainers.image.source", buildCtx.RepositoryURL)
+	// "URL to find more information on the image"
+	addLabel("org.opencontainers.image.url", firstNonEmpty(buildCtx.Bobfile.Meta.Website, buildCtx.RepositoryURL))
+	// "URL to get documentation on the image"
+	addLabel("org.opencontainers.image.documentation", firstNonEmpty(buildCtx.Bobfile.Meta.Documentation, buildCtx.RepositoryURL))
 
 	// "" => "."
 	// "Dockerfile" => "."
@@ -574,4 +584,13 @@ func buildInside(fastBuild bool) error {
 	}
 
 	return buildCmd.Run()
+}
+
+// FIXME: when get to use generics, use `gokit`
+func firstNonEmpty(a string, b string) string {
+	if a != "" {
+		return a
+	} else {
+		return b
+	}
 }
