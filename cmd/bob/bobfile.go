@@ -25,12 +25,24 @@ type Bobfile struct {
 	FileDescriptionBoilerplate string            `json:"for_description_of_this_file_see"`
 	VersionMajor               int               `json:"version_major"`
 	ProjectName                string            `json:"project_name"`
-	ProjectEmojiIcon           string            `json:"project_emoji_icon,omitempty"` // to quickly differentiate projects in e.g. workspace switcher
+	Meta                       ProjectMetadata   `json:"meta,omitempty"`
 	Builders                   []BuilderSpec     `json:"builders"`
 	DockerImages               []DockerImageSpec `json:"docker_images,omitempty"`
 	Subrepos                   []SubrepoSpec     `json:"subrepos,omitempty"`
 	OsArches                   *OsArchesSpec     `json:"os_arches,omitempty"`
 	Experiments                experiments       `json:"experiments_i_consent_to_breakage,omitempty"`
+	Deprecated1                string            `json:"project_emoji_icon,omitempty"` // moved to `ProjectMetadata`
+}
+
+func (b Bobfile) ProjectEmojiIcon() string {
+	return firstNonEmpty(b.Meta.ProjectEmojiIcon, b.Deprecated1)
+}
+
+type ProjectMetadata struct {
+	Description      string `json:"description,omitempty"`        // what this project is used for
+	Website          string `json:"website,omitempty"`            // URL of homepage or such
+	Documentation    string `json:"documentation,omitempty"`      // URL of documentation website
+	ProjectEmojiIcon string `json:"project_emoji_icon,omitempty"` // to quickly differentiate projects in e.g. workspace switcher
 }
 
 // when experiments are removed or graduated to production, they will be removed from here
