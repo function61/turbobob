@@ -31,9 +31,7 @@ func TestAssertUniqueBuilderNames(t *testing.T) {
 
 	assert.Ok(t, validateBuilders(bobfileEmpty))
 	assert.Ok(t, validateBuilders(bobfileUniques))
-	assert.EqualString(t,
-		validateBuilders(bobfileNonUniques).Error(),
-		"duplicate builder name: foobar")
+	assert.Equal(t, validateBuilders(bobfileNonUniques).Error(), "duplicate builder name: foobar")
 }
 
 func TestConsentToBreakage(t *testing.T) {
@@ -63,5 +61,5 @@ func TestConsentToBreakage(t *testing.T) {
 	}
 
 	assert.Ok(t, validateBuilders(properConsent))
-	assert.EqualString(t, validateBuilders(missingConsent).Error(), "foobar: you need to opt-in to prepare_step experiment")
+	assert.Equal(t, validateBuilders(missingConsent).Error(), "foobar: you need to opt-in to prepare_step experiment")
 }

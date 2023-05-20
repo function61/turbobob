@@ -111,7 +111,7 @@ func shimSetup() error {
 	if !alreadyDone {
 		// set up flag, so the next session logging in to this container will not try to
 		// do setup steps that must be done only once
-		if err := makeEmptyFile(shimSetupDoneFlagPath()); err != nil {
+		if err := osutil.CreateEmptyFile(shimSetupDoneFlagPath()); err != nil {
 			return err
 		}
 	}
@@ -237,14 +237,4 @@ func readShimConfig() (*shimConfig, error) {
 
 func shimSetupDoneFlagPath() string {
 	return filepath.Join(os.TempDir(), "bob-shim-setup-done.flag")
-}
-
-// "$ touch"
-func makeEmptyFile(path string) error {
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-
-	return f.Close()
 }
