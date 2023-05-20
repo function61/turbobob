@@ -1,7 +1,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"io"
+	"io/fs"
 	"os"
 
 	. "github.com/function61/gokit/builtin"
@@ -10,7 +13,7 @@ import (
 )
 
 const (
-	bobfileName                = "turbobob.json"
+	bobfileName                = ".config/turbobob.json"
 	fileDescriptionBoilerplate = "https://github.com/function61/turbobob"
 )
 
@@ -152,13 +155,20 @@ type DockerImageSpec struct {
 // FIXME: Bobfile should actually be read only after correct
 // revision has been checked out from VCs
 func readBobfile() (*Bobfile, error) {
-	bobfileFile, err := os.Open(bobfileName)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, ErrBobfileNotFound
+	bobfileFile, err := func() (io.ReadCloser, error) {
+		bobfileFile, err := os.Open(bobfileName)
+		if err != nil && errors.Is(err, fs.ErrNotExist) { // try old filename
+			return os.Open("turbobob.json")
 		}
 
-		return nil, err
+		return bobfileFile, err
+	}()
+	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			return nil, ErrBobfileNotFound
+		} else {
+			return nil, err
+		}
 	}
 	defer bobfileFile.Close()
 

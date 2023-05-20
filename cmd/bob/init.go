@@ -130,6 +130,10 @@ func writeBobfileIfNotExists(content Bobfile) error {
 		return errJson
 	}
 
+	if err := os.MkdirAll(filepath.Dir(bobfileName), 0755); err != nil {
+		return err
+	}
+
 	return ioutil.WriteFile(
 		bobfileName,
 		[]byte(fmt.Sprintf("%s\n", asJson)),
