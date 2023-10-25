@@ -11,46 +11,49 @@ import (
 
 	"github.com/function61/gokit/encoding/jsonfile"
 	"github.com/function61/gokit/os/osutil"
+	"github.com/function61/turbobob/pkg/termutil"
 	"github.com/function61/turbobob/pkg/versioncontrol"
 	"github.com/spf13/cobra"
 )
 
-func devCommand(builderName string, envsAreRequired bool, ignoreNag bool) ([]string, error) {
+func devCommand(builderName string, envsAreRequired bool, ignoreNag bool) ([]string, string, error) {
+	withErr := func(err error) ([]string, string, error) { return nil, "", err }
+
 	bobfile, err := readBobfile()
 	if err != nil {
-		return nil, err
+		return withErr(err)
 	}
 
 	userConfig, err := loadUserconfigFile()
 	if err != nil {
-		return nil, err
+		return withErr(err)
 	}
 
 	// this is a natural point to check for repository's quality warnings. these are not issues
 	// that should break the build, but are severe enough to bug a maintainer
 	if !ignoreNag {
 		if err := qualityCheckBuilderUsesExpect(userConfig.ProjectQuality.BuilderUsesExpect, bobfile); err != nil {
-			return nil, err
+			return withErr(err)
 		}
 
 		if err := qualityCheckFiles(userConfig.ProjectQuality.FileRules); err != nil {
-			return nil, err
+			return withErr(err)
 		}
 	}
 
 	wd, errWd := os.Getwd()
 	if errWd != nil {
-		return nil, errWd
+		return withErr(errWd)
 	}
 
 	builder, err := findBuilder(bobfile, builderName)
 	if err != nil {
-		return nil, err
+		return withErr(err)
 	}
 
 	for _, subrepo := range bobfile.Subrepos {
 		if err := ensureSubrepoCloned(wd+"/"+subrepo.Destination, subrepo); err != nil {
-			return nil, err
+			return withErr(err)
 		}
 	}
 
@@ -95,14 +98,14 @@ func devCommand(builderName string, envsAreRequired bool, ignoreNag bool) ([]str
 	} else {
 		builderType, _, err := parseBuilderUsesType(builder.Uses)
 		if err != nil {
-			return nil, err
+			return withErr(err)
 		}
 
 		// only need to build if a builder is dockerfile. images are ready for consumption.
 		if builderType == builderUsesTypeDockerfile {
 			// internally prints heading
 			if err := buildBuilder(bobfile, builder); err != nil {
-				return nil, err
+				return withErr(err)
 			}
 		}
 
@@ -156,24 +159,24 @@ func devCommand(builderName string, envsAreRequired bool, ignoreNag bool) ([]str
 			false,
 			false)
 		if errEnv != nil {
-			return nil, errEnv
+			return withErr(errEnv)
 		}
 
 		if useShim {
 			ourPath, err := os.Executable()
 			if err != nil {
-				return nil, err
+				return withErr(err)
 			}
 
 			// this needs to be dynamic, because on the host side there must be a unique dir
 			// per dev container
 			shimDataDirHost, err := ioutil.TempDir("", "bob-shim-")
 			if err != nil {
-				return nil, err
+				return withErr(err)
 			}
 
 			if err := jsonfile.Write(filepath.Join(shimDataDirHost, shimConfigFile), &shimCfg); err != nil {
-				return nil, err
+				return withErr(err)
 			}
 
 			dockerCmd = append(dockerCmd, "--volume", shimDataDirHost+":"+shimDataDirContainer+":ro")
@@ -195,7 +198,7 @@ func devCommand(builderName string, envsAreRequired bool, ignoreNag bool) ([]str
 		dockerCmd = append(dockerCmd, builder.Commands.Dev...)
 	}
 
-	return dockerCmd, nil
+	return dockerCmd, containerName, nil
 }
 
 func enterInteractiveDevContainer(dockerCmd []string) error {
@@ -228,12 +231,15 @@ func devEntry() *cobra.Command {
 			}
 
 			osutil.ExitIfError(func() error {
-				dockerCommand, err := devCommand(builderName, !norequireEnvs, ignoreNag)
+				dockerCommand, containerName, err := devCommand(builderName, !norequireEnvs, ignoreNag)
 				if err != nil {
 					return err
 				}
 
 				if !dry {
+					unsetTerminalTitle := termutil.SetTitle(containerName)
+					defer unsetTerminalTitle()
+
 					return enterInteractiveDevContainer(dockerCommand)
 				} else {
 					_, err = fmt.Println(strings.Join(dockerCommand, " "))
