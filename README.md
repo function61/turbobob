@@ -264,3 +264,4 @@ These technologies have some overlap with Turbo Bob:
 - [Visual Studio Code Dev Container](https://code.visualstudio.com/docs/remote/containers) - tools inside container
 - [GitHub codespaces](https://github.com/features/codespaces) - Code editor in cloud + tools inside container?
 - [nektos/act](https://github.com/nektos/act) - Run your GitHub Actions locally
+- https://github.com/loft-sh/devpod
