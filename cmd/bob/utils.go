@@ -91,3 +91,12 @@ func (l *lineSplitterTee) Write(data []byte) (int, error) {
 
 	return len(data), nil
 }
+
+// tech debt: can't update to newer Go to use this func from gokit
+func firstNonEmpty(a, b string) string {
+	if a != "" {
+		return a
+	} else {
+		return b
+	}
+}
