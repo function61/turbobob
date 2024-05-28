@@ -28,6 +28,7 @@ type BuildContext struct {
 	Debug             bool   // enables additional debugging or verbose logging
 	FastBuild         bool   // skip all non-essential steps (linting, testing etc.) to build faster
 	RepositoryURL     string // human-visitable URL, like "https://github.com/function61/turbobob"
+	IsDefaultBranch   bool   // whether we are in "main" / "master" or equivalent branch
 }
 
 func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdToRun []string) error {
@@ -130,6 +131,10 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 	tagLatest := tagWithoutVersion + ":latest"
 	dockerfilePath := dockerImage.DockerfilePath
 
+	// only tag latest from the default branch (= main / master / ...), because it is expected
+	// that non-default branch builds are dev/experimental builds.
+	shouldTagLatest := dockerImage.TagLatest && buildCtx.IsDefaultBranch
+
 	labelArgs := []string{
 		"--label=org.opencontainers.image.created=" + time.Now().UTC().Format(time.RFC3339),
 		"--label=org.opencontainers.image.revision=" + buildCtx.RevisionId.RevisionId,
@@ -152,7 +157,9 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 
 	// use buildx when platforms set. it's almost same as "$ docker build" but it almost transparently
 	// supports cross-architecture builds via binftm_misc + QEMU userspace emulation
-	if len(dockerImage.Platforms) > 0 {
+	useBuildx := len(dockerImage.Platforms) > 0
+
+	if useBuildx {
 		// TODO: if in CI, install buildx automatically if needed?
 
 		args := []string{
@@ -165,7 +172,7 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 
 		args = append(args, labelArgs...)
 
-		if dockerImage.TagLatest {
+		if shouldTagLatest {
 			args = append(args, "--tag="+tagLatest)
 		}
 
@@ -215,7 +222,7 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 			return err
 		}
 
-		if dockerImage.TagLatest {
+		if shouldTagLatest {
 			if err := exec.Command("docker", "tag", tag, tagLatest).Run(); err != nil {
 				return fmt.Errorf("tagging failed %s -> %s failed: %v", tag, tagLatest, err)
 			}
@@ -499,6 +506,12 @@ func buildEntry() *cobra.Command {
 				if ownerAndRepo := os.Getenv("GITHUB_REPOSITORY"); ownerAndRepo != "" {
 					// "function61/turbobob" => "https://github.com/function61/turbobob"
 					buildCtx.RepositoryURL = fmt.Sprintf("%s/%s", os.Getenv("GITHUB_SERVER_URL"), ownerAndRepo)
+				}
+
+				// not automatically available as ENV variable (it only exists as a workflow variable `github.event.repository.default_branch` which you'd have to pass to ENV)
+				defaultBranchName := firstNonEmpty(os.Getenv("DEFAULT_BRANCH_NAME"), "main")
+				if defaultBranchName == os.Getenv("GITHUB_REF_NAME") {
+					buildCtx.IsDefaultBranch = true
 				}
 
 				if os.Getenv("RUNNER_DEBUG") == "1" {
