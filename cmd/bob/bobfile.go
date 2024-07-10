@@ -144,12 +144,38 @@ type DevShellCommand struct {
 	Important bool   `json:"important"` // important commands are shown as pro-tips on "$ bob dev"
 }
 
+type Condition struct {
+	IsDefaultBranch *bool `json:"is_default_branch"`
+}
+
+func (c *Condition) Passes(buildCtx *BuildContext) bool {
+	if c == nil { // no conditions
+		return true
+	}
+
+	hasFilter := func(b *bool) bool { return b != nil }
+
+	if hasFilter(c.IsDefaultBranch) {
+		if *c.IsDefaultBranch != buildCtx.IsDefaultBranch {
+			return false
+		}
+	}
+
+	return true
+}
+
+type TagSpec struct {
+	Pattern string     `json:"pattern"`
+	UseIf   *Condition `json:"use_if"`
+}
+
 type DockerImageSpec struct {
-	Image          string   `json:"image"`
-	DockerfilePath string   `json:"dockerfile_path"`
-	AuthType       *string  `json:"auth_type"`           // creds_from_env
-	Platforms      []string `json:"platforms,omitempty"` // if set, uses buildx
-	TagLatest      bool     `json:"tag_latest"`
+	Image          string    `json:"image"`
+	DockerfilePath string    `json:"dockerfile_path"`
+	AuthType       *string   `json:"auth_type"`           // creds_from_env
+	Platforms      []string  `json:"platforms,omitempty"` // if set, uses buildx
+	Tags           []TagSpec `json:"tags"`
+	TagLatest      bool      `json:"tag_latest"` // deprecated
 }
 
 // FIXME: Bobfile should actually be read only after correct

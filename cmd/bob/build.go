@@ -126,14 +126,14 @@ func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdT
 }
 
 func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildContext) error {
-	tagWithoutVersion := dockerImage.Image
-	tag := tagWithoutVersion + ":" + buildCtx.RevisionId.FriendlyRevisionId
-	tagLatest := tagWithoutVersion + ":latest"
-	dockerfilePath := dockerImage.DockerfilePath
-
-	// only tag latest from the default branch (= main / master / ...), because it is expected
-	// that non-default branch builds are dev/experimental builds.
-	shouldTagLatest := dockerImage.TagLatest && buildCtx.IsDefaultBranch
+	tagSpecs := func() []TagSpec {
+		if len(dockerImage.Tags) > 0 {
+			return dockerImage.Tags
+		} else {
+			return createBackwardsCompatTagSpecs(dockerImage.TagLatest)
+		}
+	}()
+	tags := expandTagSpecs(tagSpecs, buildCtx, dockerImage.Image)
 
 	labelArgs := []string{
 		"--label=org.opencontainers.image.created=" + time.Now().UTC().Format(time.RFC3339),
@@ -151,9 +151,9 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 	// "" => "."
 	// "Dockerfile" => "."
 	// "subdir/Dockerfile" => "subdir"
-	buildContextDir := filepath.Dir(dockerfilePath)
+	buildContextDir := filepath.Dir(dockerImage.DockerfilePath)
 
-	printHeading(fmt.Sprintf("Building %s", tag))
+	printHeading(fmt.Sprintf("Building %s", dockerImage.Image))
 
 	// use buildx when platforms set. it's almost same as "$ docker build" but it almost transparently
 	// supports cross-architecture builds via binftm_misc + QEMU userspace emulation
@@ -166,16 +166,11 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 			"buildx",
 			"build",
 			"--platform", strings.Join(dockerImage.Platforms, ","),
-			"--file", dockerfilePath,
-			"--tag=" + tag,
+			"--file", dockerImage.DockerfilePath,
 		}
 
+		args = append(args, dockerTagArgs(tags)...)
 		args = append(args, labelArgs...)
-
-		if shouldTagLatest {
-			args = append(args, "--tag="+tagLatest)
-		}
-
 		args = append(args, buildContextDir)
 
 		if buildCtx.PublishArtefacts {
@@ -190,8 +185,8 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 
 	dockerBuildArgs := []string{"docker",
 		"build",
-		"--file", dockerfilePath,
-		"--tag", tag}
+		"--file", dockerImage.DockerfilePath}
+	dockerBuildArgs = append(dockerBuildArgs, dockerTagArgs(tags)...)
 	dockerBuildArgs = append(dockerBuildArgs, labelArgs...)
 	dockerBuildArgs = append(dockerBuildArgs, buildContextDir)
 
@@ -218,21 +213,11 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 			return nil
 		}
 
-		if err := pushTag(tag); err != nil {
-			return err
-		}
-
-		if shouldTagLatest {
-			if err := exec.Command("docker", "tag", tag, tagLatest).Run(); err != nil {
-				return fmt.Errorf("tagging failed %s -> %s failed: %v", tag, tagLatest, err)
-			}
-
-			if err := pushTag(tagLatest); err != nil {
+		for _, tag := range tags {
+			if err := pushTag(tag); err != nil {
 				return err
 			}
 		}
-
-		return nil
 	}
 
 	return nil

@@ -111,6 +111,14 @@ func buildBuilder(bobfile *Bobfile, builder *BuilderSpec) error {
 	return nil
 }
 
+func dockerTagArgs(tags []string) []string {
+	asArgs := []string{}
+	for _, tag := range tags {
+		asArgs = append(asArgs, fmt.Sprintf("--tag=%s", tag))
+	}
+	return asArgs
+}
+
 func dockerRelayEnvVars(
 	dockerArgs []string,
 	revisionId *versioncontrol.RevisionId,
