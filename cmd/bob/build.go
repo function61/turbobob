@@ -135,28 +135,38 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 	// that non-default branch builds are dev/experimental builds.
 	shouldTagLatest := dockerImage.TagLatest && buildCtx.IsDefaultBranch
 
-	labelArgs := []string{}
+	annotationsKeyValues := []string{} // items look like "title=foobar"
 
-	addLabel := func(key string, value string) {
+	// annotationsAs("--annotation=") => ["--annotation=title=foobar"]
+	annotationsAs := func(argPrefix string) []string {
+		argified := []string{}
+		for _, annotation := range annotationsKeyValues {
+			// "title=foobar" => "--annotation=title=foobar"
+			argified = append(argified, argPrefix+annotation)
+		}
+		return argified
+	}
+
+	annotate := func(key string, value string) {
 		if value == "" {
 			return
 		}
 
-		labelArgs = append(labelArgs, fmt.Sprintf("--label=%s=%s", key, value))
+		annotationsKeyValues = append(annotationsKeyValues, fmt.Sprintf("%s=%s", key, value))
 	}
 
-	addLabel("org.opencontainers.image.title", buildCtx.Bobfile.ProjectName)
-	addLabel("org.opencontainers.image.created", time.Now().UTC().Format(time.RFC3339))
-	addLabel("org.opencontainers.image.revision", buildCtx.RevisionId.RevisionId)
-	addLabel("org.opencontainers.image.version", buildCtx.RevisionId.FriendlyRevisionId)
-	addLabel("org.opencontainers.image.description", buildCtx.Bobfile.Meta.Description)
+	annotate("org.opencontainers.image.title", buildCtx.Bobfile.ProjectName)
+	annotate("org.opencontainers.image.created", time.Now().UTC().Format(time.RFC3339))
+	annotate("org.opencontainers.image.revision", buildCtx.RevisionId.RevisionId)
+	annotate("org.opencontainers.image.version", buildCtx.RevisionId.FriendlyRevisionId)
+	annotate("org.opencontainers.image.description", buildCtx.Bobfile.Meta.Description)
 
 	// "URL to get source code for building the image"
-	addLabel("org.opencontainers.image.source", buildCtx.RepositoryURL)
+	annotate("org.opencontainers.image.source", buildCtx.RepositoryURL)
 	// "URL to find more information on the image"
-	addLabel("org.opencontainers.image.url", firstNonEmpty(buildCtx.Bobfile.Meta.Website, buildCtx.RepositoryURL))
+	annotate("org.opencontainers.image.url", firstNonEmpty(buildCtx.Bobfile.Meta.Website, buildCtx.RepositoryURL))
 	// "URL to get documentation on the image"
-	addLabel("org.opencontainers.image.documentation", firstNonEmpty(buildCtx.Bobfile.Meta.Documentation, buildCtx.RepositoryURL))
+	annotate("org.opencontainers.image.documentation", firstNonEmpty(buildCtx.Bobfile.Meta.Documentation, buildCtx.RepositoryURL))
 
 	// "" => "."
 	// "Dockerfile" => "."
@@ -180,7 +190,7 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 			"--tag=" + tag,
 		}
 
-		args = append(args, labelArgs...)
+		args = append(args, annotationsAs("--annotation=")...)
 
 		if shouldTagLatest {
 			args = append(args, "--tag="+tagLatest)
@@ -202,7 +212,8 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 		"build",
 		"--file", dockerfilePath,
 		"--tag", tag}
-	dockerBuildArgs = append(dockerBuildArgs, labelArgs...)
+	// `$ docker build ...` doesn't have annotation support
+	dockerBuildArgs = append(dockerBuildArgs, annotationsAs("--label=")...)
 	dockerBuildArgs = append(dockerBuildArgs, buildContextDir)
 
 	//nolint:gosec // ok
