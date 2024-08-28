@@ -196,6 +196,9 @@ func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildCont
 		// for example GitHub packages UI only shows annotations from OCI image index.
 		args = append(args, annotationsAs("--annotation=index,manifest:")...)
 
+		// for backwards compatibility (some consumers use this), publish the annotations also as labels
+		args = append(args, annotationsAs("--label=")...)
+
 		if shouldTagLatest {
 			args = append(args, "--tag="+tagLatest)
 		}
