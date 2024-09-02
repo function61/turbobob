@@ -4,6 +4,8 @@ import (
 	"errors"
 	"os"
 	"regexp"
+
+	"github.com/function61/turbobob/pkg/bobfile"
 )
 
 type DockerCredentials struct {
@@ -28,7 +30,7 @@ func (d *credsFromENV) Obtain() (*DockerCredentials, error) {
 
 	credsParts := credsFromENVRe.FindStringSubmatch(serialized)
 	if len(credsParts) != 3 {
-		return nil, ErrInvalidDockerCredsEnvFormat
+		return nil, bobfile.ErrInvalidDockerCredsEnvFormat
 	}
 
 	return &DockerCredentials{
@@ -37,7 +39,7 @@ func (d *credsFromENV) Obtain() (*DockerCredentials, error) {
 	}, nil
 }
 
-func getDockerCredentialsObtainer(dockerImage DockerImageSpec) DockerCredentialObtainer {
+func getDockerCredentialsObtainer(dockerImage bobfile.DockerImageSpec) DockerCredentialObtainer {
 	if dockerImage.AuthType == nil {
 		return &credsFromENV{}
 	}

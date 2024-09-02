@@ -1,4 +1,4 @@
-package main
+package bobfile
 
 import (
 	"errors"
@@ -14,6 +14,11 @@ var (
 	ErrIncorrectFileDescriptionBp  = errors.New("you are not supposed to change FileDescriptionBoilerplate")
 )
 
-func envVarMissingErr(envKey string) error {
-	return errors.New("ENV var missing: " + envKey)
+// tech debt: can't update to newer Go to use this func from gokit
+func firstNonEmpty(a, b string) string {
+	if a != "" {
+		return a
+	} else {
+		return b
+	}
 }

@@ -11,12 +11,13 @@ import (
 	"time"
 
 	"github.com/function61/gokit/os/osutil"
+	"github.com/function61/turbobob/pkg/bobfile"
 	"github.com/function61/turbobob/pkg/versioncontrol"
 	"github.com/spf13/cobra"
 )
 
 type BuildContext struct {
-	Bobfile           *Bobfile
+	Bobfile           *bobfile.Bobfile
 	OriginDir         string // where the repo exists
 	WorkspaceDir      string // where the revision is being built
 	PublishArtefacts  bool
@@ -31,7 +32,7 @@ type BuildContext struct {
 	IsDefaultBranch   bool   // whether we are in "main" / "master" or equivalent branch
 }
 
-func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdToRun []string) error {
+func runBuilder(builder bobfile.BuilderSpec, buildCtx *BuildContext, opDesc string, cmdToRun []string) error {
 	wd, errWd := os.Getwd()
 	if errWd != nil {
 		return errWd
@@ -125,7 +126,7 @@ func runBuilder(builder BuilderSpec, buildCtx *BuildContext, opDesc string, cmdT
 	return nil
 }
 
-func buildAndPushOneDockerImage(dockerImage DockerImageSpec, buildCtx *BuildContext) error {
+func buildAndPushOneDockerImage(dockerImage bobfile.DockerImageSpec, buildCtx *BuildContext) error {
 	tagWithoutVersion := dockerImage.Image
 	tag := tagWithoutVersion + ":" + buildCtx.RevisionId.FriendlyRevisionId
 	tagLatest := tagWithoutVersion + ":latest"
@@ -362,7 +363,7 @@ func build(buildCtx *BuildContext) error {
 	}
 
 	// three-pass process. the flow is well documented in *BuilderCommands* type
-	pass := func(opDesc string, getCommand func(cmds BuilderCommands) []string) error {
+	pass := func(opDesc string, getCommand func(cmds bobfile.BuilderCommands) []string) error {
 		for _, builder := range buildCtx.Bobfile.Builders {
 			if buildCtx.BuilderNameFilter != "" && builder.Name != buildCtx.BuilderNameFilter {
 				continue
@@ -381,9 +382,9 @@ func build(buildCtx *BuildContext) error {
 		return nil
 	}
 
-	preparePass := func(cmds BuilderCommands) []string { return cmds.Prepare }
-	buildPass := func(cmds BuilderCommands) []string { return cmds.Build }
-	publishPass := func(cmds BuilderCommands) []string { return cmds.Publish }
+	preparePass := func(cmds bobfile.BuilderCommands) []string { return cmds.Prepare }
+	buildPass := func(cmds bobfile.BuilderCommands) []string { return cmds.Build }
+	publishPass := func(cmds bobfile.BuilderCommands) []string { return cmds.Publish }
 
 	if err := pass("prepare", preparePass); err != nil {
 		return err // err context ok
@@ -426,7 +427,7 @@ func constructBuildContext(
 	fastBuild bool,
 	areWeInCi bool,
 ) (*BuildContext, error) {
-	bobfile, err := readBobfile()
+	bobfile, err := bobfile.Read()
 	if err != nil {
 		return nil, err
 	}
@@ -579,7 +580,7 @@ func buildInsideEntry() *cobra.Command {
 }
 
 func buildInside(fastBuild bool) error {
-	bobfile, err := readBobfile()
+	bobfile, err := bobfile.Read()
 	if err != nil {
 		return err
 	}

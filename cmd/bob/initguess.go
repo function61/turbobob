@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	. "github.com/function61/gokit/builtin"
+	"github.com/function61/turbobob/pkg/bobfile"
 	"github.com/moby/buildkit/frontend/dockerfile/instructions"
 	"github.com/moby/buildkit/frontend/dockerfile/parser"
 )
@@ -63,16 +64,16 @@ func initGuessFromDockerfile() error {
 		return err
 	}
 
-	return writeBobfileIfNotExists(Bobfile{
-		FileDescriptionBoilerplate: fileDescriptionBoilerplate,
-		VersionMajor:               currentVersionMajor,
+	return writeBobfileIfNotExists(bobfile.Bobfile{
+		FileDescriptionBoilerplate: bobfile.FileDescriptionBoilerplate,
+		VersionMajor:               bobfile.CurrentVersionMajor,
 		ProjectName:                projectName,
-		Builders: []BuilderSpec{
+		Builders: []bobfile.BuilderSpec{
 			{
 				Name:             "default",
 				Uses:             "docker://" + builderStage.BaseName,
 				MountDestination: copyCommand.DestPath,
-				Commands: BuilderCommands{
+				Commands: bobfile.BuilderCommands{
 					Build: buildCommand,
 					Dev:   []string{"bash"}, // just a guess
 				},

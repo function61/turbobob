@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	"github.com/function61/gokit/os/osutil"
+	"github.com/function61/turbobob/pkg/bobfile"
 	"github.com/function61/turbobob/pkg/versioncontrol"
 )
 
-func ensureSubrepoCloned(destination string, subrepo SubrepoSpec) error {
+func ensureSubrepoCloned(destination string, subrepo bobfile.SubrepoSpec) error {
 	exists, err := osutil.Exists(destination)
 	if err != nil {
 		return err

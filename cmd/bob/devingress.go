@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/function61/turbobob/pkg/bobfile"
 )
 
 // uses Traefik-compliant notation to set up HTTP ingress to route traffic to the dev container
 func setupDevIngress(
-	builder *BuilderSpec,
+	builder *bobfile.BuilderSpec,
 	ingressSettings devIngressSettings,
-	bobfile *Bobfile,
+	bobfile *bobfile.Bobfile,
 ) ([]string, string) {
 	if builder.DevHttpIngress == "" {
 		return nil, ""

@@ -11,12 +11,13 @@ import (
 
 	"github.com/function61/gokit/encoding/jsonfile"
 	"github.com/function61/gokit/os/osutil"
+	"github.com/function61/turbobob/pkg/bobfile"
 	"github.com/function61/turbobob/pkg/versioncontrol"
 	"github.com/spf13/cobra"
 )
 
 func devCommand(builderName string, envsAreRequired bool, ignoreNag bool) ([]string, error) {
-	bobfile, err := readBobfile()
+	bobfile, err := bobfile.Read()
 	if err != nil {
 		return nil, err
 	}
@@ -264,7 +265,7 @@ func revisionIdForDev() *versioncontrol.RevisionId {
 	}
 }
 
-func buildArchOnlyForCurrentlyRunningArch(archesToBuildFor OsArchesSpec) OsArchesSpec {
+func buildArchOnlyForCurrentlyRunningArch(archesToBuildFor bobfile.OsArchesSpec) bobfile.OsArchesSpec {
 	devMachineArch := osArchCodeToOsArchesSpec(currentRunningGoOsArchToOsArchCode())
 
 	// to speed up dev, build only for the arch we're running now, but only if arches

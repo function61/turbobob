@@ -13,6 +13,7 @@ import (
 
 	"github.com/function61/gokit/os/osutil"
 	"github.com/function61/gokit/sliceutil"
+	"github.com/function61/turbobob/pkg/bobfile"
 	"github.com/spf13/cobra"
 )
 
@@ -58,13 +59,13 @@ func langserverRunShim(ctx context.Context, langs []string) error {
 	mountDir := workdir
 
 	// access chosen project's details (so we know which programming language's langserver to start)
-	bobfile, err := readBobfile()
+	projectFile, err := bobfile.Read()
 	if err != nil {
 		return err
 	}
 
-	langserverCmd, builder, err := func() ([]string, *BuilderSpec, error) {
-		for _, builder := range bobfile.Builders {
+	langserverCmd, builder, err := func() ([]string, *bobfile.BuilderSpec, error) {
+		for _, builder := range projectFile.Builders {
 			// FIXME: this assumes
 			baseImageConf, err := loadNonOptionalBaseImageConf(builder)
 			if err != nil {
@@ -82,7 +83,7 @@ func langserverRunShim(ctx context.Context, langs []string) error {
 
 		return nil, nil, fmt.Errorf(
 			"%s doesn't define a compatible language server for %v",
-			bobfile.ProjectName,
+			projectFile.ProjectName,
 			langs)
 	}()
 	if err != nil {
@@ -99,7 +100,7 @@ func langserverRunShim(ctx context.Context, langs []string) error {
 		"--rm", // so resources get released. (this process is ephemeral in nature)
 		"--shm-size=512M",
 		"--interactive", // use stdin (it is the transport for one direction in LSP)
-		"--name=" + langServerContainerName(bobfile, *builder),
+		"--name=" + langServerContainerName(projectFile, *builder),
 		"--volume", fmt.Sprintf("%s:%s", workdir, mountDir),
 		dockerImage,
 	}, langserverCmd...)

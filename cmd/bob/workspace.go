@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"github.com/function61/gokit/os/osutil"
+	"github.com/function61/turbobob/pkg/bobfile"
 	"github.com/spf13/cobra"
 )
 
@@ -97,7 +98,7 @@ func workspaceLaunchFileBrowser() error {
 }
 
 func workspaceRenameToSelectedProject() error {
-	bobfile, err := readBobfile()
+	bobfile, err := bobfile.Read()
 	if err != nil {
 		return err
 	}

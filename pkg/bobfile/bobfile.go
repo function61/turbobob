@@ -1,4 +1,5 @@
-package main
+// Project configuration file for Turbo Bob
+package bobfile
 
 import (
 	"errors"
@@ -13,12 +14,12 @@ import (
 )
 
 const (
-	bobfileName                = ".config/turbobob.json"
-	fileDescriptionBoilerplate = "https://github.com/function61/turbobob"
+	Name                       = ".config/turbobob.json"
+	FileDescriptionBoilerplate = "https://github.com/function61/turbobob"
 )
 
 const (
-	currentVersionMajor = 1
+	CurrentVersionMajor = 1
 )
 
 type Bobfile struct {
@@ -166,9 +167,11 @@ type DockerImageSpec struct {
 
 // FIXME: Bobfile should actually be read only after correct
 // revision has been checked out from VCs
-func readBobfile() (*Bobfile, error) {
+func Read() (*Bobfile, error) {
+	withErr := func(err error) (*Bobfile, error) { return nil, fmt.Errorf("bobfile.Read: %w", err) }
+
 	bobfileFile, err := func() (io.ReadCloser, error) {
-		bobfileFile, err := os.Open(bobfileName)
+		bobfileFile, err := os.Open(Name)
 		if err != nil && errors.Is(err, fs.ErrNotExist) { // try old filename
 			return os.Open("turbobob.json")
 		}
@@ -177,28 +180,28 @@ func readBobfile() (*Bobfile, error) {
 	}()
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
-			return nil, ErrBobfileNotFound
+			return withErr(ErrBobfileNotFound)
 		} else {
-			return nil, err
+			return withErr(err)
 		}
 	}
 	defer bobfileFile.Close()
 
 	bobfile := &Bobfile{}
 	if err := jsonfile.UnmarshalDisallowUnknownFields(bobfileFile, bobfile); err != nil {
-		return nil, err
+		return withErr(err)
 	}
 
-	if bobfile.VersionMajor != currentVersionMajor {
-		return nil, ErrUnsupportedBobfileVersion
+	if bobfile.VersionMajor != CurrentVersionMajor {
+		return withErr(ErrUnsupportedBobfileVersion)
 	}
 
-	if bobfile.FileDescriptionBoilerplate != fileDescriptionBoilerplate {
-		return nil, ErrIncorrectFileDescriptionBp
+	if bobfile.FileDescriptionBoilerplate != FileDescriptionBoilerplate {
+		return withErr(ErrIncorrectFileDescriptionBp)
 	}
 
 	if err := validateBuilders(bobfile); err != nil {
-		return nil, ErrorWrap("validateBuilders", err)
+		return withErr(ErrorWrap("validateBuilders", err))
 	}
 
 	for _, subrepo := range bobfile.Subrepos {
@@ -207,7 +210,7 @@ func readBobfile() (*Bobfile, error) {
 		// the value is missing, the func does not get called. IOW unmarshaling can still
 		// end up in broken data, so we must check it manually..
 		if err := ErrorIfUnset(subrepo.Kind == "", "subrepo.Kind"); err != nil {
-			return nil, err
+			return withErr(err)
 		}
 	}
 
@@ -234,14 +237,4 @@ func validateBuilders(bobfile *Bobfile) error {
 	}
 
 	return nil
-}
-
-func findBuilder(bobfile *Bobfile, builderName string) (*BuilderSpec, error) {
-	for _, builder := range bobfile.Builders {
-		if builder.Name == builderName {
-			return &builder, nil
-		}
-	}
-
-	return nil, ErrBuilderNotFound
 }

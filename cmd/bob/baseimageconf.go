@@ -8,6 +8,7 @@ import (
 
 	"github.com/function61/gokit/encoding/jsonfile"
 	"github.com/function61/gokit/os/osutil"
+	"github.com/function61/turbobob/pkg/bobfile"
 )
 
 const (
@@ -16,9 +17,9 @@ const (
 
 // base image conf JSON - able to provide hints for useful commands, setting up cache paths etc.
 type BaseImageConfig struct {
-	DevShellCommands []DevShellCommand `json:"dev_shell_commands"`
-	PathsToCache     []string          `json:"paths_to_cache"` // will be set up as symlinks to a persistent mountpoint, so that subsequent containers benefit from cache
-	Langserver       *LangserverSpec   `json:"langserver"`
+	DevShellCommands []bobfile.DevShellCommand `json:"dev_shell_commands"`
+	PathsToCache     []string                  `json:"paths_to_cache"` // will be set up as symlinks to a persistent mountpoint, so that subsequent containers benefit from cache
+	Langserver       *LangserverSpec           `json:"langserver"`
 
 	FileDescriptionBoilerplate string `json:"for_description_of_this_file_see"` // URL to Bob homepage
 
@@ -54,7 +55,7 @@ func loadBaseImageConfWhenInsideContainer() (*BaseImageConfig, error) {
 
 // non-optional because the implementation makes it a bit hard to check if the file exists
 // (vs. Docker run error), and our current callsite needs non-optional anyway
-func loadNonOptionalBaseImageConf(builder BuilderSpec) (*BaseImageConfig, error) {
+func loadNonOptionalBaseImageConf(builder bobfile.BuilderSpec) (*BaseImageConfig, error) {
 	dockerImage, err := func() (string, error) {
 		kind, data, err := parseBuilderUsesType(builder.Uses)
 		if err != nil {

@@ -1,12 +1,15 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"strings"
 	"sync"
+
+	"github.com/function61/turbobob/pkg/bobfile"
 )
 
 func passthroughStdoutAndStderr(cmd *exec.Cmd) *exec.Cmd {
@@ -20,7 +23,11 @@ func isEnvVarPresent(key string) bool {
 	return os.Getenv(key) != ""
 }
 
-func allDevShellCommands(devShellCommands []DevShellCommand) []string {
+func envVarMissingErr(envKey string) error {
+	return errors.New("ENV var missing: " + envKey)
+}
+
+func allDevShellCommands(devShellCommands []bobfile.DevShellCommand) []string {
 	commands := []string{}
 	for _, command := range devShellCommands {
 		commands = append(commands, command.Command)
@@ -38,6 +45,16 @@ func must(input builderUsesType, _ string, err error) builderUsesType {
 		panic(err)
 	}
 	return input
+}
+
+func findBuilder(projectFile *bobfile.Bobfile, builderName string) (*bobfile.BuilderSpec, error) {
+	for _, builder := range projectFile.Builders {
+		if builder.Name == builderName {
+			return &builder, nil
+		}
+	}
+
+	return nil, bobfile.ErrBuilderNotFound
 }
 
 func withLogLineGroup(group string, work func() error) error {

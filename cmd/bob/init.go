@@ -9,6 +9,7 @@ import (
 
 	. "github.com/function61/gokit/builtin"
 	"github.com/function61/gokit/os/osutil"
+	"github.com/function61/turbobob/pkg/bobfile"
 	"github.com/spf13/cobra"
 )
 
@@ -82,26 +83,26 @@ func writeDefaultBobfile(producesDockerImage bool) error {
 	// guess project name from current workdir's basename
 	projectName := filepath.Base(cwd)
 
-	dockerImages := []DockerImageSpec{}
+	dockerImages := []bobfile.DockerImageSpec{}
 	if producesDockerImage {
-		dockerImages = append(dockerImages, DockerImageSpec{
+		dockerImages = append(dockerImages, bobfile.DockerImageSpec{
 			Image:          "yourcompany/" + projectName,
 			DockerfilePath: "Dockerfile",
 		})
 	}
 
-	defaults := Bobfile{
-		FileDescriptionBoilerplate: fileDescriptionBoilerplate,
-		VersionMajor:               currentVersionMajor,
+	defaults := bobfile.Bobfile{
+		FileDescriptionBoilerplate: bobfile.FileDescriptionBoilerplate,
+		VersionMajor:               bobfile.CurrentVersionMajor,
 		ProjectName:                projectName,
-		Builders: []BuilderSpec{
+		Builders: []bobfile.BuilderSpec{
 			{
 				Name:             "default",
 				Uses:             "dockerfile://build-default.Dockerfile",
 				MountSource:      "",
 				MountDestination: "/app",
 				PassEnvs:         []string{},
-				Commands: BuilderCommands{
+				Commands: bobfile.BuilderCommands{
 					Dev: []string{"bash"},
 				},
 				DevProTips:       []string{},
@@ -115,14 +116,14 @@ func writeDefaultBobfile(producesDockerImage bool) error {
 	return writeBobfileIfNotExists(defaults)
 }
 
-func writeBobfileIfNotExists(content Bobfile) error {
-	exists, errExistsCheck := osutil.Exists(bobfileName)
+func writeBobfileIfNotExists(content bobfile.Bobfile) error {
+	exists, errExistsCheck := osutil.Exists(bobfile.Name)
 	if errExistsCheck != nil {
 		return errExistsCheck
 	}
 
 	if exists {
-		return ErrInitBobfileExists
+		return bobfile.ErrInitBobfileExists
 	}
 
 	asJson, errJson := json.MarshalIndent(&content, "", "\t")
@@ -130,12 +131,12 @@ func writeBobfileIfNotExists(content Bobfile) error {
 		return errJson
 	}
 
-	if err := os.MkdirAll(filepath.Dir(bobfileName), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(bobfile.Name), 0755); err != nil {
 		return err
 	}
 
 	return ioutil.WriteFile(
-		bobfileName,
+		bobfile.Name,
 		[]byte(fmt.Sprintf("%s\n", asJson)),
 		osutil.FileMode(osutil.OwnerRW, osutil.GroupRW, osutil.OtherNone))
 }

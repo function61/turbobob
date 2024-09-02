@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	. "github.com/function61/gokit/builtin"
+	"github.com/function61/turbobob/pkg/bobfile"
 	"github.com/function61/turbobob/pkg/dockertag"
 	"github.com/function61/turbobob/pkg/versioncontrol"
 )
@@ -24,21 +25,21 @@ func isDevContainerRunning(containerName string) bool {
 	return strings.TrimRight(string(result), "\n") == "true"
 }
 
-func devContainerName(bobfile *Bobfile, builder BuilderSpec) string {
+func devContainerName(bobfile *bobfile.Bobfile, builder bobfile.BuilderSpec) string {
 	return containerNameInternal("dev", bobfile, builder)
 }
 
-func langServerContainerName(bobfile *Bobfile, builder BuilderSpec) string {
+func langServerContainerName(bobfile *bobfile.Bobfile, builder bobfile.BuilderSpec) string {
 	return containerNameInternal("langserver", bobfile, builder)
 }
 
 // do not use directly
-func containerNameInternal(kind string, bobfile *Bobfile, builder BuilderSpec) string {
+func containerNameInternal(kind string, bobfile *bobfile.Bobfile, builder bobfile.BuilderSpec) string {
 	return fmt.Sprintf("tb%s-%s-%s", kind, bobfile.ProjectName, builder.Name)
 
 }
 
-func builderImageName(bobfile *Bobfile, builder BuilderSpec) string {
+func builderImageName(bobfile *bobfile.Bobfile, builder bobfile.BuilderSpec) string {
 	builderType, ref, err := parseBuilderUsesType(builder.Uses)
 	if err != nil {
 		panic(err)
@@ -54,7 +55,7 @@ func builderImageName(bobfile *Bobfile, builder BuilderSpec) string {
 	}
 }
 
-func buildBuilder(bobfile *Bobfile, builder *BuilderSpec) error {
+func buildBuilder(bobfile *bobfile.Bobfile, builder *bobfile.BuilderSpec) error {
 	imageName := builderImageName(bobfile, *builder)
 
 	builderUsesType, dockerfilePath, err := parseBuilderUsesType(builder.Uses)
@@ -114,9 +115,9 @@ func buildBuilder(bobfile *Bobfile, builder *BuilderSpec) error {
 func dockerRelayEnvVars(
 	dockerArgs []string,
 	revisionId *versioncontrol.RevisionId,
-	builder BuilderSpec,
+	builder bobfile.BuilderSpec,
 	envsAreRequired bool,
-	osArches OsArchesSpec,
+	osArches bobfile.OsArchesSpec,
 	fastbuild bool,
 	debug bool,
 ) ([]string, error) {
@@ -166,7 +167,7 @@ func dockerRelayEnvVars(
 	return dockerArgs, nil
 }
 
-func loginToDockerRegistry(dockerImage DockerImageSpec, cache *dockerRegistryLoginCache) error {
+func loginToDockerRegistry(dockerImage bobfile.DockerImageSpec, cache *dockerRegistryLoginCache) error {
 	credentialsObtainer := getDockerCredentialsObtainer(dockerImage)
 	creds, err := credentialsObtainer.Obtain()
 	if err != nil {
@@ -179,7 +180,7 @@ func loginToDockerRegistry(dockerImage DockerImageSpec, cache *dockerRegistryLog
 
 	tagParsed := dockertag.Parse(dockerImage.Image)
 	if tagParsed == nil {
-		return ErrUnableToParseDockerTag
+		return bobfile.ErrUnableToParseDockerTag
 	}
 
 	registryDefaulted := tagParsed.Registry

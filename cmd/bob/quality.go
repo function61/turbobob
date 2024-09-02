@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/function61/turbobob/pkg/bobfile"
 )
 
-func qualityCheckBuilderUsesExpect(rules map[string]string, bobfile *Bobfile) error {
+func qualityCheckBuilderUsesExpect(rules map[string]string, bobfile *bobfile.Bobfile) error {
 	for _, builder := range bobfile.Builders {
 		for substring, expectFull := range rules {
 			if strings.Contains(builder.Uses, substring) && builder.Uses != expectFull {

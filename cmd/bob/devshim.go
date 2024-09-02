@@ -12,6 +12,7 @@ import (
 
 	"github.com/function61/gokit/encoding/jsonfile"
 	"github.com/function61/gokit/os/osutil"
+	"github.com/function61/turbobob/pkg/bobfile"
 	"github.com/spf13/cobra"
 )
 
@@ -72,9 +73,9 @@ func shimSetup() error {
 		return err
 	}
 
-	bobfile, err := readBobfile()
+	bobfile, err := bobfile.Read()
 	if err != nil {
-		return fmt.Errorf("readBobfile: %w", err)
+		return err
 	}
 
 	shimConf, err := readShimConfig()
@@ -147,7 +148,7 @@ func shimSetup() error {
 }
 
 // so we can recall frequently needed commands fast + sets up HISTFILE ENV var
-func injectHistory(builder BuilderSpec, alreadyDone bool, baseImgConf BaseImageConfig) error {
+func injectHistory(builder bobfile.BuilderSpec, alreadyDone bool, baseImgConf BaseImageConfig) error {
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		return err
