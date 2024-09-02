@@ -26,12 +26,12 @@ type Bobfile struct {
 	FileDescriptionBoilerplate string            `json:"for_description_of_this_file_see"`
 	VersionMajor               int               `json:"version_major"`
 	ProjectName                string            `json:"project_name"`
-	Meta                       ProjectMetadata   `json:"meta,omitempty"`
 	Builders                   []BuilderSpec     `json:"builders"`
 	DockerImages               []DockerImageSpec `json:"docker_images,omitempty"`
 	Subrepos                   []SubrepoSpec     `json:"subrepos,omitempty"`
 	OsArches                   *OsArchesSpec     `json:"os_arches,omitempty"`
 	Experiments                experiments       `json:"experiments_i_consent_to_breakage,omitempty"`
+	Meta                       ProjectMetadata   `json:"meta,omitempty"`
 	Deprecated1                string            `json:"project_emoji_icon,omitempty"` // moved to `ProjectMetadata`
 }
 
@@ -40,10 +40,11 @@ func (b Bobfile) ProjectEmojiIcon() string {
 }
 
 type ProjectMetadata struct {
-	Description      string `json:"description,omitempty"`        // what this project is used for
-	Website          string `json:"website,omitempty"`            // URL of homepage or such
-	Documentation    string `json:"documentation,omitempty"`      // URL of documentation website
-	ProjectEmojiIcon string `json:"project_emoji_icon,omitempty"` // to quickly differentiate projects in e.g. workspace switcher
+	Description      string       `json:"description,omitempty"`        // what this project is used for
+	Website          string       `json:"website,omitempty"`            // URL of homepage or such
+	Documentation    string       `json:"documentation,omitempty"`      // URL of documentation website
+	ProjectEmojiIcon string       `json:"project_emoji_icon,omitempty"` // to quickly differentiate projects in e.g. workspace switcher
+	License          *LicenseInfo `json:"license,omitempty"`            // which license this project is licensed under
 }
 
 // when experiments are removed or graduated to production, they will be removed from here
@@ -165,14 +166,43 @@ type DockerImageSpec struct {
 	TagLatest      bool     `json:"tag_latest"`
 }
 
+type LicenseInfo struct {
+	Expression string               `json:"expression"` // https://spdx.github.io/spdx-spec/v2-draft/SPDX-license-expressions/
+	Rationale  LicenseInfoRationale `json:"rationale"`
+}
+
+type LicenseInfoRationale struct {
+	Kind                 LicenseInfoRationaleKind                  `json:"kind"`
+	Notes                string                                    `json:"notes,omitempty"`
+	AutodetectedFromFile *LicenseInfoRationaleAutodetectedFromFile `json:"autodetected_from_file,omitempty"`
+}
+
+type LicenseInfoRationaleAutodetectedFromFile struct {
+	File       string  `json:"file"`   // "LICENSE"
+	Digest     string  `json:"digest"` // "sha256:..."
+	Confidence float64 `json:"confidence,omitempty"`
+}
+
+type LicenseInfoRationaleKind string
+
+const (
+	LicenseInfoRationaleKindAutodetectedFromFile LicenseInfoRationaleKind = "autodetected_from_file"
+	LicenseInfoRationaleKindDefinedManually      LicenseInfoRationaleKind = "defined_manually"
+)
+
 // FIXME: Bobfile should actually be read only after correct
 // revision has been checked out from VCs
 func Read() (*Bobfile, error) {
+	return ReadWithAllowLegacyOption(true)
+}
+
+// same as `Read`, but takes in option to whether to allow reading the Bobfile from the legacy (root) dir
+func ReadWithAllowLegacyOption(allowLegacyFilename bool) (*Bobfile, error) {
 	withErr := func(err error) (*Bobfile, error) { return nil, fmt.Errorf("bobfile.Read: %w", err) }
 
 	bobfileFile, err := func() (io.ReadCloser, error) {
 		bobfileFile, err := os.Open(Name)
-		if err != nil && errors.Is(err, fs.ErrNotExist) { // try old filename
+		if err != nil && errors.Is(err, fs.ErrNotExist) && allowLegacyFilename { // try old filename
 			return os.Open("turbobob.json")
 		}
 

@@ -6,6 +6,7 @@ import (
 
 	"github.com/function61/gokit/app/dynversion"
 	"github.com/function61/gokit/os/osutil"
+	"github.com/function61/turbobob/pkg/license"
 	"github.com/function61/turbobob/pkg/powerline"
 	"github.com/spf13/cobra"
 )
@@ -83,6 +84,7 @@ func toolsEntry() *cobra.Command {
 	// TODO: move powerline here?
 	cmd.AddCommand(initEntry())
 	cmd.AddCommand(langserverEntry())
+	cmd.AddCommand(license.Entrypoint())
 
 	return cmd
 }

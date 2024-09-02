@@ -5,6 +5,8 @@ go 1.13
 require (
 	github.com/cubewise-code/go-mime v0.0.0-20190322015324-9c5316ef3e8e // indirect
 	github.com/function61/gokit v0.0.0-20230408192420-6f1204d63c2b
+	github.com/go-enry/go-license-detector/v4 v4.3.1
+	github.com/jstemmer/gotags v1.4.1 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/moby/buildkit v0.10.4
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
