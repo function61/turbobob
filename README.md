@@ -1,9 +1,9 @@
-⬆️ For table of contents, click the above icon
-
 ![](misc/mascot/mascot.png)
 
 ![Build status](https://github.com/function61/turbobob/workflows/Build/badge.svg)
 [![Download](https://img.shields.io/github/downloads/function61/turbobob/total.svg?style=for-the-badge)](https://github.com/function61/turbobob/releases)
+
+![](misc/readme-animated-prompt.svg)
 
 Modern, minimal container-based build/development tool to make any project´s dev easy and
 frictionless.
