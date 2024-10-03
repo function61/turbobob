@@ -10,6 +10,7 @@ jobs:
 
     - name: Build
       run: |
+        set -eu
         curl --fail --location --no-progress-meter --output bob https://function61.com/go/turbobob-latest-stable-linux-amd64 && chmod +x bob
         ./bob build in-ci-autodetect-settings
       env:
