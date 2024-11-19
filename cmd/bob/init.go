@@ -22,12 +22,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Build
       run: |
-        curl --fail --location --silent --output bob https://function61.com/go/turbobob-latest-linux-amd64 && chmod +x bob
-        ./bob build in-ci-autodetect-settings
+        set -eu
+        curl --fail --location --no-progress-meter --output /usr/local/bin/bob https://function61.com/go/turbobob-latest-stable-linux-amd64 && chmod +x /usr/local/bin/bob
+        bob build in-ci-autodetect-settings
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 `)
