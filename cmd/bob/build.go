@@ -126,7 +126,15 @@ func runBuilder(builder bobfile.BuilderSpec, buildCtx *BuildContext, opDesc stri
 	return nil
 }
 
-func buildAndPushOneDockerImage(dockerImage bobfile.DockerImageSpec, buildCtx *BuildContext) error {
+type imageBuildOutput struct {
+	tag string
+}
+
+func buildAndPushOneDockerImage(dockerImage bobfile.DockerImageSpec, buildCtx *BuildContext) (*imageBuildOutput, error) {
+	withErr := func(err error) (*imageBuildOutput, error) {
+		return nil, fmt.Errorf("buildAndPushOneDockerImage: %w", err)
+	}
+
 	tagWithoutVersion := dockerImage.Image
 	tag := tagWithoutVersion + ":" + buildCtx.RevisionId.FriendlyRevisionId
 	tagLatest := tagWithoutVersion + ":latest"
@@ -213,58 +221,60 @@ func buildAndPushOneDockerImage(dockerImage bobfile.DockerImageSpec, buildCtx *B
 			args = append(args, "--push")
 		}
 
-		return passthroughStdoutAndStderr(exec.Command("docker", args...)).Run()
-	}
+		if err := passthroughStdoutAndStderr(exec.Command("docker", args...)).Run(); err != nil {
+			return withErr(err)
+		}
+	} else {
+		dockerBuildArgs := []string{"docker",
+			"build",
+			"--file", dockerfilePath,
+			"--tag", tag}
+		// `$ docker build ...` doesn't have annotation support. we have to use labels.
+		dockerBuildArgs = append(dockerBuildArgs, annotationsAs("--label=")...)
+		dockerBuildArgs = append(dockerBuildArgs, buildContextDir)
 
-	dockerBuildArgs := []string{"docker",
-		"build",
-		"--file", dockerfilePath,
-		"--tag", tag}
-	// `$ docker build ...` doesn't have annotation support. we have to use labels.
-	dockerBuildArgs = append(dockerBuildArgs, annotationsAs("--label=")...)
-	dockerBuildArgs = append(dockerBuildArgs, buildContextDir)
+		//nolint:gosec // ok
+		buildCmd := passthroughStdoutAndStderr(exec.Command(dockerBuildArgs[0], dockerBuildArgs[1:]...))
 
-	//nolint:gosec // ok
-	buildCmd := passthroughStdoutAndStderr(exec.Command(dockerBuildArgs[0], dockerBuildArgs[1:]...))
-
-	if err := buildCmd.Run(); err != nil {
-		return err
-	}
-
-	if buildCtx.PublishArtefacts {
-		pushTag := func(tag string) error {
-			printHeading(fmt.Sprintf("Pushing %s", tag))
-
-			pushCmd := passthroughStdoutAndStderr(exec.Command(
-				"docker",
-				"push",
-				tag))
-
-			if err := pushCmd.Run(); err != nil {
-				return err
-			}
-
-			return nil
+		if err := buildCmd.Run(); err != nil {
+			return withErr(err)
 		}
 
-		if err := pushTag(tag); err != nil {
-			return err
-		}
+		if buildCtx.PublishArtefacts {
+			pushTag := func(tag string) error {
+				printHeading(fmt.Sprintf("Pushing %s", tag))
 
-		if shouldTagLatest {
-			if err := exec.Command("docker", "tag", tag, tagLatest).Run(); err != nil {
-				return fmt.Errorf("tagging failed %s -> %s failed: %v", tag, tagLatest, err)
+				pushCmd := passthroughStdoutAndStderr(exec.Command(
+					"docker",
+					"push",
+					tag))
+
+				if err := pushCmd.Run(); err != nil {
+					return err
+				}
+
+				return nil
 			}
 
-			if err := pushTag(tagLatest); err != nil {
-				return err
+			if err := pushTag(tag); err != nil {
+				return withErr(err)
+			}
+
+			if shouldTagLatest {
+				if err := exec.Command("docker", "tag", tag, tagLatest).Run(); err != nil {
+					return withErr(fmt.Errorf("tagging failed %s -> %s failed: %v", tag, tagLatest, err))
+				}
+
+				if err := pushTag(tagLatest); err != nil {
+					return withErr(err)
+				}
 			}
 		}
-
-		return nil
 	}
 
-	return nil
+	return &imageBuildOutput{
+		tag: tag,
+	}, nil
 }
 
 func cloneToWorkdir(buildCtx *BuildContext) error {
@@ -322,16 +332,22 @@ func cloneToWorkdir(buildCtx *BuildContext) error {
 	return nil
 }
 
-func build(buildCtx *BuildContext) error {
+type buildOutput struct {
+	images []imageBuildOutput
+}
+
+func build(buildCtx *BuildContext) (*buildOutput, error) {
+	withErr := func(err error) (*buildOutput, error) { return nil, fmt.Errorf("build: %w", err) }
+
 	if buildCtx.CloningStepNeeded {
 		if err := cloneToWorkdir(buildCtx); err != nil {
-			return err
+			return withErr(err)
 		}
 	}
 
 	for _, subrepo := range buildCtx.Bobfile.Subrepos {
 		if err := ensureSubrepoCloned(buildCtx.WorkspaceDir+"/"+subrepo.Destination, subrepo); err != nil {
-			return err
+			return withErr(err)
 		}
 	}
 
@@ -349,7 +365,7 @@ func build(buildCtx *BuildContext) error {
 
 		builderType, _, err := parseBuilderUsesType(builder.Uses)
 		if err != nil {
-			return err
+			return withErr(err)
 		}
 
 		// only need to build if a builder is dockerfile. images are ready for consumption.
@@ -358,7 +374,7 @@ func build(buildCtx *BuildContext) error {
 		}
 
 		if err := buildBuilder(buildCtx.Bobfile, &builder); err != nil {
-			return err
+			return withErr(err)
 		}
 	}
 
@@ -387,18 +403,22 @@ func build(buildCtx *BuildContext) error {
 	publishPass := func(cmds bobfile.BuilderCommands) []string { return cmds.Publish }
 
 	if err := pass("prepare", preparePass); err != nil {
-		return err // err context ok
+		return withErr(err) // err context ok
 	}
 
 	if err := pass("build", buildPass); err != nil {
-		return err // err context ok
+		return withErr(err) // err context ok
 	}
 
 	if err := pass("publish", publishPass); err != nil {
-		return err // err context ok
+		return withErr(err) // err context ok
 	}
 
 	dockerLoginCache := newDockerRegistryLoginCache()
+
+	output := buildOutput{
+		images: []imageBuildOutput{},
+	}
 
 	for _, dockerImage := range buildCtx.Bobfile.DockerImages {
 		if buildCtx.BuilderNameFilter != "" {
@@ -407,16 +427,19 @@ func build(buildCtx *BuildContext) error {
 
 		if buildCtx.PublishArtefacts {
 			if err := loginToDockerRegistry(dockerImage, dockerLoginCache); err != nil {
-				return err
+				return withErr(err)
 			}
 		}
 
-		if err := buildAndPushOneDockerImage(dockerImage, buildCtx); err != nil {
-			return err
+		imageOutput, err := buildAndPushOneDockerImage(dockerImage, buildCtx)
+		if err != nil {
+			return withErr(err)
 		}
+
+		output.images = append(output.images, *imageOutput)
 	}
 
-	return nil
+	return &output, nil
 }
 
 func constructBuildContext(
@@ -498,7 +521,8 @@ func buildEntry() *cobra.Command {
 				areWeInCi)
 			osutil.ExitIfError(err)
 
-			osutil.ExitIfError(build(buildCtx))
+			_, err = build(buildCtx)
+			osutil.ExitIfError(err)
 		},
 	}
 
@@ -547,7 +571,12 @@ func buildEntry() *cobra.Command {
 					buildCtx.Debug = true
 				}
 
-				return build(buildCtx)
+				_, err := build(buildCtx)
+				if err != nil {
+					return err
+				}
+
+				return nil
 			}())
 		},
 	})
