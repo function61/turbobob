@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -571,9 +572,16 @@ func buildEntry() *cobra.Command {
 					buildCtx.Debug = true
 				}
 
-				_, err := build(buildCtx)
+				output, err := build(buildCtx)
 				if err != nil {
 					return err
+				}
+
+				// https://github.blog/news-insights/product-news/supercharging-github-actions-with-job-summaries/
+				if stepSummaryFilename := os.Getenv("GITHUB_STEP_SUMMARY"); stepSummaryFilename != "" && len(output.images) > 0 {
+					if err := githubStepSummaryWriteImages(stepSummaryFilename, output.images); err != nil {
+						log.Printf("WARN: %v", err)
+					}
 				}
 
 				return nil

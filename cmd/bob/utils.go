@@ -6,10 +6,12 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path"
 	"strings"
 	"sync"
 
 	"github.com/function61/turbobob/pkg/bobfile"
+	"github.com/function61/turbobob/pkg/dockertag"
 )
 
 func passthroughStdoutAndStderr(cmd *exec.Cmd) *exec.Cmd {
@@ -116,4 +118,39 @@ func firstNonEmpty(a, b string) string {
 	} else {
 		return b
 	}
+}
+
+// write image tags as Markdown to GitHub actions's workflow summary so it's easy from their UI to spot
+// which images were published as result of the build.
+func githubStepSummaryWriteImages(stepSummaryFilename string, images []imageBuildOutput) error {
+	withErr := func(err error) error { return fmt.Errorf("githubStepSummaryWriteImages: %w", err) }
+
+	stepSummaryFile, err := os.OpenFile(stepSummaryFilename, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		return withErr(err)
+	}
+	defer stepSummaryFile.Close()
+
+	return githubStepSummaryWriteImagesWithWriter(stepSummaryFile, images)
+}
+
+func githubStepSummaryWriteImagesWithWriter(stepSummaryFile io.Writer, images []imageBuildOutput) error {
+	lines := []string{}
+	for _, image := range images {
+		parsed := dockertag.Parse(image.tag)
+		if parsed == nil {
+			return fmt.Errorf("failed to parse docker tag: %s", image.tag)
+		}
+
+		// "fn61/varasto" => "varasto"
+		imageBasename := path.Base(parsed.Repository)
+
+		lines = append(lines, "## Image: "+imageBasename, "", "```", image.tag, "```", "", "")
+	}
+
+	if _, err := stepSummaryFile.Write([]byte(strings.Join(lines, "\n"))); err != nil {
+		return err
+	}
+
+	return nil
 }
