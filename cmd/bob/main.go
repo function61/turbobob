@@ -80,6 +80,8 @@ func toolsEntry() *cobra.Command {
 		Short: "Less often needed tools",
 	}
 
+	cmd.AddCommand(smokeTestEntrypoint())
+
 	// TODO: move powerline here?
 	cmd.AddCommand(initEntry())
 	cmd.AddCommand(langserverEntry())
