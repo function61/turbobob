@@ -37,6 +37,7 @@ type FileQualityRule struct {
 	MustContain    []string               `json:"must_contain"`     // strings the file must contain
 	MustNotContain []string               `json:"must_not_contain"` // strings the file must not contain
 	Conditions     []QualityRuleCondition `json:"conditions"`       // rule may be run conditionally
+	Notes          string                 `json:"_notes"`
 }
 
 type QualityRuleCondition struct {
