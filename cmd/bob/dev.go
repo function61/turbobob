@@ -120,6 +120,15 @@ func devCommand(builderName string, envsAreRequired bool, ignoreNag bool) ([]str
 			"--volume", "/tmp/build:/tmp/build", // cannot map to /tmp because at least apt won't work (permission issues?)
 		}
 
+		enableLanguageServerSupport := true
+		if enableLanguageServerSupport {
+			// in Bob dev containers we might have /workspace mount (i.e. different mount point than source
+			// path in host), but editors send file references to LS's with the paths they're seeing, so we
+			// must use the same path in containers (unless we want to do tricks with symlinks etc.)
+			// mountDir := workdir
+			dockerCmd = append(dockerCmd, "--volume", wd+":"+wd)
+		}
+
 		fixInputRc := true
 		if fixInputRc {
 			// https://superuser.com/a/589629
