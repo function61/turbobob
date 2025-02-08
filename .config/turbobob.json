@@ -6,7 +6,7 @@
 	"builders": [
 		{
 			"name": "default",
-			"uses": "docker://fn61/buildkit-golang:20240405_0714_856c11bd",
+			"uses": "docker://fn61/buildkit-golang:20250109_1140_037f68db",
 			"commands": {
 				"build": ["build-go-project.sh", "--directory=cmd/bob/", "--binary-basename=bob"],
 				"dev": ["bash"]

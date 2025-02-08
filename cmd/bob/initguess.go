@@ -94,7 +94,7 @@ func parseDockerfile(path string) ([]instructions.Stage, error) {
 		return nil, err
 	}
 
-	stages, _, err := instructions.Parse(dockerfileAST.AST)
+	stages, _, err := instructions.Parse(dockerfileAST.AST, nil)
 	if err != nil {
 		return nil, err
 	}
