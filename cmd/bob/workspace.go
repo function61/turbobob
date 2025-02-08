@@ -16,6 +16,7 @@ import (
 	"strings"
 	"syscall"
 
+	"al.essio.dev/pkg/shellescape"
 	"github.com/function61/gokit/encoding/jsonfile"
 	"github.com/function61/gokit/os/osutil"
 	"github.com/function61/turbobob/pkg/bobfile"
@@ -75,22 +76,45 @@ func workspaceEntry() *cobra.Command {
 }
 
 func workspaceLaunchEditor() error {
+	withErr := func(err error) error { return fmt.Errorf("workspaceLaunchEditor: %w", err) }
+
 	workdir, err := os.Getwd()
 	if err != nil {
-		return err
+		return withErr(err)
 	}
 
 	userConfig, err := loadUserconfigFile()
 	if err != nil {
-		return err
+		return withErr(err)
 	}
 
 	codeEditorCmd, err := userConfig.CodeEditorCmd(workdir)
 	if err != nil {
-		return err
+		if errors.Is(err, fs.ErrNotExist) { // none specified
+			editor := discoverSensibleEditor()
+
+			codeEditorCmd = []string{editor, workdir}
+		} else {
+			return withErr(err)
+		}
 	}
 
-	return resolveWindowManager().LaunchDisownedProgram(codeEditorCmd...)
+	if err := resolveWindowManager().LaunchDisownedProgram("i3-sensible-terminal", "-e", shellescape.QuoteCommand(codeEditorCmd)); err != nil {
+		return withErr(err)
+	}
+
+	return nil
+}
+
+// try to use some (standards-compliant) method to guess user's preferred editor.
+// in the spirit of https://github.com/i3/i3/blob/next/i3-sensible-editor
+func discoverSensibleEditor() string {
+	if editor := os.Getenv("EDITOR"); editor != "" {
+		return editor
+	}
+
+	// /usr/bin/editor from Debian-alternatives (i.e. user's chosen editor)
+	return "editor"
 }
 
 func workspaceLaunchFileBrowser() error {
