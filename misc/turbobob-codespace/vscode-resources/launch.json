@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Build (fast)",
+            "command": "bob build --uncommitted --fast",
+            "request": "launch",
+            "type": "node-terminal"
+        },
+        {
+            "name": "Build",
+            "command": "bob build --uncommitted",
+            "request": "launch",
+            "type": "node-terminal"
+        }
+    ]
+}

@@ -43,6 +43,7 @@ Small demo screencast
 Features
 --------
 
+- [GitHub Codespaces](misc/turbobob-codespace) support
 - [Log line grouping](https://user-images.githubusercontent.com/630151/194755923-d81df7cf-1e80-40b8-b1b3-886d973fdb4d.mp4) in GitHub actions
 - Automatically adds [OCI-compliant metadata](https://github.com/opencontainers/image-spec/blob/main/annotations.md)
   to built containers. ([Example](https://hub.docker.com/r/joonas/hellohttp/tags), click "latest")
