@@ -185,92 +185,44 @@ func buildAndPushOneDockerImage(dockerImage bobfile.DockerImageSpec, buildCtx *B
 
 	printHeading(fmt.Sprintf("Building %s", tag))
 
-	// use buildx when platforms set. it's almost same as "$ docker build" but it almost transparently
-	// supports cross-architecture builds via binftm_misc + QEMU userspace emulation
-	useBuildx := len(dockerImage.Platforms) > 0
+	// TODO: if in CI, install buildx automatically if needed?
 
-	if useBuildx {
-		// TODO: if in CI, install buildx automatically if needed?
+	args := []string{
+		"docker",
+		"buildx",
+		"build",
+		"--file", dockerfilePath,
+		"--tag=" + tag,
+	}
 
-		args := []string{
-			"buildx",
-			"build",
-			"--platform", strings.Join(dockerImage.Platforms, ","),
-			"--file", dockerfilePath,
-			"--tag=" + tag,
-		}
+	if len(dockerImage.Platforms) > 0 {
+		args = append(args, "--platform="+strings.Join(dockerImage.Platforms, ","))
+	}
 
-		// https://docs.docker.com/reference/cli/docker/buildx/build/#annotation
-		// annotate both the image index and the image manifest.
-		// if we don't specify type of annotation, only the image manifest is annotated.
-		// for example GitHub packages UI only shows annotations from OCI image index.
-		args = append(args, annotationsAs("--annotation=index,manifest:")...)
+	// https://docs.docker.com/reference/cli/docker/buildx/build/#annotation
+	// annotate both the image index and the image manifest.
+	// if we don't specify type of annotation, only the image manifest is annotated.
+	// for example GitHub packages UI only shows annotations from OCI image index.
+	args = append(args, annotationsAs("--annotation=index,manifest:")...)
 
-		// for backwards compatibility (some consumers use this), publish the annotations also as labels
-		args = append(args, annotationsAs("--label=")...)
+	// for backwards compatibility (some consumers use this), publish the annotations also as labels
+	args = append(args, annotationsAs("--label=")...)
 
-		if shouldTagLatest {
-			args = append(args, "--tag="+tagLatest)
-		}
+	if shouldTagLatest {
+		args = append(args, "--tag="+tagLatest)
+	}
 
-		args = append(args, buildContextDir)
+	args = append(args, buildContextDir)
 
-		if buildCtx.PublishArtefacts {
-			// the build command has integrated push support. we'd actually prefer to separate
-			// these stages, but multi-arch manifests aren't supported storing locally so we've
-			// to push immediately
-			args = append(args, "--push")
-		}
+	if buildCtx.PublishArtefacts {
+		// the build command has integrated push support. we'd actually prefer to separate
+		// these stages, but multi-arch manifests aren't supported storing locally so we've
+		// to push immediately
+		args = append(args, "--push")
+	}
 
-		if err := passthroughStdoutAndStderr(exec.Command("docker", args...)).Run(); err != nil {
-			return withErr(err)
-		}
-	} else {
-		dockerBuildArgs := []string{"docker",
-			"build",
-			"--file", dockerfilePath,
-			"--tag", tag}
-		// `$ docker build ...` doesn't have annotation support. we have to use labels.
-		dockerBuildArgs = append(dockerBuildArgs, annotationsAs("--label=")...)
-		dockerBuildArgs = append(dockerBuildArgs, buildContextDir)
-
-		//nolint:gosec // ok
-		buildCmd := passthroughStdoutAndStderr(exec.Command(dockerBuildArgs[0], dockerBuildArgs[1:]...))
-
-		if err := buildCmd.Run(); err != nil {
-			return withErr(err)
-		}
-
-		if buildCtx.PublishArtefacts {
-			pushTag := func(tag string) error {
-				printHeading(fmt.Sprintf("Pushing %s", tag))
-
-				pushCmd := passthroughStdoutAndStderr(exec.Command(
-					"docker",
-					"push",
-					tag))
-
-				if err := pushCmd.Run(); err != nil {
-					return err
-				}
-
-				return nil
-			}
-
-			if err := pushTag(tag); err != nil {
-				return withErr(err)
-			}
-
-			if shouldTagLatest {
-				if err := exec.Command("docker", "tag", tag, tagLatest).Run(); err != nil {
-					return withErr(fmt.Errorf("tagging failed %s -> %s failed: %v", tag, tagLatest, err))
-				}
-
-				if err := pushTag(tagLatest); err != nil {
-					return withErr(err)
-				}
-			}
-		}
+	if err := passthroughStdoutAndStderr(exec.Command(args[0], args[1:]...)).Run(); err != nil {
+		return withErr(err)
 	}
 
 	return &imageBuildOutput{
