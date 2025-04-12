@@ -221,14 +221,18 @@ func makeCacheDir(dir string) error {
 		return err
 	}
 
-	// "/go/pkg" => "/tmp/build/go/pkg"
-	cacheCounterpart := filepath.Join("/tmp/build/", dir)
+	cacheCounterpart := makeCachePathHostSide(dir)
 
 	if err := os.MkdirAll(cacheCounterpart, 0755); err != nil {
 		return err
 	}
 
 	return os.Symlink(cacheCounterpart, dir)
+}
+
+// "/go/pkg" => "/tmp/build/go/pkg" (at host-side)
+func makeCachePathHostSide(pathInContainer string) string {
+	return filepath.Join("/tmp/build/", pathInContainer)
 }
 
 func readShimConfig() (*shimConfig, error) {

@@ -72,6 +72,14 @@ func runBuilder(builder bobfile.BuilderSpec, buildCtx *BuildContext, opDesc stri
 		"--volume", "/tmp/build:/tmp/build", // cannot map to /tmp because at least apt won't work (permission issues?)
 	}
 
+	baseImageConf, err := loadNonOptionalBaseImageConf(builder)
+	if err == nil { // it's optional here. used to mount the cache directories
+		for _, pathContainer := range baseImageConf.PathsToCache {
+			pathHostSide := makeCachePathHostSide(pathContainer)
+			buildArgs = append(buildArgs, fmt.Sprintf("--mount=type=bind,source=%s,destination=%s", pathHostSide, pathContainer))
+		}
+	}
+
 	if builder.Workdir != "" {
 		buildArgs = append(buildArgs, "--workdir", builder.Workdir)
 	}
