@@ -13,6 +13,31 @@ Think like GitHub actions, but actually runnable locally (and also runnable from
 Note: while Bob uses containers for builds (and dev), your programs themselves don't need to use containers!
 
 
+Developing
+----------
+
+If you want to use [Turbo Bob](https://github.com/function61/turbobob):
+
+- to build: run `$ bob build`
+- to develop: run `$ bob dev`
+
+If you don't want to use Turbo Bob, to build ..:
+
+```shell
+docker run --rm -it --user 0:1000 -v=$(pwd):/workspace --volume /tmp/build:/tmp/build fn61/buildkit-golang:20250109_1140_037f68db build-go-project.sh --directory=cmd/bob/ --binary-basename=bob
+```
+
+.. and to develop:
+
+```shell
+docker run --rm -it --user 0:1000 -v=$(pwd):/workspace --volume /tmp/build:/tmp/build fn61/buildkit-golang:20250109_1140_037f68db bash
+```
+
+> [!TIP]
+> Builder image [documentation](https://github.com/function61/buildkit-golang) available.
+> Description: Frequently needed tools for building Go-based projects. Internally runs just the regular `$ go build` but also runs tests, lint etc.
+
+
 In a nutshell
 -------------
 
