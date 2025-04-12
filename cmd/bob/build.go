@@ -364,8 +364,10 @@ func build(buildCtx *BuildContext) (*buildOutput, error) {
 		return withErr(err) // err context ok
 	}
 
-	if err := pass("publish", publishPass); err != nil {
-		return withErr(err) // err context ok
+	if buildCtx.PublishArtefacts {
+		if err := pass("publish", publishPass); err != nil {
+			return withErr(err) // err context ok
+		}
 	}
 
 	dockerLoginCache := newDockerRegistryLoginCache()
