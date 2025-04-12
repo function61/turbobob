@@ -14,6 +14,7 @@ import (
 	"github.com/function61/gokit/os/osutil"
 	"github.com/function61/turbobob/pkg/bobfile"
 	"github.com/function61/turbobob/pkg/versioncontrol"
+	ociv1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/spf13/cobra"
 )
 
@@ -165,18 +166,18 @@ func buildAndPushOneDockerImage(dockerImage bobfile.DockerImageSpec, buildCtx *B
 		annotationsKeyValues = append(annotationsKeyValues, fmt.Sprintf("%s=%s", key, value))
 	}
 
-	annotate("org.opencontainers.image.title", buildCtx.Bobfile.ProjectName)
-	annotate("org.opencontainers.image.created", time.Now().UTC().Format(time.RFC3339))
-	annotate("org.opencontainers.image.revision", buildCtx.RevisionId.RevisionId)
-	annotate("org.opencontainers.image.version", buildCtx.RevisionId.FriendlyRevisionId)
-	annotate("org.opencontainers.image.description", buildCtx.Bobfile.Meta.Description)
+	annotate(ociv1.AnnotationTitle, buildCtx.Bobfile.ProjectName)
+	annotate(ociv1.AnnotationCreated, time.Now().UTC().Format(time.RFC3339))
+	annotate(ociv1.AnnotationRevision, buildCtx.RevisionId.RevisionId)
+	annotate(ociv1.AnnotationVersion, buildCtx.RevisionId.FriendlyRevisionId)
+	annotate(ociv1.AnnotationDescription, buildCtx.Bobfile.Meta.Description)
 
 	// "URL to get source code for building the image"
-	annotate("org.opencontainers.image.source", buildCtx.RepositoryURL)
+	annotate(ociv1.AnnotationSource, buildCtx.RepositoryURL)
 	// "URL to find more information on the image"
-	annotate("org.opencontainers.image.url", firstNonEmpty(buildCtx.Bobfile.Meta.Website, buildCtx.RepositoryURL))
+	annotate(ociv1.AnnotationURL, firstNonEmpty(buildCtx.Bobfile.Meta.Website, buildCtx.RepositoryURL))
 	// "URL to get documentation on the image"
-	annotate("org.opencontainers.image.documentation", firstNonEmpty(buildCtx.Bobfile.Meta.Documentation, buildCtx.RepositoryURL))
+	annotate(ociv1.AnnotationDocumentation, firstNonEmpty(buildCtx.Bobfile.Meta.Documentation, buildCtx.RepositoryURL))
 
 	// "" => "."
 	// "Dockerfile" => "."
