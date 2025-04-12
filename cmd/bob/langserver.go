@@ -14,15 +14,26 @@ import (
 )
 
 func langserverEntry() *cobra.Command {
+	lang := ""
+
 	cmd := &cobra.Command{
 		Use:   "langserver",
 		Short: "Launch a langserver process. Must be run in project's root dir. Intended to be run by your editor.",
 		Args:  cobra.NoArgs,
-		Run: func(cmd *cobra.Command, args []string) {
-			osutil.ExitIfError(langserverRunShim(
-				osutil.CancelOnInterruptOrTerminate(nil)))
+		Run: func(cmd *cobra.Command, _ []string) {
+			if lang != "" { // explicit requested language (not defined by project)
+				osutil.ExitIfError(langserverRunGeneric(osutil.CancelOnInterruptOrTerminate(nil), lang))
+				return
+			} else {
+				// project's defined langserver
+				osutil.ExitIfError(langserverRunShim(
+					osutil.CancelOnInterruptOrTerminate(nil)))
+
+			}
 		},
 	}
+
+	cmd.Flags().StringVarP(&lang, "lang-generic", "", "", "Generic (= defined outside of project) language server to start")
 
 	return cmd
 }
@@ -72,4 +83,57 @@ func langserverRunShim(ctx context.Context) error {
 	langserver.Stderr = os.Stderr
 
 	return langserver.Run()
+}
+
+func langserverRunGeneric(ctx context.Context, language string) error {
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	type langServerImage struct {
+		ref  string
+		args []string
+	}
+
+	// NOTE: need for `--clientProcessId=1` see https://github.com/denoland/deno/issues/22012
+	knownGenericServers := map[string]langServerImage{
+		"bash": {ref: "ghcr.io/r-xs-fi/bash-language-server", args: []string{"start", "--clientProcessId=1"}},
+		"json": {ref: "ghcr.io/r-xs-fi/vscode-langservers-extracted", args: []string{"vscode-json-language-server", "--stdio", "--clientProcessId=1"}},
+		"css":  {ref: "ghcr.io/r-xs-fi/vscode-langservers-extracted", args: []string{"vscode-css-language-server", "--stdio", "--clientProcessId=1"}},
+		"html": {ref: "ghcr.io/r-xs-fi/vscode-langservers-extracted", args: []string{"vscode-html-language-server", "--stdio", "--clientProcessId=1"}},
+		// TODO: add markdown server when upstream project supports it
+	}
+
+	server, found := knownGenericServers[language]
+	if !found {
+		return fmt.Errorf("generic language server not found for: %s", language)
+	}
+
+	args := []string{"docker", "run", "--rm", "--interactive", "--workdir=" + wd, "--volume=" + wd + ":" + wd, server.ref}
+	args = append(args, server.args...)
+
+	lspServer := exec.CommandContext(ctx, args[0], args[1:]...)
+	/*
+		if strace := false; strace {
+			// TODO: don't limit string lengths
+			args = append(args, "strace")
+
+			if followForks := false; followForks {
+				args = append(args, "--follow-forks")
+			}
+		}
+		args = append(args, extraArgs...)
+
+		cmd := exec.CommandContext(ctx, args[0], args[1:]...)
+		cmd.Stdin = io.TeeReader(os.Stdin, lspstdin)
+		cmd.Stdout = io.MultiWriter(os.Stdout, lsplog)
+		// cmd.Stderr = os.Stderr
+		cmd.Stderr = lsplogStderr
+	*/
+	lspServer.Stdin = os.Stdin
+	lspServer.Stdout = os.Stdout
+	lspServer.Stderr = os.Stderr // not used officially by LSP, but good to have errors from Docker etc. that could be shown in error logs of LSP client
+
+	return lspServer.Run()
 }
