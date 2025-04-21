@@ -49,7 +49,7 @@ func langserverRunShim(ctx context.Context) error {
 	langserverCmd, builder, err := func() ([]string, *bobfile.BuilderSpec, error) {
 		for _, builder := range projectFile.Builders {
 			// FIXME: this assumes all builders have a config file defined
-			baseImageConf, err := loadNonOptionalBaseImageConf(builder)
+			baseImageConf, err := loadNonOptionalBaseImageConf(projectFile.ProjectName, builder)
 			if err != nil {
 				return nil, nil, fmt.Errorf("loadNonOptionalBaseImageConf: %w", err)
 			}

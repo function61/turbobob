@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"os/exec"
 
@@ -55,24 +54,8 @@ func loadBaseImageConfWhenInsideContainer() (*BaseImageConfig, error) {
 
 // non-optional because the implementation makes it a bit hard to check if the file exists
 // (vs. Docker run error), and our current callsite needs non-optional anyway
-func loadNonOptionalBaseImageConf(builder bobfile.BuilderSpec) (*BaseImageConfig, error) {
-	dockerImage, err := func() (string, error) {
-		kind, data, err := parseBuilderUsesType(builder.Uses)
-		if err != nil {
-			return "", err
-		}
-
-		//nolint:exhaustive
-		switch kind {
-		case builderUsesTypeImage:
-			return data, nil
-		default:
-			return "", errors.New("cannot load base image config from non-Docker-image builder")
-		}
-	}()
-	if err != nil {
-		return nil, err
-	}
+func loadNonOptionalBaseImageConf(projectName string, builder bobfile.BuilderSpec) (*BaseImageConfig, error) {
+	dockerImage := builderImageName(projectName, builder)
 
 	// unfortunately there isn't a good high-level way to grab a file from a Docker image, so that's
 	// why we have to create a container to get it

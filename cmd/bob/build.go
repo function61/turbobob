@@ -47,7 +47,7 @@ func runBuilder(builder bobfile.BuilderSpec, buildCtx *BuildContext, opDesc stri
 		// the "$ docker run ..." later would do an implicit pull, but let's do an explicit pull
 		// here in order to nicely put the download progress output in its own log line group
 		if err := withLogLineGroup(fmt.Sprintf("%s > pull", builderNameOpDesc), func() error {
-			return dockerPullIfRequired(builderImageName(buildCtx.Bobfile, builder))
+			return dockerPullIfRequired(builderImageName(buildCtx.Bobfile.ProjectName, builder))
 		}); err != nil {
 			return err
 		}
@@ -72,7 +72,7 @@ func runBuilder(builder bobfile.BuilderSpec, buildCtx *BuildContext, opDesc stri
 		"--volume", "/tmp/build:/tmp/build", // cannot map to /tmp because at least apt won't work (permission issues?)
 	}
 
-	baseImageConf, err := loadNonOptionalBaseImageConf(builder)
+	baseImageConf, err := loadNonOptionalBaseImageConf(buildCtx.Bobfile.ProjectName, builder)
 	if err == nil { // it's optional here. used to mount the cache directories
 		for _, pathContainer := range baseImageConf.PathsToCache {
 			pathHostSide := makeCachePathHostSide(pathContainer)
@@ -104,7 +104,7 @@ func runBuilder(builder bobfile.BuilderSpec, buildCtx *BuildContext, opDesc stri
 		return errEnv
 	}
 
-	buildArgs = append(buildArgs, builderImageName(buildCtx.Bobfile, builder))
+	buildArgs = append(buildArgs, builderImageName(buildCtx.Bobfile.ProjectName, builder))
 
 	if len(cmdToRun) > 0 {
 		buildArgs = append(buildArgs, cmdToRun...)

@@ -192,7 +192,7 @@ func devCommand(builderName string, envsAreRequired bool, ignoreNag bool) ([]str
 			dockerCmd = append(dockerCmd, "--volume", ourPath+":/bin/bob:ro")
 		}
 
-		dockerCmd = append(dockerCmd, builderImageName(bobfile, *builder))
+		dockerCmd = append(dockerCmd, builderImageName(bobfile.ProjectName, *builder))
 
 		if useShim {
 			// inject a shim to start the shell indirectly, so we can do preparations like:

@@ -39,7 +39,7 @@ func containerNameInternal(kind string, bobfile *bobfile.Bobfile, builder bobfil
 
 }
 
-func builderImageName(bobfile *bobfile.Bobfile, builder bobfile.BuilderSpec) string {
+func builderImageName(projectName string, builder bobfile.BuilderSpec) string {
 	builderType, ref, err := parseBuilderUsesType(builder.Uses)
 	if err != nil {
 		panic(err)
@@ -49,14 +49,14 @@ func builderImageName(bobfile *bobfile.Bobfile, builder bobfile.BuilderSpec) str
 	case builderUsesTypeImage:
 		return ref // "image:tag"
 	case builderUsesTypeDockerfile:
-		return "tb-" + bobfile.ProjectName + "-builder-" + builder.Name
+		return "tb-" + projectName + "-builder-" + builder.Name
 	default:
 		panic("unknown builderType")
 	}
 }
 
 func buildBuilder(bobfile *bobfile.Bobfile, builder *bobfile.BuilderSpec) error {
-	imageName := builderImageName(bobfile, *builder)
+	imageName := builderImageName(bobfile.ProjectName, *builder)
 
 	builderUsesType, dockerfilePath, err := parseBuilderUsesType(builder.Uses)
 	if err != nil {
