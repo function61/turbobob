@@ -207,8 +207,16 @@ func buildAndPushOneDockerImage(dockerImage bobfile.DockerImageSpec, buildCtx *B
 		"--tag=" + tag,
 	}
 
-	if len(dockerImage.Platforms) > 0 {
-		args = append(args, "--platform="+strings.Join(dockerImage.Platforms, ","))
+	platformsToBuildFor := func() []string {
+		if buildCtx.FastBuild {
+			return nil // don't specify platform explicitly => Docker assumes currently running platform
+		} else {
+			return dockerImage.Platforms
+		}
+	}()
+
+	for _, platformToBuildFor := range platformsToBuildFor {
+		args = append(args, "--platform="+platformToBuildFor)
 	}
 
 	// https://docs.docker.com/reference/cli/docker/buildx/build/#annotation
