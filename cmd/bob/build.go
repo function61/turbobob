@@ -75,7 +75,10 @@ func runBuilder(builder bobfile.BuilderSpec, buildCtx *BuildContext, opDesc stri
 	baseImageConf, err := loadNonOptionalBaseImageConf(buildCtx.Bobfile.ProjectName, builder)
 	if err == nil { // it's optional here. used to mount the cache directories
 		for _, pathContainer := range baseImageConf.PathsToCache {
-			pathHostSide := makeCachePathHostSide(pathContainer)
+			pathHostSide, err := makeCachePathHostSide(pathContainer)
+			if err != nil {
+				return err
+			}
 			buildArgs = append(buildArgs, fmt.Sprintf("--mount=type=bind,source=%s,destination=%s", pathHostSide, pathContainer))
 		}
 	}
