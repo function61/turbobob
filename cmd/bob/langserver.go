@@ -92,11 +92,14 @@ func langserverRunGeneric(ctx context.Context, language string) error {
 	}
 
 	type langServerImage struct {
-		ref  string
-		args []string
+		ref        string
+		args       []string
+		dockerOpts []string
 	}
 
 	// NOTE: need for `--clientProcessId=1` see https://github.com/denoland/deno/issues/22012
+	//
+	// more idiocy: https://github.com/microsoft/vscode-languageserver-node/blob/d58c00bbf8837b9fd0144924db5e7b1c543d839e/server/src/node/main.ts#L78-L104
 	knownGenericServers := map[string]langServerImage{
 		"bash": {ref: "ghcr.io/r-xs-fi/bash-language-server", args: []string{"start", "--clientProcessId=1"}},
 		"json": {ref: "ghcr.io/r-xs-fi/vscode-langservers-extracted", args: []string{"vscode-json-language-server", "--stdio", "--clientProcessId=1"}},
@@ -110,7 +113,9 @@ func langserverRunGeneric(ctx context.Context, language string) error {
 		return fmt.Errorf("generic language server not found for: %s", language)
 	}
 
-	args := []string{"docker", "run", "--rm", "--interactive", "--workdir=" + wd, "--volume=" + wd + ":" + wd, server.ref}
+	args := []string{"docker", "run", "--rm", "--interactive", "--workdir=" + wd, "--volume=" + wd + ":" + wd}
+	args = append(args, server.dockerOpts...)
+	args = append(args, server.ref)
 	args = append(args, server.args...)
 
 	lspServer := exec.CommandContext(ctx, args[0], args[1:]...)
