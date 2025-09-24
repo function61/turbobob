@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	baseImageJsonLocation = "/turbobob-baseimage.json"
+	baseImageJSONLocation = "/turbobob-baseimage.json"
 )
 
 // base image conf JSON - able to provide hints for useful commands, setting up cache paths etc.
@@ -33,7 +33,7 @@ type LangserverSpec struct {
 // base image conf is optional. if it doesn't exist, an empty (but valid) conf will be
 // returned without error
 func loadBaseImageConfWhenInsideContainer() (*BaseImageConfig, error) {
-	exists, err := osutil.Exists(baseImageJsonLocation)
+	exists, err := osutil.Exists(baseImageJSONLocation)
 	if err != nil {
 		return nil, fmt.Errorf("loadBaseImageConfWhenInsideContainer: %w", err)
 	}
@@ -43,7 +43,7 @@ func loadBaseImageConfWhenInsideContainer() (*BaseImageConfig, error) {
 	}
 
 	conf := &BaseImageConfig{}
-	if err := jsonfile.ReadDisallowUnknownFields(baseImageJsonLocation, conf); err != nil {
+	if err := jsonfile.ReadDisallowUnknownFields(baseImageJSONLocation, conf); err != nil {
 		return nil, fmt.Errorf("loadBaseImageConfWhenInsideContainer: %w", err)
 	}
 
@@ -59,7 +59,7 @@ func loadNonOptionalBaseImageConf(projectName string, builder bobfile.BuilderSpe
 
 	// unfortunately there isn't a good high-level way to grab a file from a Docker image, so that's
 	// why we have to create a container to get it
-	content, err := exec.Command("docker", "run", "--rm", dockerImage, "cat", baseImageJsonLocation).Output()
+	content, err := exec.Command("docker", "run", "--rm", dockerImage, "cat", baseImageJSONLocation).Output()
 	if err != nil {
 		return nil, err
 	}

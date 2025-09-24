@@ -8,9 +8,9 @@ var (
 	ErrBuilderNotFound             = errors.New("builder not found")
 	ErrBobfileNotFound             = errors.New("turbobob.json does not exist. Run $ bob tools init")
 	ErrInitBobfileExists           = errors.New("cannot init; Bobfile already exists")
-	ErrUnsupportedBobfileVersion   = errors.New("Unsupported Bobfile version")
-	ErrInvalidDockerCredsEnvFormat = errors.New("Invalid format for DOCKER_CREDS")
-	ErrUnableToParseDockerTag      = errors.New("Unable to parse Docker tag")
+	ErrUnsupportedBobfileVersion   = errors.New("unsupported Bobfile version")
+	ErrInvalidDockerCredsEnvFormat = errors.New("invalid format for DOCKER_CREDS")
+	ErrUnableToParseDockerTag      = errors.New("unable to parse Docker tag")
 	ErrIncorrectFileDescriptionBp  = errors.New("you are not supposed to change FileDescriptionBoilerplate")
 )
 

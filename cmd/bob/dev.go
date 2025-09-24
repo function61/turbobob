@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -143,12 +142,12 @@ func devCommand(builderName string, envsAreRequired bool, ignoreNag bool) ([]str
 			dockerCmd = append(dockerCmd, "--publish", port)
 		}
 
-		devHttpIngress, ingressHostname := setupDevIngress(
+		devHTTPIngress, ingressHostname := setupDevIngress(
 			builder,
 			userConfig.DevIngressSettings,
 			bobfile)
-		if len(devHttpIngress) > 0 {
-			dockerCmd = append(dockerCmd, devHttpIngress...)
+		if len(devHTTPIngress) > 0 {
+			dockerCmd = append(dockerCmd, devHTTPIngress...)
 
 			shimCfg.DynamicProTipsFromHost = append(shimCfg.DynamicProTipsFromHost, fmt.Sprintf("dev ingress: https://%s/", ingressHostname))
 		}
@@ -159,7 +158,7 @@ func devCommand(builderName string, envsAreRequired bool, ignoreNag bool) ([]str
 		var errEnv error
 		dockerCmd, errEnv = dockerRelayEnvVars(
 			dockerCmd,
-			revisionIdForDev(),
+			revisionIDForDev(),
 			*builder,
 			envsAreRequired,
 			archesToBuildFor,
@@ -177,7 +176,7 @@ func devCommand(builderName string, envsAreRequired bool, ignoreNag bool) ([]str
 
 			// this needs to be dynamic, because on the host side there must be a unique dir
 			// per dev container
-			shimDataDirHost, err := ioutil.TempDir("", "bob-shim-")
+			shimDataDirHost, err := os.MkdirTemp("", "bob-shim-")
 			if err != nil {
 				return nil, err
 			}
@@ -265,12 +264,12 @@ func currentRunningGoOsArchToOsArchCode() OsArchCode {
 }
 
 // TODO: maybe merge with resolveMetadataFromVersionControl(.., false)
-func revisionIdForDev() *versioncontrol.RevisionId {
-	return &versioncontrol.RevisionId{
+func revisionIDForDev() *versioncontrol.RevisionID {
+	return &versioncontrol.RevisionID{
 		VcKind:             "managedByCi", // FIXME
-		RevisionId:         "dev",
-		RevisionIdShort:    "dev",
-		FriendlyRevisionId: "dev",
+		RevisionID:         "dev",
+		RevisionIDShort:    "dev",
+		FriendlyRevisionID: "dev",
 	}
 }
 

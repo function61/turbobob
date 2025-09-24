@@ -79,7 +79,7 @@ type devIngressSettings struct {
 
 func (d devIngressSettings) Validate() error {
 	if d.Domain == "" {
-		return errors.New("Domain must not be empty")
+		return errors.New("'domain' must not be empty")
 	}
 
 	return nil

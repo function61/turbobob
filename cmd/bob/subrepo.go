@@ -26,11 +26,12 @@ func ensureSubrepoCloned(destination string, subrepo bobfile.SubrepoSpec) error 
 	}
 
 	if err := repo.CloneFrom(subrepo.Source); err != nil {
-		return fmt.Errorf("CloneFrom: %v", err)
+		return fmt.Errorf("CloneFrom: %w", err)
 	}
 
 	if err := repo.Update(subrepo.Revision); err != nil {
-		return fmt.Errorf("Update: %v", err)
+		//nolint:staticcheck
+		return fmt.Errorf("Update: %w", err)
 	}
 
 	return nil

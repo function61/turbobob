@@ -16,13 +16,13 @@ func info() error {
 		return err
 	}
 
-	revisionId := buildCtx.RevisionId // shorthand
+	revisionID := buildCtx.RevisionID // shorthand
 
 	basicDetails := termtables.CreateTable()
 	basicDetails.AddRow("Project name", buildCtx.Bobfile.ProjectName)
-	basicDetails.AddRow("VcKind", revisionId.VcKind)
-	basicDetails.AddRow("Revision ID (full)", fmt.Sprintf("%s (%s)", revisionId.RevisionIdShort, revisionId.RevisionId))
-	basicDetails.AddRow("Friendly revision", revisionId.FriendlyRevisionId)
+	basicDetails.AddRow("VcKind", revisionID.VcKind)
+	basicDetails.AddRow("Revision ID (full)", fmt.Sprintf("%s (%s)", revisionID.RevisionIDShort, revisionID.RevisionID))
+	basicDetails.AddRow("Friendly revision", revisionID.FriendlyRevisionID)
 
 	fmt.Printf("BASIC DETAILS\n%s\n", basicDetails.Render())
 

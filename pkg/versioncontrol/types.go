@@ -20,11 +20,11 @@ type Interface interface {
 	Update(revision string) error
 }
 
-type RevisionId struct {
+type RevisionID struct {
 	VcKind             string // git | hg | managedByCi
-	RevisionId         string
-	RevisionIdShort    string
-	FriendlyRevisionId string
+	RevisionID         string
+	RevisionIDShort    string
+	FriendlyRevisionID string
 }
 
 type Kind string

@@ -8,27 +8,27 @@ import (
 	"github.com/function61/gokit/os/osutil"
 )
 
-func CurrentRevisionId(vc Interface, onlyCommitted bool) (*RevisionId, error) {
-	revisionId, revisionTimestamp, err := vc.Identify()
+func CurrentRevisionID(vc Interface, onlyCommitted bool) (*RevisionID, error) {
+	revisionID, revisionTimestamp, err := vc.Identify()
 	if err != nil {
 		return nil, err
 	}
 
 	// https://stackoverflow.com/questions/18134627/how-much-of-a-git-sha-is-generally-considered-necessary-to-uniquely-identify-a
-	revisionIdShort := revisionId[0:8]
-	friendlyRevId := revisionTimestamp.Format("20060102_1504") + "_" + revisionIdShort
+	revisionIDShort := revisionID[0:8]
+	friendlyRevID := revisionTimestamp.Format("20060102_1504") + "_" + revisionIDShort
 
 	if !onlyCommitted {
-		revisionId += "-uncommitted"
-		revisionIdShort += "-uncommitted"
-		friendlyRevId = time.Now().Format("20060102_1504") + "_" + revisionIdShort
+		revisionID += "-uncommitted"
+		revisionIDShort += "-uncommitted"
+		friendlyRevID = time.Now().Format("20060102_1504") + "_" + revisionIDShort
 	}
 
-	return &RevisionId{
+	return &RevisionID{
 		VcKind:             vc.VcKind(),
-		RevisionId:         revisionId,
-		RevisionIdShort:    revisionIdShort,
-		FriendlyRevisionId: friendlyRevId,
+		RevisionID:         revisionID,
+		RevisionIDShort:    revisionIDShort,
+		FriendlyRevisionID: friendlyRevID,
 	}, nil
 }
 

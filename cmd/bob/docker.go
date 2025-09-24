@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -26,17 +25,7 @@ func isDevContainerRunning(containerName string) bool {
 }
 
 func devContainerName(bobfile *bobfile.Bobfile, builder bobfile.BuilderSpec) string {
-	return containerNameInternal("dev", bobfile, builder)
-}
-
-func langServerContainerName(bobfile *bobfile.Bobfile, builder bobfile.BuilderSpec) string {
-	return containerNameInternal("langserver", bobfile, builder)
-}
-
-// do not use directly
-func containerNameInternal(kind string, bobfile *bobfile.Bobfile, builder bobfile.BuilderSpec) string {
-	return fmt.Sprintf("tb%s-%s-%s", kind, bobfile.ProjectName, builder.Name)
-
+	return fmt.Sprintf("tbdev-%s-%s", bobfile.ProjectName, builder.Name)
 }
 
 func builderImageName(projectName string, builder bobfile.BuilderSpec) string {
@@ -72,7 +61,7 @@ func buildBuilder(bobfile *bobfile.Bobfile, builder *bobfile.BuilderSpec) error 
 	imageBuildCmd, err := func() (*exec.Cmd, error) {
 		// provide Dockerfile from stdin for contextless build
 		if builder.ContextlessBuild {
-			dockerfileContent, err := ioutil.ReadFile(dockerfilePath)
+			dockerfileContent, err := os.ReadFile(dockerfilePath)
 			if err != nil {
 				return nil, err
 			}
@@ -114,7 +103,7 @@ func buildBuilder(bobfile *bobfile.Bobfile, builder *bobfile.BuilderSpec) error 
 
 func dockerRelayEnvVars(
 	dockerArgs []string,
-	revisionId *versioncontrol.RevisionId,
+	revisionID *versioncontrol.RevisionID,
 	builder bobfile.BuilderSpec,
 	envsAreRequired bool,
 	osArches bobfile.OsArchesSpec,
@@ -125,9 +114,9 @@ func dockerRelayEnvVars(
 		dockerArgs = append(dockerArgs, "--env", key+"="+value)
 	}
 
-	env("FRIENDLY_REV_ID", revisionId.FriendlyRevisionId)
-	env("REV_ID", revisionId.RevisionId)
-	env("REV_ID_SHORT", revisionId.RevisionIdShort)
+	env("FRIENDLY_REV_ID", revisionID.FriendlyRevisionID)
+	env("REV_ID", revisionID.RevisionID)
+	env("REV_ID_SHORT", revisionID.RevisionIDShort)
 
 	for _, envKey := range builder.PassEnvs {
 		envValue := os.Getenv(envKey)

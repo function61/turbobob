@@ -57,7 +57,7 @@ func initGuessFromDockerfile() error {
 
 			return []string{"bash", "-c", script}, nil
 		} else { // exec form
-			return []string(runCommand.CmdLine), nil
+			return runCommand.CmdLine, nil
 		}
 	}()
 	if err != nil {

@@ -145,7 +145,7 @@ type BuilderSpec struct {
 	Workdir          string            `json:"workdir,omitempty"`
 	Commands         BuilderCommands   `json:"commands"` // commands used to build / develop / etc. the project
 	DevPorts         []string          `json:"dev_ports,omitempty"`
-	DevHttpIngress   string            `json:"dev_http_ingress,omitempty" jsonschema:"example=80"`
+	DevHTTPIngress   string            `json:"dev_http_ingress,omitempty" jsonschema:"example=80"`
 	DevProTips       []string          `json:"dev_pro_tips,omitempty"`       // pro-tips e.g. commands the user can run inside the builder to lint / launch / etc. the project
 	DevShellCommands []DevShellCommand `json:"dev_shell_commands,omitempty"` // injected as history for quick recall (ctrl + r)
 	Envs             map[string]string `json:"env,omitempty"`
@@ -169,6 +169,7 @@ type DockerImageSpec struct {
 // FIXME: Bobfile should actually be read only after correct
 // revision has been checked out from VCs
 func Read() (*Bobfile, error) {
+	//nolint:unparam
 	withErr := func(err error) (*Bobfile, error) { return nil, fmt.Errorf("bobfile.Read: %w", err) }
 
 	bobfileFile, err := func() (io.ReadCloser, error) {

@@ -27,7 +27,7 @@ type BuildContext struct {
 	BuilderNameFilter string
 	ENVsAreRequired   bool
 	VersionControl    versioncontrol.Interface
-	RevisionId        *versioncontrol.RevisionId
+	RevisionID        *versioncontrol.RevisionID
 	Debug             bool   // enables additional debugging or verbose logging
 	FastBuild         bool   // skip all non-essential steps (linting, testing etc.) to build faster
 	RepositoryURL     string // human-visitable URL, like "https://github.com/function61/turbobob"
@@ -97,7 +97,7 @@ func runBuilder(builder bobfile.BuilderSpec, buildCtx *BuildContext, opDesc stri
 	// inserts ["--env", "FOO"] pairs for each PassEnvs
 	buildArgs, errEnv := dockerRelayEnvVars(
 		buildArgs,
-		buildCtx.RevisionId,
+		buildCtx.RevisionID,
 		builder,
 		buildCtx.ENVsAreRequired,
 		archesToBuildFor,
@@ -149,7 +149,7 @@ func buildAndPushOneDockerImage(dockerImage bobfile.DockerImageSpec, buildCtx *B
 	}
 
 	tagWithoutVersion := dockerImage.Image
-	tag := tagWithoutVersion + ":" + buildCtx.RevisionId.FriendlyRevisionId
+	tag := tagWithoutVersion + ":" + buildCtx.RevisionID.FriendlyRevisionID
 	tagLatest := tagWithoutVersion + ":latest"
 	dockerfilePath := dockerImage.DockerfilePath
 
@@ -179,8 +179,8 @@ func buildAndPushOneDockerImage(dockerImage bobfile.DockerImageSpec, buildCtx *B
 
 	annotate(ociv1.AnnotationTitle, buildCtx.Bobfile.ProjectName)
 	annotate(ociv1.AnnotationCreated, time.Now().UTC().Format(time.RFC3339))
-	annotate(ociv1.AnnotationRevision, buildCtx.RevisionId.RevisionId)
-	annotate(ociv1.AnnotationVersion, buildCtx.RevisionId.FriendlyRevisionId)
+	annotate(ociv1.AnnotationRevision, buildCtx.RevisionID.RevisionID)
+	annotate(ociv1.AnnotationVersion, buildCtx.RevisionID.FriendlyRevisionID)
 	annotate(ociv1.AnnotationDescription, buildCtx.Bobfile.Meta.Description)
 
 	// "URL to get source code for building the image"
@@ -241,6 +241,7 @@ func buildAndPushOneDockerImage(dockerImage bobfile.DockerImageSpec, buildCtx *B
 		args = append(args, "--push")
 	}
 
+	//nolint:gosec // ok
 	if err := passthroughStdoutAndStderr(exec.Command(args[0], args[1:]...)).Run(); err != nil {
 		return withErr(err)
 	}
@@ -296,9 +297,9 @@ func cloneToWorkdir(buildCtx *BuildContext) error {
 		return err
 	}
 
-	printHeading(fmt.Sprintf("Updating to %s", buildCtx.RevisionId.RevisionId))
+	printHeading(fmt.Sprintf("Updating to %s", buildCtx.RevisionID.RevisionID))
 
-	if err := workspaceRepo.Update(buildCtx.RevisionId.RevisionId); err != nil {
+	if err := workspaceRepo.Update(buildCtx.RevisionID.RevisionID); err != nil {
 		return err
 	}
 
@@ -330,8 +331,6 @@ func build(buildCtx *BuildContext) (*buildOutput, error) {
 	// to include modification check for the Dockerfile and all of its build context, so we're just
 	// best off calling Docker build because it is the best at detecting cache invalidation.
 	for _, builder := range buildCtx.Bobfile.Builders {
-		builder := builder // pin
-
 		if buildCtx.BuilderNameFilter != "" && builder.Name != buildCtx.BuilderNameFilter {
 			continue
 		}
@@ -440,7 +439,7 @@ func constructBuildContext(
 		return nil, errVcDetermine
 	}
 
-	metadata, err := versioncontrol.CurrentRevisionId(versionControl, onlyCommitted)
+	metadata, err := versioncontrol.CurrentRevisionID(versionControl, onlyCommitted)
 	if err != nil {
 		return nil, err
 	}
@@ -456,7 +455,7 @@ func constructBuildContext(
 	buildCtx := &BuildContext{
 		Bobfile:           bobfile,
 		PublishArtefacts:  publishArtefacts,
-		RevisionId:        metadata,
+		RevisionID:        metadata,
 		OriginDir:         repoOriginDir,
 		WorkspaceDir:      workspaceDir,
 		CloningStepNeeded: cloningStepNeeded,

@@ -74,6 +74,8 @@ func langserverRunShim(ctx context.Context, langCodeRequested string) error {
 		return err
 	}
 
+	// LSP process needs to run in the dev container (not a separate langserver container) because it might need access
+	// to compiler cache, built object files etc.
 	containerName := devContainerName(projectFile, *builder)
 
 	if !isDevContainerRunning(containerName) {
@@ -125,6 +127,7 @@ func langserverRunGeneric(ctx context.Context, language string) error {
 	args = append(args, server.ref)
 	args = append(args, server.args...)
 
+	//nolint:gosec // ok
 	lspServer := exec.CommandContext(ctx, args[0], args[1:]...)
 	/*
 		if strace := false; strace {

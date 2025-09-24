@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -69,7 +68,7 @@ func writeBoilerplate(filePath string, content string) error {
 		return fmt.Errorf("CI boilerplate '%s' already exists", filePath)
 	}
 
-	return ioutil.WriteFile(
+	return os.WriteFile(
 		filePath,
 		[]byte(content),
 		osutil.FileMode(osutil.OwnerRW, osutil.GroupRW, osutil.OtherNone))
@@ -127,18 +126,18 @@ func writeBobfileIfNotExists(content bobfile.Bobfile) error {
 		return bobfile.ErrInitBobfileExists
 	}
 
-	asJson, errJson := json.MarshalIndent(&content, "", "\t")
-	if errJson != nil {
-		return errJson
+	asJSON, errJSON := json.MarshalIndent(&content, "", "\t")
+	if errJSON != nil {
+		return errJSON
 	}
 
 	if err := os.MkdirAll(filepath.Dir(bobfile.Name), 0755); err != nil {
 		return err
 	}
 
-	return ioutil.WriteFile(
+	return os.WriteFile(
 		bobfile.Name,
-		[]byte(fmt.Sprintf("%s\n", asJson)),
+		[]byte(fmt.Sprintf("%s\n", asJSON)),
 		osutil.FileMode(osutil.OwnerRW, osutil.GroupRW, osutil.OtherNone))
 }
 

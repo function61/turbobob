@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -191,7 +190,7 @@ func customizePrompt() error {
 	// Bob makes a pretty Powerline-inspired prompt (https://github.com/powerline/powerline)
 
 	//nolint:gosec // ok
-	return ioutil.WriteFile("/root/.bashrc", []byte(`
+	return os.WriteFile("/root/.bashrc", []byte(`
 # customization written by Turbo Bob
 export PS1="\$(bob powerline \$?)"
 `), 0755)

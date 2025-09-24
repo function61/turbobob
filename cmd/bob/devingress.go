@@ -14,11 +14,11 @@ func setupDevIngress(
 	ingressSettings devIngressSettings,
 	bobfile *bobfile.Bobfile,
 ) ([]string, string) {
-	if builder.DevHttpIngress == "" {
+	if builder.DevHTTPIngress == "" {
 		return nil, ""
 	}
 
-	containerPort := builder.DevHttpIngress
+	containerPort := builder.DevHTTPIngress
 
 	if err := ingressSettings.Validate(); err != nil {
 		fmt.Fprintf(os.Stderr, "WARN: cannot setup DevHttpIngress because user's config: %v\n", err)
@@ -28,12 +28,12 @@ func setupDevIngress(
 	// "joonas.fi-blog" => "joonas-fi-blog"
 	// don't accept multi-level subdomains because wildcard TLS certs only apply
 	// one level.
-	ingressAppId := strings.ReplaceAll(bobfile.ProjectName, ".", "-")
+	ingressAppID := strings.ReplaceAll(bobfile.ProjectName, ".", "-")
 	if builder.Name != "default" {
-		ingressAppId += "-" + builder.Name
+		ingressAppID += "-" + builder.Name
 	}
 
-	ingressHostname := ingressAppId + "." + ingressSettings.Domain
+	ingressHostname := ingressAppID + "." + ingressSettings.Domain
 
 	labels := []string{
 		// Edgerouter needs explicit opt-in for "no auth" to not accidentally expose private services

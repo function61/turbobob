@@ -13,11 +13,11 @@ func NewMercurial(dir string) Interface {
 	return &Mercurial{dir: dir}
 }
 
-func (g *Mercurial) VcKind() string {
+func (m *Mercurial) VcKind() string {
 	return "hg"
 }
 
-func (g *Mercurial) WithAnotherDir(dir string) Interface {
+func (m *Mercurial) WithAnotherDir(dir string) Interface {
 	return &Mercurial{dir: dir}
 }
 

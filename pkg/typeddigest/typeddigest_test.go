@@ -34,7 +34,6 @@ func TestParse(t *testing.T) {
 			"ERROR: typeddigest.Parse: encoding/hex: invalid byte: U+006E 'n'",
 		},
 	} {
-		tc := tc // pin
 		t.Run(tc.input, func(t *testing.T) {
 			th, err := Parse(tc.input)
 			asOutput := func() string {
