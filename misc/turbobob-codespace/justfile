@@ -1,0 +1,12 @@
+# see https://github.com/casey/just
+
+# first is default recipe
+default:
+     @just --choose --justfile {{justfile()}}
+
+build:
+     docker buildx build --tag=ghcr.io/function61/turbobob-codespace:latest .
+
+build-and-push:
+     docker buildx build --tag=ghcr.io/function61/turbobob-codespace:latest --push .
+

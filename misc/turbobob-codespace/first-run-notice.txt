@@ -1,0 +1,8 @@
+👋 Welcome to Turbo Bob -managed codespace!
+
+To build this project, run:
+  $ bob build --fast --uncommitted
+
+To enter the container used by Turbo Bob for builds, but for development purpose, run:
+  $ bob dev
+
