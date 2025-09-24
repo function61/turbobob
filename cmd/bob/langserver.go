@@ -10,36 +10,41 @@ import (
 
 	"github.com/function61/gokit/os/osutil"
 	"github.com/function61/turbobob/pkg/bobfile"
+	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 )
 
 func langserverEntry() *cobra.Command {
 	lang := ""
+	langGeneric := ""
 
 	cmd := &cobra.Command{
 		Use:   "langserver",
 		Short: "Launch a langserver process. Must be run in project's root dir. Intended to be run by your editor.",
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, _ []string) {
-			if lang != "" { // explicit requested language (not defined by project)
-				osutil.ExitIfError(langserverRunGeneric(osutil.CancelOnInterruptOrTerminate(nil), lang))
+			if langGeneric != "" { // explicit requested language (not defined by project)
+				osutil.ExitIfError(langserverRunGeneric(osutil.CancelOnInterruptOrTerminate(nil), langGeneric))
 				return
 			} else {
 				// project's defined langserver
 				osutil.ExitIfError(langserverRunShim(
-					osutil.CancelOnInterruptOrTerminate(nil)))
+					osutil.CancelOnInterruptOrTerminate(nil),
+					lang))
 
 			}
 		},
 	}
 
-	cmd.Flags().StringVarP(&lang, "lang-generic", "", "", "Generic (= defined outside of project) language server to start")
+	cmd.Flags().StringVarP(&lang, "lang-from-project", "", lang, "Language (go / ts / ...) whose language server to start")
+	cmd.Flags().StringVarP(&langGeneric, "lang-generic", "", langGeneric, "Generic (= defined outside of project) language server to start")
 
 	return cmd
 }
 
-// automatically detects which project this invocation concerns
-func langserverRunShim(ctx context.Context) error {
+// automatically detects which project this invocation concerns.
+// if `langCodeRequested` empty, accepts first language server that is found from builders.
+func langserverRunShim(ctx context.Context, langCodeRequested string) error {
 	// access chosen project's details (so we know which langserver to start)
 	projectFile, err := bobfile.Read()
 	if err != nil {
@@ -54,11 +59,13 @@ func langserverRunShim(ctx context.Context) error {
 				return nil, nil, fmt.Errorf("loadNonOptionalBaseImageConf: %w", err)
 			}
 
-			if baseImageConf.Langserver == nil {
+			lsDetails := baseImageConf.Langserver
+			languageMatches := langCodeRequested == "" || lo.Contains(lsDetails.Languages, langCodeRequested)
+			if lsDetails == nil || !languageMatches {
 				continue
 			}
 
-			return baseImageConf.Langserver.Command, &builder, nil
+			return lsDetails.Command, &builder, nil
 		}
 
 		return nil, nil, fmt.Errorf("%s doesn't define a compatible language server", projectFile.ProjectName)
