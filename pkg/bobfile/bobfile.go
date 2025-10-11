@@ -23,16 +23,17 @@ const (
 )
 
 type Bobfile struct {
-	FileDescriptionBoilerplate string            `json:"for_description_of_this_file_see"`
-	VersionMajor               int               `json:"version_major"`
-	ProjectName                string            `json:"project_name"`
-	Meta                       ProjectMetadata   `json:"meta,omitempty"`
-	Builders                   []BuilderSpec     `json:"builders"`
-	DockerImages               []DockerImageSpec `json:"docker_images,omitempty"`
-	Subrepos                   []SubrepoSpec     `json:"subrepos,omitempty"`
-	OsArches                   *OsArchesSpec     `json:"os_arches,omitempty"`
-	Experiments                experiments       `json:"experiments_i_consent_to_breakage,omitempty"`
-	Deprecated1                string            `json:"project_emoji_icon,omitempty"` // moved to `ProjectMetadata`
+	Schema                     string            `json:"$schema"`                                     // JSON schema URL
+	FileDescriptionBoilerplate string            `json:"for_description_of_this_file_see"`            // link which explains what this file is about
+	VersionMajor               int               `json:"version_major"`                               // major version, for indicating backwards-incompatible version breaks
+	ProjectName                string            `json:"project_name"`                                // the project's name, prefer filesystem-safe & URL-safe characters
+	Meta                       ProjectMetadata   `json:"meta,omitempty"`                              // metadata about this project
+	Builders                   []BuilderSpec     `json:"builders"`                                    // builders used to build components of this project
+	DockerImages               []DockerImageSpec `json:"docker_images,omitempty"`                     // container images to build during the build
+	Subrepos                   []SubrepoSpec     `json:"subrepos,omitempty"`                          // subrepos to check out
+	OsArches                   *OsArchesSpec     `json:"os_arches,omitempty"`                         // operating systems and CPU architectures to build for
+	Experiments                experiments       `json:"experiments_i_consent_to_breakage,omitempty"` // unstable experiments to enable. by defining any of these, you consent to your builds breaking on new versions of Turbo Bob.
+	Deprecated1                string            `json:"project_emoji_icon,omitempty"`                // moved to `ProjectMetadata`
 }
 
 func (b Bobfile) ProjectEmojiIcon() string {
@@ -130,39 +131,39 @@ func (o *OsArchesSpec) AsBuildEnvVariables() []string {
 		  so there's no unnecessary uploads.
 */
 type BuilderCommands struct {
-	Prepare []string `json:"prepare,omitempty"`
-	Build   []string `json:"build"`
-	Publish []string `json:"publish,omitempty"`
-	Dev     []string `json:"dev"`
+	Prepare []string `json:"prepare,omitempty"` // command for preparing the build
+	Build   []string `json:"build"`             // command for building the project
+	Publish []string `json:"publish,omitempty"` // command for publishing the artefacts of the project
+	Dev     []string `json:"dev"`               // command for entering the development shell of the project
 }
 
 type BuilderSpec struct {
-	Name             string            `json:"name"`
-	Uses             string            `json:"uses"` // "docker://alpine:latest" | "dockerfile://build-default.Dockerfile"
+	Name             string            `json:"name" jsonschema:"example=default,example=backend"`                                              // name of the builder
+	Uses             string            `json:"uses" jsonschema:"example=docker://alpine:latest,example=dockerfile://build-default.Dockerfile"` // image used for container of this builder
 	MountSource      string            `json:"mount_source,omitempty"`
 	MountDestination string            `json:"mount_destination"`
 	Workdir          string            `json:"workdir,omitempty"`
-	Commands         BuilderCommands   `json:"commands"`
+	Commands         BuilderCommands   `json:"commands"` // commands used to build / develop / etc. the project
 	DevPorts         []string          `json:"dev_ports,omitempty"`
-	DevHttpIngress   string            `json:"dev_http_ingress,omitempty"`
-	DevProTips       []string          `json:"dev_pro_tips,omitempty"`
+	DevHttpIngress   string            `json:"dev_http_ingress,omitempty" jsonschema:"example=80"`
+	DevProTips       []string          `json:"dev_pro_tips,omitempty"`       // pro-tips e.g. commands the user can run inside the builder to lint / launch / etc. the project
 	DevShellCommands []DevShellCommand `json:"dev_shell_commands,omitempty"` // injected as history for quick recall (ctrl + r)
 	Envs             map[string]string `json:"env,omitempty"`
 	PassEnvs         []string          `json:"pass_envs,omitempty"`
-	ContextlessBuild bool              `json:"contextless_build,omitempty"`
+	ContextlessBuild bool              `json:"contextless_build,omitempty"` // (DEPRECATED) build without uploading any files to the build context
 }
 
 type DevShellCommand struct {
-	Command   string `json:"command"`
+	Command   string `json:"command"`   // command to run to achieve the specific task
 	Important bool   `json:"important"` // important commands are shown as pro-tips on "$ bob dev"
 }
 
 type DockerImageSpec struct {
-	Image          string   `json:"image"`
-	DockerfilePath string   `json:"dockerfile_path"`
-	AuthType       *string  `json:"auth_type"`           // creds_from_env
-	Platforms      []string `json:"platforms,omitempty"` // if set, uses buildx
-	TagLatest      bool     `json:"tag_latest"`
+	Image          string   `json:"image" jsonschema:"example=myorg/myproject"`      // image ref (without the tag) to which to push the image
+	DockerfilePath string   `json:"dockerfile_path" jsonschema:"example=Dockerfile"` // where to find the `Dockerfile` from
+	AuthType       *string  `json:"auth_type"`                                       // creds_from_env
+	Platforms      []string `json:"platforms,omitempty"`                             // platforms to build for, in `$ docker build --platform=...` syntax
+	TagLatest      bool     `json:"tag_latest"`                                      // whether to publish the `:latest` tag
 }
 
 // FIXME: Bobfile should actually be read only after correct
