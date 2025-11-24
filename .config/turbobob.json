@@ -19,7 +19,7 @@
 			"uses": "docker://fn61/buildkit-publisher:20200228_1755_83c203ff",
 			"mount_destination": "/workspace",
 			"commands": {
-				"publish": ["publish-gh.sh", "function61/turbobob", "rel/"],
+				"publish": ["bash", "-c", "rm -f rel/.dummy_file_to_make_dir_not_empty && publish-gh.sh function61/turbobob rel/"],
 				"dev": ["bash"]
 			},
 			"pass_envs": [
