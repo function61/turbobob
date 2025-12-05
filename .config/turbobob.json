@@ -1,4 +1,5 @@
 {
+	"$schema": "https://raw.githubusercontent.com/function61/turbobob/refs/heads/main/pkg/bobfile/bobfile.schema.json",
 	"for_description_of_this_file_see": "https://github.com/function61/turbobob",
 	"version_major": 1,
 	"project_name": "turbobob",
@@ -26,6 +27,12 @@
 				"GITHUB_TOKEN",
 				"EVENTHORIZON"
 			]
+		}
+	],
+	"docker_images": [
+		{
+			"image": "ghcr.io/function61/turbobob",
+			"platforms": ["linux/amd64"]
 		}
 	],
 	"os_arches": {
