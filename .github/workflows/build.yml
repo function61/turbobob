@@ -2,11 +2,19 @@ name: Build
 
 on: [push]
 
+permissions:
+  # write is required to create a release 🤷
+  contents: write
+  packages: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+
+    # without this index annotations wouldn't work
+    - uses: docker/setup-buildx-action@v4
 
     - name: Build
       run: |
